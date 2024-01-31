@@ -17,7 +17,7 @@ public class DmsFileInfo extends BaseEntity
 
     /** 文件ID */
     @Excel(name = "文件ID")
-    private Long fileId;
+    private String fileId;
 
     /** 文件名 */
     @Excel(name = "文件名")
@@ -41,7 +41,7 @@ public class DmsFileInfo extends BaseEntity
 
     /** 文件大小 */
     @Excel(name = "文件大小")
-    private Long fileSize;
+    private String fileSize;
 
     /** 文件状态 */
     @Excel(name = "文件状态")
@@ -55,12 +55,12 @@ public class DmsFileInfo extends BaseEntity
     @Excel(name = "文件描述")
     private String description;
 
-    public void setFileId(Long fileId) 
+    public void setFileId(String fileId) 
     {
         this.fileId = fileId;
     }
 
-    public Long getFileId() 
+    public String getFileId() 
     {
         return fileId;
     }
@@ -109,12 +109,12 @@ public class DmsFileInfo extends BaseEntity
     {
         return fileType;
     }
-    public void setFileSize(Long fileSize) 
+    public void setFileSize(String fileSize) 
     {
         this.fileSize = fileSize;
     }
 
-    public Long getFileSize() 
+    public String getFileSize() 
     {
         return fileSize;
     }

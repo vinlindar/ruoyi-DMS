@@ -17,7 +17,7 @@ public interface DmsFileInfoMapper
      * @param fileId 文件信息主键
      * @return 文件信息
      */
-    public DmsFileInfo selectDmsFileInfoByFileId(Long fileId);
+    public DmsFileInfo selectDmsFileInfoByFileId(String fileId);
 
     /**
      * 查询文件信息列表
@@ -49,7 +49,7 @@ public interface DmsFileInfoMapper
      * @param fileId 文件信息主键
      * @return 结果
      */
-    public int deleteDmsFileInfoByFileId(Long fileId);
+    public int deleteDmsFileInfoByFileId(String fileId);
 
     /**
      * 批量删除文件信息
@@ -57,5 +57,5 @@ public interface DmsFileInfoMapper
      * @param fileIds 需要删除的数据主键集合
      * @return 结果
      */
-    public int deleteDmsFileInfoByFileIds(Long[] fileIds);
+    public int deleteDmsFileInfoByFileIds(String[] fileIds);
 }

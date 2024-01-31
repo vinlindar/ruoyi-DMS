@@ -26,13 +26,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <select id="selectDmsFileInfoList" parameterType="DmsFileInfo" resultMap="DmsFileInfoResult">
         <include refid="selectDmsFileInfoVo"/>
         <where>  
-            <if test="fileId != null "> and file_id = #{fileId}</if>
+            <if test="fileId != null  and fileId != ''"> and file_id = #{fileId}</if>
             <if test="fileName != null  and fileName != ''"> and file_name like concat('%', #{fileName}, '%')</if>
             <if test="filePath != null  and filePath != ''"> and file_path = #{filePath}</if>
             <if test="author != null  and author != ''"> and author = #{author}</if>
             <if test="reviewer != null  and reviewer != ''"> and reviewer = #{reviewer}</if>
             <if test="fileType != null "> and file_type = #{fileType}</if>
-            <if test="fileSize != null "> and file_size = #{fileSize}</if>
+            <if test="fileSize != null  and fileSize != ''"> and file_size = #{fileSize}</if>
             <if test="fileStatus != null "> and file_status = #{fileStatus}</if>
             <if test="belongteam != null  and belongteam != ''"> and belongteam = #{belongteam}</if>
             <if test="description != null  and description != ''"> and description = #{description}</if>
@@ -41,14 +41,15 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </where>
     </select>
     
-    <select id="selectDmsFileInfoByFileId" parameterType="Long" resultMap="DmsFileInfoResult">
+    <select id="selectDmsFileInfoByFileId" parameterType="String" resultMap="DmsFileInfoResult">
         <include refid="selectDmsFileInfoVo"/>
         where file_id = #{fileId}
     </select>
         
-    <insert id="insertDmsFileInfo" parameterType="DmsFileInfo" useGeneratedKeys="true" keyProperty="fileId">
+    <insert id="insertDmsFileInfo" parameterType="DmsFileInfo">
         insert into dms_file_info
         <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="fileId != null">file_id,</if>
             <if test="fileName != null">file_name,</if>
             <if test="filePath != null">file_path,</if>
             <if test="author != null">author,</if>
@@ -62,6 +63,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="updateTime != null">update_time,</if>
          </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="fileId != null">#{fileId},</if>
             <if test="fileName != null">#{fileName},</if>
             <if test="filePath != null">#{filePath},</if>
             <if test="author != null">#{author},</if>
@@ -94,7 +96,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         where file_id = #{fileId}
     </update>
 
-    <delete id="deleteDmsFileInfoByFileId" parameterType="Long">
+    <delete id="deleteDmsFileInfoByFileId" parameterType="String">
         delete from dms_file_info where file_id = #{fileId}
     </delete>
 

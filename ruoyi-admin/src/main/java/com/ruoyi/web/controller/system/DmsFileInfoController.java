@@ -64,7 +64,7 @@ public class DmsFileInfoController extends BaseController
      */
     @PreAuthorize("@ss.hasPermi('system:dmsfileupload:query')")
     @GetMapping(value = "/{fileId}")
-    public AjaxResult getInfo(@PathVariable("fileId") Long fileId)
+    public AjaxResult getInfo(@PathVariable("fileId") String fileId)
     {
         return success(dmsFileInfoService.selectDmsFileInfoByFileId(fileId));
     }
@@ -97,7 +97,7 @@ public class DmsFileInfoController extends BaseController
     @PreAuthorize("@ss.hasPermi('system:dmsfileupload:remove')")
     @Log(title = "文件信息", businessType = BusinessType.DELETE)
 	@DeleteMapping("/{fileIds}")
-    public AjaxResult remove(@PathVariable Long[] fileIds)
+    public AjaxResult remove(@PathVariable String[] fileIds)
     {
         return toAjax(dmsFileInfoService.deleteDmsFileInfoByFileIds(fileIds));
     }

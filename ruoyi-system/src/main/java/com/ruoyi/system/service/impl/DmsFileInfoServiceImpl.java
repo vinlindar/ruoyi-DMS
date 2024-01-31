@@ -27,7 +27,7 @@ public class DmsFileInfoServiceImpl implements IDmsFileInfoService
      * @return 文件信息
      */
     @Override
-    public DmsFileInfo selectDmsFileInfoByFileId(Long fileId)
+    public DmsFileInfo selectDmsFileInfoByFileId(String fileId)
     {
         return dmsFileInfoMapper.selectDmsFileInfoByFileId(fileId);
     }
@@ -76,7 +76,7 @@ public class DmsFileInfoServiceImpl implements IDmsFileInfoService
      * @return 结果
      */
     @Override
-    public int deleteDmsFileInfoByFileIds(Long[] fileIds)
+    public int deleteDmsFileInfoByFileIds(String[] fileIds)
     {
         return dmsFileInfoMapper.deleteDmsFileInfoByFileIds(fileIds);
     }
@@ -88,7 +88,7 @@ public class DmsFileInfoServiceImpl implements IDmsFileInfoService
      * @return 结果
      */
     @Override
-    public int deleteDmsFileInfoByFileId(Long fileId)
+    public int deleteDmsFileInfoByFileId(String fileId)
     {
         return dmsFileInfoMapper.deleteDmsFileInfoByFileId(fileId);
     }

@@ -17,14 +17,6 @@
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="文件路径" prop="filePath">
-        <el-input
-          v-model="queryParams.filePath"
-          placeholder="请输入文件路径"
-          clearable
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
       <el-form-item label="作者" prop="author">
         <el-input
           v-model="queryParams.author"
@@ -42,28 +34,24 @@
         />
       </el-form-item>
       <el-form-item label="文件类型" prop="fileType">
-        <el-input
-          v-model="queryParams.fileType"
-          placeholder="请输入文件类型"
-          clearable
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="文件大小" prop="fileSize">
-        <el-input
-          v-model="queryParams.fileSize"
-          placeholder="请输入文件大小"
-          clearable
-          @keyup.enter.native="handleQuery"
-        />
+        <el-select v-model="queryParams.fileType" placeholder="请选择文件类型" clearable>
+          <el-option
+            v-for="dict in dict.type.dms_file_type"
+            :key="dict.value"
+            :label="dict.label"
+            :value="dict.value"
+          />
+        </el-select>
       </el-form-item>
       <el-form-item label="文件状态" prop="fileStatus">
-        <el-input
-          v-model="queryParams.fileStatus"
-          placeholder="请输入文件状态"
-          clearable
-          @keyup.enter.native="handleQuery"
-        />
+        <el-select v-model="queryParams.fileStatus" placeholder="请选择文件状态" clearable>
+          <el-option
+            v-for="dict in dict.type.dms_file_status"
+            :key="dict.value"
+            :label="dict.label"
+            :value="dict.value"
+          />
+        </el-select>
       </el-form-item>
       <el-form-item label="归属团队" prop="belongteam">
         <el-input
@@ -148,15 +136,23 @@
       <el-table-column label="文件路径" align="center" prop="filePath" />
       <el-table-column label="作者" align="center" prop="author" />
       <el-table-column label="审稿人" align="center" prop="reviewer" />
-      <el-table-column label="文件类型" align="center" prop="fileType" />
+      <el-table-column label="文件类型" align="center" prop="fileType">
+        <template slot-scope="scope">
+          <dict-tag :options="dict.type.dms_file_type" :value="scope.row.fileType"/>
+        </template>
+      </el-table-column>
       <el-table-column label="文件大小" align="center" prop="fileSize" />
-      <el-table-column label="文件状态" align="center" prop="fileStatus" />
+      <el-table-column label="文件状态" align="center" prop="fileStatus">
+        <template slot-scope="scope">
+          <dict-tag :options="dict.type.dms_file_status" :value="scope.row.fileStatus"/>
+        </template>
+      </el-table-column>
       <el-table-column label="归属团队" align="center" prop="belongteam" />
       <el-table-column label="文件描述" align="center" prop="description" />
       <el-table-column label="创建者" align="center" prop="updateBy" />
       <el-table-column label="创建时间" align="center" prop="updateTime" width="180">
         <template slot-scope="scope">
-          <span>{{ parseTime(scope.row.updateTime, '{y}-{m}-{d}') }}</span>
+          <span>{{ parseTime(scope.row.updateTime, '{y}-{m}-{d} {h}:{i}') }}</span>
         </template>
       </el-table-column>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
@@ -202,7 +198,8 @@
               :file-list="upload.fileList"
               :on-progress="handleFileUploadProgress"
               :on-success="handleFileSuccess"
-              :auto-upload="false">
+              :auto-upload="false"
+              :before-upload="beforeUpload">
               <el-button slot="trigger" size="small" type="primary">选取文件</el-button>
               <el-button style="margin-left: 10px;" size="small" type="success" :loading="upload.isUploading" @click="submitUpload">上传到服务器</el-button>
               <div slot="tip" class="el-upload__tip">只能上传单文件，且不超过50M</div>
@@ -215,13 +212,14 @@
           <el-input v-model="form.reviewer" placeholder="请输入审稿人" />
         </el-form-item>
         <el-form-item label="文件类型" prop="fileType">
-          <el-input v-model="form.fileType" placeholder="请输入文件类型" />
-        </el-form-item>
-        <el-form-item label="文件大小" prop="fileSize">
-          <el-input v-model="form.fileSize" placeholder="请输入文件大小" />
-        </el-form-item>
-        <el-form-item label="文件状态" prop="fileStatus">
-          <el-input v-model="form.fileStatus" placeholder="请输入文件状态" />
+          <el-select v-model="form.fileType" placeholder="请选择文件类型">
+            <el-option
+              v-for="dict in dict.type.dms_file_type"
+              :key="dict.value"
+              :label="dict.label"
+              :value="parseInt(dict.value)"
+            ></el-option>
+          </el-select>
         </el-form-item>
         <el-form-item label="归属团队" prop="belongteam">
           <el-input v-model="form.belongteam" placeholder="请输入归属团队" />
@@ -244,6 +242,7 @@ import { getToken } from "@/utils/auth";
 
 export default {
   name: "Dmsfileupload",
+  dicts: ['dms_file_type', 'dms_file_status'],
   data() {
     return {
       // 遮罩层
@@ -371,6 +370,10 @@ export default {
     /** 提交按钮 */
     submitForm() {
       this.$refs["form"].validate(valid => {
+        const currentDate = new Date();
+        const formattedDate = `${currentDate.getFullYear()}-${(currentDate.getMonth() + 1).toString().padStart(2, '0')}-${currentDate.getDate().toString().padStart(2, '0')} ${currentDate.getHours().toString().padStart(2, '0')}:${currentDate.getMinutes().toString().padStart(2, '0')}:${currentDate.getSeconds().toString().padStart(2, '0')}`;
+        // 将 formattedDate 赋值给 updateTime
+        this.form.updateTime = formattedDate;
         if (valid) {
           if (this.form.fileId != null) {
             updateDmsfileupload(this.form).then(response => {
@@ -379,6 +382,11 @@ export default {
               this.getList();
             });
           } else {
+            //生成随机fileID,并赋值
+            this.form.fileId = this.generateFileId();
+            //仅在新建文件时候获取用户名，修改不操作
+            var username = this.$store.state.user.name;
+            this.form.updateBy = username;
             addDmsfileupload(this.form).then(response => {
               this.$modal.msgSuccess("新增成功");
               this.open = false;
@@ -417,7 +425,48 @@ export default {
       this.upload.isUploading = false;
       this.form.filePath = response.url;
       this.msgSuccess(response.msg);
+    },
+    beforeUpload(file){
+    const fileSize = file.size; // 文件大小，单位为字节
+    // 判断文件大小是否超过50M
+    if (fileSize > 50 * 1024 * 1024) {
+      this.$message.error('文件大小不能超过50M');
+      // 返回 false 阻止上传
+      return false;
     }
+    // 将文件大小转换为合适的单位 （KB 或 MB）
+    const fileSizeFormatted = this.formatFileSize(fileSize);
+    // 存储文件大小到 form 对象中
+    this.form.fileSize = fileSizeFormatted;
+    // 返回 true 允许上传
+    return true;
+    },
+  // 辅助方法：将文件大小转换为合适的单位（KB 或 MB）
+    formatFileSize(size) {
+      const kilobyte = 1024;
+      const megabyte = kilobyte * kilobyte;
+
+      if (size < kilobyte) {
+        return size + ' B';
+      } else if (size < megabyte) {
+        return (size / kilobyte).toFixed(2) + ' KB';
+      } else {
+        return (size / megabyte).toFixed(2) + ' MB';
+      }
+    },
+      /** 生成文件ID */
+    generateFileId() {
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      const day = String(now.getDate()).padStart(2, '0');
+      const hour = String(now.getHours()).padStart(2, '0');
+      // 生成一个随机的五位数
+      const randomNum = String(Math.floor(10000 + Math.random() * 90000));
+      // 将组件连接起来形成文件ID
+      const fileId = `${year}${month}${day}${hour}${randomNum}`;
+      return fileId;
+    },
   },
 };
 </script>
