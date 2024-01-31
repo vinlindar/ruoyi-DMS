@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.DmsFileInfoMapper">
+    
+    <resultMap type="DmsFileInfo" id="DmsFileInfoResult">
+        <result property="fileId"    column="file_id"    />
+        <result property="fileName"    column="file_name"    />
+        <result property="filePath"    column="file_path"    />
+        <result property="author"    column="author"    />
+        <result property="reviewer"    column="reviewer"    />
+        <result property="fileType"    column="file_type"    />
+        <result property="fileSize"    column="file_size"    />
+        <result property="fileStatus"    column="file_status"    />
+        <result property="belongteam"    column="belongteam"    />
+        <result property="description"    column="description"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectDmsFileInfoVo">
+        select file_id, file_name, file_path, author, reviewer, file_type, file_size, file_status, belongteam, description, update_by, update_time from dms_file_info
+    </sql>
+
+    <select id="selectDmsFileInfoList" parameterType="DmsFileInfo" resultMap="DmsFileInfoResult">
+        <include refid="selectDmsFileInfoVo"/>
+        <where>  
+            <if test="fileId != null "> and file_id = #{fileId}</if>
+            <if test="fileName != null  and fileName != ''"> and file_name like concat('%', #{fileName}, '%')</if>
+            <if test="filePath != null  and filePath != ''"> and file_path = #{filePath}</if>
+            <if test="author != null  and author != ''"> and author = #{author}</if>
+            <if test="reviewer != null  and reviewer != ''"> and reviewer = #{reviewer}</if>
+            <if test="fileType != null "> and file_type = #{fileType}</if>
+            <if test="fileSize != null "> and file_size = #{fileSize}</if>
+            <if test="fileStatus != null "> and file_status = #{fileStatus}</if>
+            <if test="belongteam != null  and belongteam != ''"> and belongteam = #{belongteam}</if>
+            <if test="description != null  and description != ''"> and description = #{description}</if>
+            <if test="updateBy != null  and updateBy != ''"> and update_by = #{updateBy}</if>
+            <if test="updateTime != null "> and update_time = #{updateTime}</if>
+        </where>
+    </select>
+    
+    <select id="selectDmsFileInfoByFileId" parameterType="Long" resultMap="DmsFileInfoResult">
+        <include refid="selectDmsFileInfoVo"/>
+        where file_id = #{fileId}
+    </select>
+        
+    <insert id="insertDmsFileInfo" parameterType="DmsFileInfo" useGeneratedKeys="true" keyProperty="fileId">
+        insert into dms_file_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="fileName != null">file_name,</if>
+            <if test="filePath != null">file_path,</if>
+            <if test="author != null">author,</if>
+            <if test="reviewer != null">reviewer,</if>
+            <if test="fileType != null">file_type,</if>
+            <if test="fileSize != null">file_size,</if>
+            <if test="fileStatus != null">file_status,</if>
+            <if test="belongteam != null">belongteam,</if>
+            <if test="description != null">description,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="fileName != null">#{fileName},</if>
+            <if test="filePath != null">#{filePath},</if>
+            <if test="author != null">#{author},</if>
+            <if test="reviewer != null">#{reviewer},</if>
+            <if test="fileType != null">#{fileType},</if>
+            <if test="fileSize != null">#{fileSize},</if>
+            <if test="fileStatus != null">#{fileStatus},</if>
+            <if test="belongteam != null">#{belongteam},</if>
+            <if test="description != null">#{description},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateDmsFileInfo" parameterType="DmsFileInfo">
+        update dms_file_info
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="fileName != null">file_name = #{fileName},</if>
+            <if test="filePath != null">file_path = #{filePath},</if>
+            <if test="author != null">author = #{author},</if>
+            <if test="reviewer != null">reviewer = #{reviewer},</if>
+            <if test="fileType != null">file_type = #{fileType},</if>
+            <if test="fileSize != null">file_size = #{fileSize},</if>
+            <if test="fileStatus != null">file_status = #{fileStatus},</if>
+            <if test="belongteam != null">belongteam = #{belongteam},</if>
+            <if test="description != null">description = #{description},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where file_id = #{fileId}
+    </update>
+
+    <delete id="deleteDmsFileInfoByFileId" parameterType="Long">
+        delete from dms_file_info where file_id = #{fileId}
+    </delete>
+
+    <delete id="deleteDmsFileInfoByFileIds" parameterType="String">
+        delete from dms_file_info where file_id in 
+        <foreach item="fileId" collection="array" open="(" separator="," close=")">
+            #{fileId}
+        </foreach>
+    </delete>
+</mapper>
