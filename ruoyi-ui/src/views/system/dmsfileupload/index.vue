@@ -54,12 +54,7 @@
         </el-select>
       </el-form-item>
       <el-form-item label="归属团队" prop="belongteam">
-        <el-input
-          v-model="queryParams.belongteam"
-          placeholder="请输入归属团队"
-          clearable
-          @keyup.enter.native="handleQuery"
-        />
+        <treeselect v-model="form.deptId" :options="deptOptions" :show-count="true" @select="handleSelect2" placeholder="请选择归属团队" />
       </el-form-item>
       <el-form-item label="创建者" prop="updateBy">
         <el-input
@@ -133,7 +128,6 @@
       <el-table-column type="selection" width="55" align="center" />
       <el-table-column label="文件ID" align="center" prop="fileId" />
       <el-table-column label="文件名" align="center" prop="fileName" />
-      <el-table-column label="文件路径" align="center" prop="filePath" />
       <el-table-column label="作者" align="center" prop="author" />
       <el-table-column label="审稿人" align="center" prop="reviewer" />
       <el-table-column label="文件类型" align="center" prop="fileType">
@@ -222,7 +216,7 @@
           </el-select>
         </el-form-item>
         <el-form-item label="归属团队" prop="belongteam">
-          <el-input v-model="form.belongteam" placeholder="请输入归属团队" />
+          <treeselect v-model="form.deptId" :options="deptOptions" :show-count="true" @select="handleSelect" placeholder="请选择归属团队" />
         </el-form-item>
         <el-form-item label="文件描述" prop="description">
           <el-input v-model="form.description" type="textarea" placeholder="请输入内容" />
@@ -237,12 +231,15 @@
 </template>
 
 <script>
-import { listDmsfileupload, getDmsfileupload, delDmsfileupload, addDmsfileupload, updateDmsfileupload } from "@/api/system/dmsfileupload";
+import { listDmsfileupload, getDmsfileupload, delDmsfileupload, addDmsfileupload, updateDmsfileupload,deptTreeSelect  } from "@/api/system/dmsfileupload";
 import { getToken } from "@/utils/auth";
+import Treeselect from "@riophae/vue-treeselect";
+import "@riophae/vue-treeselect/dist/vue-treeselect.css";
 
 export default {
   name: "Dmsfileupload",
   dicts: ['dms_file_type', 'dms_file_status'],
+  components: { Treeselect },
   data() {
     return {
       // 遮罩层
@@ -261,6 +258,10 @@ export default {
       dmsfileuploadList: [],
       // 弹出层标题
       title: "",
+      // 部门树选项
+      deptOptions: undefined,
+      // 部门名称
+      deptName: undefined,
       // 是否显示弹出层
       open: false,
       // 查询参数
@@ -278,7 +279,7 @@ export default {
         belongteam: null,
         description: null,
         updateBy: null,
-        updateTime: null
+        updateTime: null,
       },
       // 表单参数
       form: {},
@@ -299,6 +300,7 @@ export default {
   },
   created() {
     this.getList();
+    this.getDeptTree();
   },
   methods: {
     /** 查询文件信息列表 */
@@ -309,6 +311,21 @@ export default {
         this.total = response.total;
         this.loading = false;
       });
+    },
+    /** 查询部门下拉树结构 */
+    getDeptTree() {
+      deptTreeSelect().then(response => {
+        this.deptOptions = response.data;
+      });
+    },
+    handleSelect(val) {
+      // 通过 Treeselect 实例获取选中的label值
+        this.form.belongteam = val.label
+    },
+    // 筛选条件的部门选择事件
+    handleSelect2(val) {
+      // 通过 Treeselect 实例获取选中的label值
+        this.queryParams.belongteam = val.label
     },
     // 取消按钮
     cancel() {
@@ -329,7 +346,7 @@ export default {
         belongteam: null,
         description: null,
         updateBy: null,
-        updateTime: null
+        updateTime: null,
       };
       this.resetForm("form");
     },
@@ -342,6 +359,7 @@ export default {
     resetQuery() {
       this.resetForm("queryForm");
       this.handleQuery();
+
     },
     // 多选框选中数据
     handleSelectionChange(selection) {
@@ -470,3 +488,10 @@ export default {
   },
 };
 </script>
+<style>
+  .vue-treeselect{
+    height: 22px;
+    width: 215px;
+    }
+</style>
+

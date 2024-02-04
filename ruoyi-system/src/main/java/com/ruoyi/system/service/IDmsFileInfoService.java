@@ -49,7 +49,7 @@ public interface IDmsFileInfoService
      * @param fileIds 需要删除的文件信息主键集合
      * @return 结果
      */
-    public int deleteDmsFileInfoByFileIds(String[] fileIds);
+    public int deleteDmsFileInfoByFileIds(String fileIds);
 
     /**
      * 删除文件信息信息
