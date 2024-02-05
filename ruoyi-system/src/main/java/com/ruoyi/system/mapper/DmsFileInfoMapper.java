@@ -57,5 +57,5 @@ public interface DmsFileInfoMapper
      * @param fileIds 需要删除的数据主键集合
      * @return 结果
      */
-    public int deleteDmsFileInfoByFileIds(String[] fileIds);
+    public int deleteDmsFileInfoByFileIds(String fileIds);
 }

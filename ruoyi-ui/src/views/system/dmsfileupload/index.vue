@@ -25,14 +25,6 @@
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="审稿人" prop="reviewer">
-        <el-input
-          v-model="queryParams.reviewer"
-          placeholder="请输入审稿人"
-          clearable
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
       <el-form-item label="文件类型" prop="fileType">
         <el-select v-model="queryParams.fileType" placeholder="请选择文件类型" clearable>
           <el-option
@@ -54,14 +46,20 @@
         </el-select>
       </el-form-item>
       <el-form-item label="归属团队" prop="belongteam">
-        <treeselect v-model="form.deptId" :options="deptOptions" :show-count="true" @select="handleSelect2" placeholder="请选择归属团队" />
+        <treeselect 
+          v-model="form.deptId" 
+          :options="deptOptions" 
+          :show-count="true" 
+          @select="handleSelect2"
+          placeholder="请选择归属团队" />
       </el-form-item>
       <el-form-item label="创建者" prop="updateBy">
         <el-input
           v-model="queryParams.updateBy"
-          placeholder="请输入创建者"
+          placeholder="仅管理员可操作"
           clearable
           @keyup.enter.native="handleQuery"
+          :readonly="!isAdmin"
         />
       </el-form-item>
       <el-form-item label="创建时间" prop="updateTime">
@@ -106,7 +104,7 @@
           plain
           icon="el-icon-delete"
           size="mini"
-          :disabled="multiple"
+          :disabled="single"
           @click="handleDelete"
           v-hasPermi="['system:dmsfileupload:remove']"
         >删除</el-button>
@@ -129,7 +127,7 @@
       <el-table-column label="文件ID" align="center" prop="fileId" />
       <el-table-column label="文件名" align="center" prop="fileName" />
       <el-table-column label="作者" align="center" prop="author" />
-      <el-table-column label="审稿人" align="center" prop="reviewer" />
+      <el-table-column label="评阅人" align="center" prop="reviewer" />
       <el-table-column label="文件类型" align="center" prop="fileType">
         <template slot-scope="scope">
           <dict-tag :options="dict.type.dms_file_type" :value="scope.row.fileType"/>
@@ -202,8 +200,15 @@
         <el-form-item label="作者" prop="author">
           <el-input v-model="form.author" placeholder="请输入作者" />
         </el-form-item>
-        <el-form-item label="审稿人" prop="reviewer">
-          <el-input v-model="form.reviewer" placeholder="请输入审稿人" />
+        <el-form-item label="评阅人" prop="reviewer">
+          <el-select v-model="form.reviewerIds" placeholder="请选择评阅人" multiple>
+            <el-option 
+              v-for="user in userList" 
+              :key="user.userId" 
+              :label="user.userName" 
+              :value="user.userId"
+            />
+          </el-select>
         </el-form-item>
         <el-form-item label="文件类型" prop="fileType">
           <el-select v-model="form.fileType" placeholder="请选择文件类型">
@@ -232,6 +237,8 @@
 
 <script>
 import { listDmsfileupload, getDmsfileupload, delDmsfileupload, addDmsfileupload, updateDmsfileupload,deptTreeSelect  } from "@/api/system/dmsfileupload";
+import { listUser } from "@/api/system/user";
+import { addReview, delReview}from "@/api/system/review";
 import { getToken } from "@/utils/auth";
 import Treeselect from "@riophae/vue-treeselect";
 import "@riophae/vue-treeselect/dist/vue-treeselect.css";
@@ -242,10 +249,14 @@ export default {
   components: { Treeselect },
   data() {
     return {
+      //是否为管理员
+      isAdmin: this.$store.state.user.name === 'admin',
       // 遮罩层
       loading: true,
       // 选中数组
       ids: [],
+      // 选中文件的状态
+      selectfileStatus: null,
       // 非单个禁用
       single: true,
       // 非多个禁用
@@ -262,6 +273,8 @@ export default {
       deptOptions: undefined,
       // 部门名称
       deptName: undefined,
+      // 用户列表
+      userList: undefined,
       // 是否显示弹出层
       open: false,
       // 查询参数
@@ -278,11 +291,17 @@ export default {
         fileStatus: null,
         belongteam: null,
         description: null,
-        updateBy: null,
+        updateBy: this.$store.state.user.name,
         updateTime: null,
       },
       // 表单参数
       form: {},
+      //评审表参数
+      reviewform:{
+        fileId:null,
+        reviewerId:null,
+        comment:null,
+      },
       // 表单校验
       rules: {
       },
@@ -301,6 +320,7 @@ export default {
   created() {
     this.getList();
     this.getDeptTree();
+    this.getUserList();
   },
   methods: {
     /** 查询文件信息列表 */
@@ -317,6 +337,18 @@ export default {
       deptTreeSelect().then(response => {
         this.deptOptions = response.data;
       });
+    },
+    /**  查询用户下拉列表 */
+    getUserList() {
+      this.loading = true;
+      listUser().then(response => {
+          // 提取用户ID和用户名信息
+          console.log(response);
+          this.userList = response.rows;
+          this.total = response.total;
+          this.loading = false;
+        }
+      );
     },
     handleSelect(val) {
       // 通过 Treeselect 实例获取选中的label值
@@ -345,8 +377,9 @@ export default {
         fileStatus: null,
         belongteam: null,
         description: null,
-        updateBy: null,
+        updateBy:null,
         updateTime: null,
+        deptId:null,
       };
       this.resetForm("form");
     },
@@ -358,12 +391,19 @@ export default {
     /** 重置按钮操作 */
     resetQuery() {
       this.resetForm("queryForm");
+      this.form.deptId = null;
       this.handleQuery();
-
     },
     // 多选框选中数据
     handleSelectionChange(selection) {
       this.ids = selection.map(item => item.fileId)
+      // 如果选中的行不为空，将第一个选中行的 fileStatus 赋值给 this.selectfileStatus
+      if (selection.length > 0) {
+        this.selectfileStatus = selection[0].fileStatus;
+      } else {
+        // 如果没有选中行，可以设置默认值或者清空 this.selectfileStatus
+        this.selectfileStatus = null; // 或者设置为默认值
+      }
       this.single = selection.length!==1
       this.multiple = !selection.length
     },
@@ -378,6 +418,11 @@ export default {
     handleUpdate(row) {
       this.reset();
       const fileId = row.fileId || this.ids
+      const fileStatus = row.fileStatus || this.selectfileStatus;
+      if(fileStatus !== 1) {
+        this.$modal.msgError("文件待发布或已发布，请联系定稿人或管理员处理。");
+        return;
+      }
       getDmsfileupload(fileId).then(response => {
         this.form = response.data;
         this.open = true;
@@ -392,6 +437,12 @@ export default {
         const formattedDate = `${currentDate.getFullYear()}-${(currentDate.getMonth() + 1).toString().padStart(2, '0')}-${currentDate.getDate().toString().padStart(2, '0')} ${currentDate.getHours().toString().padStart(2, '0')}:${currentDate.getMinutes().toString().padStart(2, '0')}:${currentDate.getSeconds().toString().padStart(2, '0')}`;
         // 将 formattedDate 赋值给 updateTime
         this.form.updateTime = formattedDate;
+        // 将选中的 reviewerIds 转换为对应的用户名数组，存入文件信息表
+        const reviewerNames = this.form.reviewerIds.map(userId => {
+            const user = this.userList.find(u => u.userId === userId);
+            return user ? user.userName : '';});
+        // 拼接评阅人文本，存入form.reviewer
+        this.form.reviewer = reviewerNames.join('、');
         if (valid) {
           if (this.form.fileId != null) {
             updateDmsfileupload(this.form).then(response => {
@@ -399,25 +450,70 @@ export default {
               this.open = false;
               this.getList();
             });
+          // 根据reviewerIds删除原有文件评阅表信息，新增新的评阅信息
+          delReview(this.form.fileId).then(() => {
+            // 删除成功后执行新增操作
+            for (const reviewerId of this.form.reviewerIds) {
+              const reviewInfo = {
+                fileId: this.form.fileId,
+                reviewerId: reviewerId,
+              };
+
+              addReview(reviewInfo).then(reviewResponse => {
+                console.log(`Review added for reviewer ${reviewerId}`);
+              }).catch(error => {
+                console.error(`Failed to add review for reviewer ${reviewerId}: ${error.message}`);
+              });
+            }
+          }).catch(error => {
+            console.error(`Failed to delete reviews for fileId ${this.form.fileId}: ${error.message}`);
+          });
           } else {
             //生成随机fileID,并赋值
             this.form.fileId = this.generateFileId();
             //仅在新建文件时候获取用户名，修改不操作
-            var username = this.$store.state.user.name;
-            this.form.updateBy = username;
+            var currentusername = this.$store.state.user.name;
+            this.form.updateBy = currentusername;
             addDmsfileupload(this.form).then(response => {
               this.$modal.msgSuccess("新增成功");
               this.open = false;
               this.getList();
             });
+            // 根据reviewerIds新增多条文件评阅表信息
+            for (const reviewerId of this.form.reviewerIds) {
+              // 创建评阅信息对象
+              const reviewInfo = {
+                fileId: this.form.fileId,
+                reviewerId: reviewerId,
+              };
+              addReview(reviewInfo).then(reviewResponse => {
+                console.log(`Review added for reviewer ${reviewerId}`);
+                }).catch(error => {
+                // 处理添加评阅信息失败的逻辑
+                console.error(`Failed to add review for reviewer ${reviewerId}: ${error.message}`);
+                });
+            } 
           }
         }
       });
     },
     /** 删除按钮操作 */
     handleDelete(row) {
+      this.reset();
       const fileIds = row.fileId || this.ids;
+      // 为避免null的情况，filestatus范围从1开始
+      const fileStatus = row.fileStatus || this.selectfileStatus;
+      if(fileStatus !== 1) {
+        this.$modal.msgError("文件待发布或已发布，请联系定稿人或管理员处理。");
+        return;
+      }
       this.$modal.confirm('是否确认删除文件信息编号为"' + fileIds + '"的数据项？').then(function() {
+        // 删除文件关联的评审表
+        delReview(fileIds).then(() => {
+          console.log(`Reviews for fileId ${fileIds} deleted successfully.`);
+        }).catch(error => {
+          console.error(`Failed to delete reviews for fileId ${fileIds}: ${error.message}`);
+        });
         return delDmsfileupload(fileIds);
       }).then(() => {
         this.getList();

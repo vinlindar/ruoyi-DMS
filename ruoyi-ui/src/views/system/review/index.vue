@@ -1,34 +1,26 @@
 <template>
   <div class="app-container">
     <el-form :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch" label-width="68px">
-      <el-form-item label="ID" prop="id">
+      <el-form-item label="文件ID" prop="fileId">
         <el-input
-          v-model="queryParams.id"
-          placeholder="请输入ID"
+          v-model="queryParams.fileId"
+          placeholder="请输入文件ID"
           clearable
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="文件名" prop="fileName">
+      <el-form-item label="评阅人ID" prop="reviewerId">
         <el-input
-          v-model="queryParams.fileName"
-          placeholder="请输入文件名"
+          v-model="queryParams.reviewerId"
+          placeholder="请输入评阅人ID"
           clearable
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="评审人" prop="name">
+      <el-form-item label="评阅意见" prop="isPassed">
         <el-input
-          v-model="queryParams.name"
-          placeholder="请输入评审人"
-          clearable
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="评审意见" prop="comment">
-        <el-input
-          v-model="queryParams.comment"
-          placeholder="请输入评审意见"
+          v-model="queryParams.isPassed"
+          placeholder="请输入评阅意见"
           clearable
           @keyup.enter.native="handleQuery"
         />
@@ -87,10 +79,10 @@
 
     <el-table v-loading="loading" :data="reviewList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="ID" align="center" prop="id" />
-      <el-table-column label="文件名" align="center" prop="fileName" />
-      <el-table-column label="评审人" align="center" prop="name" />
-      <el-table-column label="评审意见" align="center" prop="comment" />
+      <el-table-column label="文件ID" align="center" prop="fileId" />
+      <el-table-column label="评阅人ID" align="center" prop="reviewerId" />
+      <el-table-column label="评阅意见" align="center" prop="comment" />
+      <el-table-column label="评阅意见" align="center" prop="isPassed" />
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button
@@ -119,20 +111,14 @@
       @pagination="getList"
     />
 
-    <!-- 添加或修改评审对话框 -->
+    <!-- 添加或修改文档评阅对话框 -->
     <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
-        <el-form-item label="ID" prop="id">
-          <el-input v-model="form.id" placeholder="请输入ID" />
+        <el-form-item label="评阅意见" prop="comment">
+          <el-input v-model="form.comment" type="textarea" placeholder="请输入内容" />
         </el-form-item>
-        <el-form-item label="文件名" prop="fileName">
-          <el-input v-model="form.fileName" placeholder="请输入文件名" />
-        </el-form-item>
-        <el-form-item label="评审人" prop="name">
-          <el-input v-model="form.name" placeholder="请输入评审人" />
-        </el-form-item>
-        <el-form-item label="评审意见" prop="comment">
-          <el-input v-model="form.comment" placeholder="请输入评审意见" />
+        <el-form-item label="评阅意见" prop="isPassed">
+          <el-input v-model="form.isPassed" placeholder="请输入评阅意见" />
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -162,7 +148,7 @@ export default {
       showSearch: true,
       // 总条数
       total: 0,
-      // 评审表格数据
+      // 文档评阅表格数据
       reviewList: [],
       // 弹出层标题
       title: "",
@@ -172,18 +158,15 @@ export default {
       queryParams: {
         pageNum: 1,
         pageSize: 10,
-        id: null,
-        fileName: null,
-        name: null,
-        comment: null
+        fileId: null,
+        reviewerId: null,
+        comment: null,
+        isPassed: null
       },
       // 表单参数
       form: {},
       // 表单校验
       rules: {
-        id: [
-          { required: true, message: "ID不能为空", trigger: "blur" }
-        ],
       }
     };
   },
@@ -191,7 +174,7 @@ export default {
     this.getList();
   },
   methods: {
-    /** 查询评审列表 */
+    /** 查询文档评阅列表 */
     getList() {
       this.loading = true;
       listReview(this.queryParams).then(response => {
@@ -208,10 +191,10 @@ export default {
     // 表单重置
     reset() {
       this.form = {
-        id: null,
-        fileName: null,
-        name: null,
-        comment: null
+        fileId: null,
+        reviewerId: null,
+        comment: null,
+        isPassed: null
       };
       this.resetForm("form");
     },
@@ -227,7 +210,7 @@ export default {
     },
     // 多选框选中数据
     handleSelectionChange(selection) {
-      this.ids = selection.map(item => item.id)
+      this.ids = selection.map(item => item.fileId)
       this.single = selection.length!==1
       this.multiple = !selection.length
     },
@@ -235,23 +218,23 @@ export default {
     handleAdd() {
       this.reset();
       this.open = true;
-      this.title = "添加评审";
+      this.title = "添加文档评阅";
     },
     /** 修改按钮操作 */
     handleUpdate(row) {
       this.reset();
-      const id = row.id || this.ids
-      getReview(id).then(response => {
+      const fileId = row.fileId || this.ids
+      getReview(fileId).then(response => {
         this.form = response.data;
         this.open = true;
-        this.title = "修改评审";
+        this.title = "修改文档评阅";
       });
     },
     /** 提交按钮 */
     submitForm() {
       this.$refs["form"].validate(valid => {
         if (valid) {
-          if (this.form.id != null) {
+          if (this.form.fileId != null) {
             updateReview(this.form).then(response => {
               this.$modal.msgSuccess("修改成功");
               this.open = false;
@@ -269,9 +252,9 @@ export default {
     },
     /** 删除按钮操作 */
     handleDelete(row) {
-      const ids = row.id || this.ids;
-      this.$modal.confirm('是否确认删除评审编号为"' + ids + '"的数据项？').then(function() {
-        return delReview(ids);
+      const fileIds = row.fileId || this.ids;
+      this.$modal.confirm('是否确认删除文档评阅编号为"' + fileIds + '"的数据项？').then(function() {
+        return delReview(fileIds);
       }).then(() => {
         this.getList();
         this.$modal.msgSuccess("删除成功");

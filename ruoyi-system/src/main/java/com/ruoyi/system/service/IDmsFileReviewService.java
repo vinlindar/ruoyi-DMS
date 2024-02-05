@@ -4,58 +4,58 @@ import java.util.List;
 import com.ruoyi.system.domain.DmsFileReview;
 
 /**
- * 评审Service接口
+ * 文档评阅Service接口
  * 
  * @author HYZ
- * @date 2024-02-01
+ * @date 2024-02-05
  */
 public interface IDmsFileReviewService 
 {
     /**
-     * 查询评审
+     * 查询文档评阅
      * 
-     * @param id 评审主键
-     * @return 评审
+     * @param fileId 文档评阅主键
+     * @return 文档评阅
      */
-    public DmsFileReview selectDmsFileReviewById(String id);
+    public DmsFileReview selectDmsFileReviewByFileId(String fileId);
 
     /**
-     * 查询评审列表
+     * 查询文档评阅列表
      * 
-     * @param dmsFileReview 评审
-     * @return 评审集合
+     * @param dmsFileReview 文档评阅
+     * @return 文档评阅集合
      */
     public List<DmsFileReview> selectDmsFileReviewList(DmsFileReview dmsFileReview);
 
     /**
-     * 新增评审
+     * 新增文档评阅
      * 
-     * @param dmsFileReview 评审
+     * @param dmsFileReview 文档评阅
      * @return 结果
      */
     public int insertDmsFileReview(DmsFileReview dmsFileReview);
 
     /**
-     * 修改评审
+     * 修改文档评阅
      * 
-     * @param dmsFileReview 评审
+     * @param dmsFileReview 文档评阅
      * @return 结果
      */
     public int updateDmsFileReview(DmsFileReview dmsFileReview);
 
     /**
-     * 批量删除评审
+     * 批量删除文档评阅
      * 
-     * @param ids 需要删除的评审主键集合
+     * @param fileIds 需要删除的文档评阅主键集合
      * @return 结果
      */
-    public int deleteDmsFileReviewByIds(String[] ids);
+    public int deleteDmsFileReviewByFileIds(String[] fileIds);
 
     /**
-     * 删除评审信息
+     * 删除文档评阅信息
      * 
-     * @param id 评审主键
+     * @param fileId 文档评阅主键
      * @return 结果
      */
-    public int deleteDmsFileReviewById(String id);
+    public int deleteDmsFileReviewByFileId(String fileId);
 }

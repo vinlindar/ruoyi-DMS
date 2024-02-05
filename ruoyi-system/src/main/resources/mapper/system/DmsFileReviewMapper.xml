@@ -5,65 +5,65 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 <mapper namespace="com.ruoyi.system.mapper.DmsFileReviewMapper">
     
     <resultMap type="DmsFileReview" id="DmsFileReviewResult">
-        <result property="id"    column="id"    />
-        <result property="fileName"    column="file_name"    />
-        <result property="name"    column="name"    />
+        <result property="fileId"    column="file_id"    />
+        <result property="reviewerId"    column="reviewer_id"    />
         <result property="comment"    column="comment"    />
+        <result property="isPassed"    column="is_passed"    />
     </resultMap>
 
     <sql id="selectDmsFileReviewVo">
-        select id, file_name, name, comment from dms_file_review
+        select file_id, reviewer_id, comment, is_passed from dms_file_review
     </sql>
 
     <select id="selectDmsFileReviewList" parameterType="DmsFileReview" resultMap="DmsFileReviewResult">
         <include refid="selectDmsFileReviewVo"/>
         <where>  
-            <if test="id != null  and id != ''"> and id = #{id}</if>
-            <if test="fileName != null  and fileName != ''"> and file_name like concat('%', #{fileName}, '%')</if>
-            <if test="name != null  and name != ''"> and name like concat('%', #{name}, '%')</if>
+            <if test="fileId != null  and fileId != ''"> and file_id = #{fileId}</if>
+            <if test="reviewerId != null "> and reviewer_id = #{reviewerId}</if>
             <if test="comment != null  and comment != ''"> and comment = #{comment}</if>
+            <if test="isPassed != null "> and is_passed = #{isPassed}</if>
         </where>
     </select>
     
-    <select id="selectDmsFileReviewById" parameterType="String" resultMap="DmsFileReviewResult">
+    <select id="selectDmsFileReviewByFileId" parameterType="String" resultMap="DmsFileReviewResult">
         <include refid="selectDmsFileReviewVo"/>
-        where id = #{id}
+        where file_id = #{fileId}
     </select>
         
     <insert id="insertDmsFileReview" parameterType="DmsFileReview">
         insert into dms_file_review
         <trim prefix="(" suffix=")" suffixOverrides=",">
-            <if test="id != null and id != ''">id,</if>
-            <if test="fileName != null">file_name,</if>
-            <if test="name != null">name,</if>
+            <if test="fileId != null">file_id,</if>
+            <if test="reviewerId != null">reviewer_id,</if>
             <if test="comment != null">comment,</if>
+            <if test="isPassed != null">is_passed,</if>
          </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
-            <if test="id != null and id != ''">#{id},</if>
-            <if test="fileName != null">#{fileName},</if>
-            <if test="name != null">#{name},</if>
+            <if test="fileId != null">#{fileId},</if>
+            <if test="reviewerId != null">#{reviewerId},</if>
             <if test="comment != null">#{comment},</if>
+            <if test="isPassed != null">#{isPassed},</if>
          </trim>
     </insert>
 
     <update id="updateDmsFileReview" parameterType="DmsFileReview">
         update dms_file_review
         <trim prefix="SET" suffixOverrides=",">
-            <if test="fileName != null">file_name = #{fileName},</if>
-            <if test="name != null">name = #{name},</if>
+            <if test="reviewerId != null">reviewer_id = #{reviewerId},</if>
             <if test="comment != null">comment = #{comment},</if>
+            <if test="isPassed != null">is_passed = #{isPassed},</if>
         </trim>
-        where id = #{id}
+        where file_id = #{fileId}
     </update>
 
-    <delete id="deleteDmsFileReviewById" parameterType="String">
-        delete from dms_file_review where id = #{id}
+    <delete id="deleteDmsFileReviewByFileId" parameterType="String">
+        delete from dms_file_review where file_id = #{fileId}
     </delete>
 
-    <delete id="deleteDmsFileReviewByIds" parameterType="String">
-        delete from dms_file_review where id in 
-        <foreach item="id" collection="array" open="(" separator="," close=")">
-            #{id}
+    <delete id="deleteDmsFileReviewByFileIds" parameterType="String">
+        delete from dms_file_review where file_id in 
+        <foreach item="fileId" collection="array" open="(" separator="," close=")">
+            #{fileId}
         </foreach>
     </delete>
 </mapper>

@@ -76,7 +76,7 @@ public class DmsFileInfoServiceImpl implements IDmsFileInfoService
      * @return 结果
      */
     @Override
-    public int deleteDmsFileInfoByFileIds(String[] fileIds)
+    public int deleteDmsFileInfoByFileIds(String fileIds)
     {
         return dmsFileInfoMapper.deleteDmsFileInfoByFileIds(fileIds);
     }

@@ -22,10 +22,10 @@ import com.ruoyi.common.utils.poi.ExcelUtil;
 import com.ruoyi.common.core.page.TableDataInfo;
 
 /**
- * 评审Controller
+ * 文档评阅Controller
  * 
  * @author HYZ
- * @date 2024-02-01
+ * @date 2024-02-05
  */
 @RestController
 @RequestMapping("/system/review")
@@ -35,7 +35,7 @@ public class DmsFileReviewController extends BaseController
     private IDmsFileReviewService dmsFileReviewService;
 
     /**
-     * 查询评审列表
+     * 查询文档评阅列表
      */
     @PreAuthorize("@ss.hasPermi('system:review:list')")
     @GetMapping("/list")
@@ -47,33 +47,33 @@ public class DmsFileReviewController extends BaseController
     }
 
     /**
-     * 导出评审列表
+     * 导出文档评阅列表
      */
     @PreAuthorize("@ss.hasPermi('system:review:export')")
-    @Log(title = "评审", businessType = BusinessType.EXPORT)
+    @Log(title = "文档评阅", businessType = BusinessType.EXPORT)
     @PostMapping("/export")
     public void export(HttpServletResponse response, DmsFileReview dmsFileReview)
     {
         List<DmsFileReview> list = dmsFileReviewService.selectDmsFileReviewList(dmsFileReview);
         ExcelUtil<DmsFileReview> util = new ExcelUtil<DmsFileReview>(DmsFileReview.class);
-        util.exportExcel(response, list, "评审数据");
+        util.exportExcel(response, list, "文档评阅数据");
     }
 
     /**
-     * 获取评审详细信息
+     * 获取文档评阅详细信息
      */
     @PreAuthorize("@ss.hasPermi('system:review:query')")
-    @GetMapping(value = "/{id}")
-    public AjaxResult getInfo(@PathVariable("id") String id)
+    @GetMapping(value = "/{fileId}")
+    public AjaxResult getInfo(@PathVariable("fileId") String fileId)
     {
-        return success(dmsFileReviewService.selectDmsFileReviewById(id));
+        return success(dmsFileReviewService.selectDmsFileReviewByFileId(fileId));
     }
 
     /**
-     * 新增评审
+     * 新增文档评阅
      */
     @PreAuthorize("@ss.hasPermi('system:review:add')")
-    @Log(title = "评审", businessType = BusinessType.INSERT)
+    @Log(title = "文档评阅", businessType = BusinessType.INSERT)
     @PostMapping
     public AjaxResult add(@RequestBody DmsFileReview dmsFileReview)
     {
@@ -81,10 +81,10 @@ public class DmsFileReviewController extends BaseController
     }
 
     /**
-     * 修改评审
+     * 修改文档评阅
      */
     @PreAuthorize("@ss.hasPermi('system:review:edit')")
-    @Log(title = "评审", businessType = BusinessType.UPDATE)
+    @Log(title = "文档评阅", businessType = BusinessType.UPDATE)
     @PutMapping
     public AjaxResult edit(@RequestBody DmsFileReview dmsFileReview)
     {
@@ -92,13 +92,13 @@ public class DmsFileReviewController extends BaseController
     }
 
     /**
-     * 删除评审
+     * 删除文档评阅
      */
     @PreAuthorize("@ss.hasPermi('system:review:remove')")
-    @Log(title = "评审", businessType = BusinessType.DELETE)
-	@DeleteMapping("/{ids}")
-    public AjaxResult remove(@PathVariable String[] ids)
+    @Log(title = "文档评阅", businessType = BusinessType.DELETE)
+	@DeleteMapping("/{fileIds}")
+    public AjaxResult remove(@PathVariable String[] fileIds)
     {
-        return toAjax(dmsFileReviewService.deleteDmsFileReviewByIds(ids));
+        return toAjax(dmsFileReviewService.deleteDmsFileReviewByFileIds(fileIds));
     }
 }

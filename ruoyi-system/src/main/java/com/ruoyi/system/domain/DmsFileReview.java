@@ -6,57 +6,48 @@ import com.ruoyi.common.annotation.Excel;
 import com.ruoyi.common.core.domain.BaseEntity;
 
 /**
- * 评审对象 dms_file_review
+ * 文档评阅对象 dms_file_review
  * 
  * @author HYZ
- * @date 2024-02-01
+ * @date 2024-02-05
  */
 public class DmsFileReview extends BaseEntity
 {
     private static final long serialVersionUID = 1L;
 
-    /** ID */
-    @Excel(name = "ID")
-    private String id;
+    /** 文件ID */
+    @Excel(name = "文件ID")
+    private String fileId;
 
-    /** 文件名 */
-    @Excel(name = "文件名")
-    private String fileName;
+    /** 评阅人ID */
+    @Excel(name = "评阅人ID")
+    private Long reviewerId;
 
-    /** 评审人 */
-    @Excel(name = "评审人")
-    private String name;
-
-    /** 评审意见 */
-    @Excel(name = "评审意见")
+    /** 评阅意见 */
+    @Excel(name = "评阅意见")
     private String comment;
 
-    public void setId(String id) 
+    /** 评阅意见 */
+    @Excel(name = "评阅意见")
+    private Integer isPassed;
+
+    public void setFileId(String fileId) 
     {
-        this.id = id;
+        this.fileId = fileId;
     }
 
-    public String getId() 
+    public String getFileId() 
     {
-        return id;
+        return fileId;
     }
-    public void setFileName(String fileName) 
+    public void setReviewerId(Long reviewerId) 
     {
-        this.fileName = fileName;
-    }
-
-    public String getFileName() 
-    {
-        return fileName;
-    }
-    public void setName(String name) 
-    {
-        this.name = name;
+        this.reviewerId = reviewerId;
     }
 
-    public String getName() 
+    public Long getReviewerId() 
     {
-        return name;
+        return reviewerId;
     }
     public void setComment(String comment) 
     {
@@ -67,14 +58,23 @@ public class DmsFileReview extends BaseEntity
     {
         return comment;
     }
+    public void setIsPassed(Integer isPassed) 
+    {
+        this.isPassed = isPassed;
+    }
+
+    public Integer getIsPassed() 
+    {
+        return isPassed;
+    }
 
     @Override
     public String toString() {
         return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
-            .append("id", getId())
-            .append("fileName", getFileName())
-            .append("name", getName())
+            .append("fileId", getFileId())
+            .append("reviewerId", getReviewerId())
             .append("comment", getComment())
+            .append("isPassed", getIsPassed())
             .toString();
     }
 }
