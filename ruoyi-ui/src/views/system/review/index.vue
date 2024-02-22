@@ -12,18 +12,20 @@
       <el-form-item label="评阅人ID" prop="reviewerId">
         <el-input
           v-model="queryParams.reviewerId"
-          placeholder="请输入评阅人ID"
+          placeholder="请输入用户ID"
           clearable
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="评阅意见" prop="isPassed">
-        <el-input
-          v-model="queryParams.isPassed"
-          placeholder="请输入评阅意见"
-          clearable
-          @keyup.enter.native="handleQuery"
-        />
+      <el-form-item label="评阅结果" prop="isPassed">
+        <el-select v-model="queryParams.isPassed" placeholder="请选择评阅结果" clearable>
+          <el-option
+            v-for="dict in dict.type.dms_review_result"
+            :key="dict.value"
+            :label="dict.label"
+            :value="dict.value"
+          />
+        </el-select>
       </el-form-item>
       <el-form-item>
         <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
@@ -32,38 +34,6 @@
     </el-form>
 
     <el-row :gutter="10" class="mb8">
-      <el-col :span="1.5">
-        <el-button
-          type="primary"
-          plain
-          icon="el-icon-plus"
-          size="mini"
-          @click="handleAdd"
-          v-hasPermi="['system:review:add']"
-        >新增</el-button>
-      </el-col>
-      <el-col :span="1.5">
-        <el-button
-          type="success"
-          plain
-          icon="el-icon-edit"
-          size="mini"
-          :disabled="single"
-          @click="handleUpdate"
-          v-hasPermi="['system:review:edit']"
-        >修改</el-button>
-      </el-col>
-      <el-col :span="1.5">
-        <el-button
-          type="danger"
-          plain
-          icon="el-icon-delete"
-          size="mini"
-          :disabled="multiple"
-          @click="handleDelete"
-          v-hasPermi="['system:review:remove']"
-        >删除</el-button>
-      </el-col>
       <el-col :span="1.5">
         <el-button
           type="warning"
@@ -76,13 +46,32 @@
       </el-col>
       <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
-
+    <!-- 文档信息展示-->
     <el-table v-loading="loading" :data="reviewList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
       <el-table-column label="文件ID" align="center" prop="fileId" />
+      <el-table-column label="文件名" align="center" prop="fileName" />
+      <el-table-column label="作者" align="center" prop="author" />
+      <el-table-column label="评阅人" align="center" prop="reviewer" />
       <el-table-column label="评阅人ID" align="center" prop="reviewerId" />
-      <el-table-column label="评阅意见" align="center" prop="comment" />
-      <el-table-column label="评阅意见" align="center" prop="isPassed" />
+      <el-table-column label="文件类型" align="center" prop="fileType">
+        <template slot-scope="scope">
+          <dict-tag :options="dict.type.dms_file_type" :value="scope.row.fileType"/>
+        </template>
+      </el-table-column>
+      <el-table-column label="文件大小" align="center" prop="fileSize" />
+      <el-table-column label="文件状态" align="center" prop="fileStatus">
+        <template slot-scope="scope">
+          <dict-tag :options="dict.type.dms_file_status" :value="scope.row.fileStatus"/>
+        </template>
+      </el-table-column>
+      <el-table-column label="归属团队" align="center" prop="belongteam" />
+      <el-table-column label="创建者" align="center" prop="updateBy" />
+      <el-table-column label="评阅结果" align="center" prop="isPassed" >
+        <template slot-scope="scope">
+            <dict-tag :options="dict.type.dms_review_result" :value="scope.row.isPassed"/>
+          </template>
+        </el-table-column>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button
@@ -91,14 +80,13 @@
             icon="el-icon-edit"
             @click="handleUpdate(scope.row)"
             v-hasPermi="['system:review:edit']"
-          >修改</el-button>
+          >评阅</el-button>
           <el-button
             size="mini"
             type="text"
-            icon="el-icon-delete"
-            @click="handleDelete(scope.row)"
-            v-hasPermi="['system:review:remove']"
-          >删除</el-button>
+            icon="el-icon-edit"
+            @click="handleDownload(scope.row)"
+          >下载</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -117,8 +105,15 @@
         <el-form-item label="评阅意见" prop="comment">
           <el-input v-model="form.comment" type="textarea" placeholder="请输入内容" />
         </el-form-item>
-        <el-form-item label="评阅意见" prop="isPassed">
-          <el-input v-model="form.isPassed" placeholder="请输入评阅意见" />
+        <el-form-item label="评阅结果" prop="isPassed">
+          <el-select v-model="form.isPassed" placeholder="请选择评阅结果">
+            <el-option
+              v-for="dict in dict.type.dms_review_result"
+              :key="dict.value"
+              :label="dict.label"
+              :value="parseInt(dict.value)"
+            ></el-option>
+          </el-select>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -134,6 +129,7 @@ import { listReview, getReview, delReview, addReview, updateReview } from "@/api
 
 export default {
   name: "Review",
+  dicts: ['dms_file_type', 'dms_file_status','dms_review_result'],
   data() {
     return {
       // 遮罩层
@@ -181,6 +177,7 @@ export default {
         this.reviewList = response.rows;
         this.total = response.total;
         this.loading = false;
+        console.log(this.reviewList)
       });
     },
     // 取消按钮
@@ -223,11 +220,12 @@ export default {
     /** 修改按钮操作 */
     handleUpdate(row) {
       this.reset();
-      const fileId = row.fileId || this.ids
-      getReview(fileId).then(response => {
+      const fileId = row.fileId
+      const reviewerId = row.reviewerId
+      getReview(fileId,reviewerId).then(response => {
         this.form = response.data;
         this.open = true;
-        this.title = "修改文档评阅";
+        this.title = "文档评阅";
       });
     },
     /** 提交按钮 */
@@ -236,7 +234,7 @@ export default {
         if (valid) {
           if (this.form.fileId != null) {
             updateReview(this.form).then(response => {
-              this.$modal.msgSuccess("修改成功");
+              this.$modal.msgSuccess("评阅成功");
               this.open = false;
               this.getList();
             });

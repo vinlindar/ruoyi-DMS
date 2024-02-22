@@ -14,10 +14,10 @@ public interface IDmsFileReviewService
     /**
      * 查询文档评阅
      * 
-     * @param fileId 文档评阅主键
+     * @param fileId 和reviewerId 文档评阅主键
      * @return 文档评阅
      */
-    public DmsFileReview selectDmsFileReviewByFileId(String fileId);
+    public DmsFileReview selectDmsFileReviewByFileIdAndReviewerId(DmsFileReview dmsFileReview);
 
     /**
      * 查询文档评阅列表

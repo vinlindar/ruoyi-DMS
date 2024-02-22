@@ -21,6 +21,7 @@ import com.ruoyi.common.enums.BusinessType;
 import com.ruoyi.common.utils.poi.ExcelUtil;
 import com.ruoyi.system.domain.SysPost;
 import com.ruoyi.system.service.ISysPostService;
+import com.ruoyi.system.service.ISysUserService;
 
 /**
  * 岗位信息操作处理
@@ -33,6 +34,7 @@ public class SysPostController extends BaseController
 {
     @Autowired
     private ISysPostService postService;
+    private ISysUserService userService;
 
     /**
      * 获取岗位列表
@@ -65,7 +67,7 @@ public class SysPostController extends BaseController
     {
         return success(postService.selectPostById(postId));
     }
-
+    
     /**
      * 新增岗位
      */

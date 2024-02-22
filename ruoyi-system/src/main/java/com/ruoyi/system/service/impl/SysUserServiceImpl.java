@@ -125,6 +125,18 @@ public class SysUserServiceImpl implements ISysUserService
     }
 
     /**
+     * 通过岗位ID查询用户列表
+     * 新增 by hyz
+     * @param postName 岗位名称
+     * @return 用户对象信息
+     */
+    @Override
+    public List<SysUser> selectUsersByPostName(Long postId)
+    {
+    	return userMapper.selectUsersByPostName(postId);
+    }
+    
+    /**
      * 查询用户所属角色组
      * 
      * @param userName 用户名

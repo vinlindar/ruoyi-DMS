@@ -117,6 +117,16 @@ public class SysUserController extends BaseController
     }
 
     /**
+     * 根据岗位ID获取用户信息
+     */
+    @PreAuthorize("@ss.hasPermi('system:user:query')")
+    @GetMapping("/postId/{postId}")
+    public AjaxResult getUsersByPostName(@PathVariable("postId") Long postId) {
+        List <SysUser> list = userService.selectUsersByPostName(postId);
+        return success(list);
+    }
+    
+    /**
      * 新增用户
      */
     @PreAuthorize("@ss.hasPermi('system:user:add')")

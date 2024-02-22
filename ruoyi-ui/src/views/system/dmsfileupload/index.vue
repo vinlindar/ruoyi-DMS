@@ -1,5 +1,6 @@
 <template>
   <div class="app-container">
+    <!-- 顶部搜索框-->
     <el-form :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch" label-width="68px">
       <el-form-item label="文件ID" prop="fileId">
         <el-input
@@ -75,7 +76,7 @@
         <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
       </el-form-item>
     </el-form>
-
+    <!-- 文档操作栏位-->
     <el-row :gutter="10" class="mb8">
       <el-col :span="1.5">
         <el-button
@@ -111,6 +112,15 @@
       </el-col>
       <el-col :span="1.5">
         <el-button
+          type="success"
+          plain
+          icon="el-icon-search"
+          size="mini"
+          @click="handlereviewlist"
+        >查看评阅意见</el-button>
+      </el-col>
+      <el-col :span="1.5">
+        <el-button
           type="warning"
           plain
           icon="el-icon-download"
@@ -121,7 +131,7 @@
       </el-col>
       <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
-
+    <!-- 文档信息展示-->
     <el-table v-loading="loading" :data="dmsfileuploadList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
       <el-table-column label="文件ID" align="center" prop="fileId" />
@@ -153,6 +163,12 @@
             size="mini"
             type="text"
             icon="el-icon-edit"
+            @click="handleDownload(scope.row)"
+          >下载</el-button>
+          <el-button
+            size="mini"
+            type="text"
+            icon="el-icon-edit"
             @click="handleUpdate(scope.row)"
             v-hasPermi="['system:dmsfileupload:edit']"
           >修改</el-button>
@@ -166,7 +182,7 @@
         </template>
       </el-table-column>
     </el-table>
-    
+    <!-- 分页功能代码-->
     <pagination
       v-show="total>0"
       :total="total"
@@ -174,8 +190,7 @@
       :limit.sync="queryParams.pageSize"
       @pagination="getList"
     />
-
-    <!-- 添加或修改文件信息对话框 -->
+    <!-- 新增或修改文件信息对话框 -->
     <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
         <el-form-item label="文件名" prop="fileName">
@@ -203,7 +218,7 @@
         <el-form-item label="评阅人" prop="reviewer">
           <el-select v-model="form.reviewerIds" placeholder="请选择评阅人" multiple>
             <el-option 
-              v-for="user in userList" 
+              v-for="user in ReviewerList" 
               :key="user.userId" 
               :label="user.userName" 
               :value="user.userId"
@@ -232,12 +247,17 @@
         <el-button @click="cancel">取 消</el-button>
       </div>
     </el-dialog>
+    <!--查看文档评阅意见信息对话框
+    <el-dialog :title="评阅意见" :visible.sync="openreview" width="500px" append-to-body>
+      
+    </el-dialog>
+    -->
   </div>
 </template>
 
 <script>
-import { listDmsfileupload, getDmsfileupload, delDmsfileupload, addDmsfileupload, updateDmsfileupload,deptTreeSelect  } from "@/api/system/dmsfileupload";
-import { listUser } from "@/api/system/user";
+import { listDmsfileupload, getDmsfileupload, delDmsnpmfileupload, addDmsfileupload, updateDmsfileupload,deptTreeSelect  } from "@/api/system/dmsfileupload";
+import { listReviewer } from "@/api/system/user";
 import { addReview, delReview}from "@/api/system/review";
 import { getToken } from "@/utils/auth";
 import Treeselect from "@riophae/vue-treeselect";
@@ -274,9 +294,11 @@ export default {
       // 部门名称
       deptName: undefined,
       // 用户列表
-      userList: undefined,
-      // 是否显示弹出层
+      ReviewerList: undefined,
+      // 是否显示新增修改弹出层
       open: false,
+      // 是否显示评阅意见层
+      openreview: false,
       // 查询参数
       queryParams: {
         pageNum: 1,
@@ -318,9 +340,10 @@ export default {
     };
   },
   created() {
+    // 打开页面的触发事件
     this.getList();
     this.getDeptTree();
-    this.getUserList();
+    this.getReviewerList();
   },
   methods: {
     /** 查询文件信息列表 */
@@ -338,26 +361,26 @@ export default {
         this.deptOptions = response.data;
       });
     },
-    /**  查询用户下拉列表 */
-    getUserList() {
-      this.loading = true;
-      listUser().then(response => {
-          // 提取用户ID和用户名信息
-          console.log(response);
-          this.userList = response.rows;
-          this.total = response.total;
-          this.loading = false;
-        }
-      );
-    },
+    // 筛选条件的部门选择事件
     handleSelect(val) {
       // 通过 Treeselect 实例获取选中的label值
         this.form.belongteam = val.label
     },
-    // 筛选条件的部门选择事件
     handleSelect2(val) {
       // 通过 Treeselect 实例获取选中的label值
         this.queryParams.belongteam = val.label
+    },
+    /**  查询评阅人下拉列表 */
+    getReviewerList() {
+      this.loading = true;
+      listReviewer().then(response => {
+          // 提取用户ID和用户名信息
+          console.log(response);
+          this.ReviewerList = response.data;
+          this.total = response.length;
+          this.loading = false;
+        }
+      );
     },
     // 取消按钮
     cancel() {
@@ -430,6 +453,11 @@ export default {
         this.upload.fileList = [{ name: this.form.fileName, url: this.form.filePath }];
       });
     },
+    /** 查看评审意见操作 */
+    handlereviewlist(){
+      this.openreview = true;
+      
+    },
     /** 提交按钮 */
     submitForm() {
       this.$refs["form"].validate(valid => {
@@ -439,7 +467,7 @@ export default {
         this.form.updateTime = formattedDate;
         // 将选中的 reviewerIds 转换为对应的用户名数组，存入文件信息表
         const reviewerNames = this.form.reviewerIds.map(userId => {
-            const user = this.userList.find(u => u.userId === userId);
+            const user = this.ReviewerList.find(u => u.userId === userId);
             return user ? user.userName : '';});
         // 拼接评阅人文本，存入form.reviewer
         this.form.reviewer = reviewerNames.join('、');
@@ -497,6 +525,17 @@ export default {
         }
       });
     },
+    /** 下载操作 */
+    handleDownload(row) {
+      var name = row.fileName;
+      var url = row.filePath;
+      var suffix = url.substring(url.lastIndexOf("."), url.length);
+      const a = document.createElement('a')
+      a.setAttribute('download', name + suffix)
+      a.setAttribute('target', '_blank')
+      a.setAttribute('href', url)
+      a.click()
+    },
     /** 删除按钮操作 */
     handleDelete(row) {
       this.reset();
@@ -540,6 +579,7 @@ export default {
       this.form.filePath = response.url;
       this.msgSuccess(response.msg);
     },
+    // 文件上传前的大小判断逻辑
     beforeUpload(file){
     const fileSize = file.size; // 文件大小，单位为字节
     // 判断文件大小是否超过50M
@@ -555,7 +595,7 @@ export default {
     // 返回 true 允许上传
     return true;
     },
-  // 辅助方法：将文件大小转换为合适的单位（KB 或 MB）
+    // 辅助方法：将文件大小转换为合适的单位（KB 或 MB）
     formatFileSize(size) {
       const kilobyte = 1024;
       const megabyte = kilobyte * kilobyte;
@@ -568,7 +608,7 @@ export default {
         return (size / megabyte).toFixed(2) + ' MB';
       }
     },
-      /** 生成文件ID */
+    // 辅助方法：生成唯一文件ID
     generateFileId() {
       const now = new Date();
       const year = now.getFullYear();

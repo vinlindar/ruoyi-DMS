@@ -63,10 +63,13 @@ public class DmsFileReviewController extends BaseController
      * 获取文档评阅详细信息
      */
     @PreAuthorize("@ss.hasPermi('system:review:query')")
-    @GetMapping(value = "/{fileId}")
-    public AjaxResult getInfo(@PathVariable("fileId") String fileId)
+    @GetMapping(value = "/{fileId}/{reviewerId}")
+    public AjaxResult getInfo(@PathVariable("fileId") String fileId,@PathVariable("reviewerId") Long reviewerId)
     {
-        return success(dmsFileReviewService.selectDmsFileReviewByFileId(fileId));
+    	DmsFileReview dmsFileReview = new DmsFileReview();
+        dmsFileReview.setFileId(fileId);
+        dmsFileReview.setReviewerId(reviewerId);
+        return success(dmsFileReviewService.selectDmsFileReviewByFileIdAndReviewerId(dmsFileReview));
     }
 
     /**

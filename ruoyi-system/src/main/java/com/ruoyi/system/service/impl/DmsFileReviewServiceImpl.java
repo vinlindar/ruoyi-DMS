@@ -26,9 +26,9 @@ public class DmsFileReviewServiceImpl implements IDmsFileReviewService
      * @return 文档评阅
      */
     @Override
-    public DmsFileReview selectDmsFileReviewByFileId(String fileId)
+    public DmsFileReview selectDmsFileReviewByFileIdAndReviewerId(DmsFileReview dmsFileReview)
     {
-        return dmsFileReviewMapper.selectDmsFileReviewByFileId(fileId);
+        return dmsFileReviewMapper.selectDmsFileReviewByFileIdAndReviewerId(dmsFileReview);
     }
 
     /**

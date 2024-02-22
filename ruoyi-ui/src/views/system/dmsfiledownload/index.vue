@@ -133,7 +133,7 @@
 </template>
 
 <script>
-import { listDmsfileupload, getDmsfileupload, delDmsfileupload, addDmsfileupload, updateDmsfileupload } from "@/api/system/dmsfileupload";
+import { listDmsfileupload} from "@/api/system/dmsfileupload";
 
 export default {
   name: "Dmsfiledownload",

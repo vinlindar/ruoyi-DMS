@@ -9,25 +9,42 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="reviewerId"    column="reviewer_id"    />
         <result property="comment"    column="comment"    />
         <result property="isPassed"    column="is_passed"    />
+        <result property="reviewTime"    column="review_time"    />
+        <result property="fileName"    column="file_name"    />
+        <result property="filePath"    column="file_path"    />
+        <result property="author"    column="author"    />
+        <result property="reviewer"    column="reviewer"    />
+        <result property="fileType"    column="file_type"    />
+        <result property="fileSize"    column="file_size"    />
+        <result property="fileStatus"    column="file_status"    />
+        <result property="belongteam"    column="belongteam"    />
+        <result property="description"    column="description"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
     </resultMap>
 
     <sql id="selectDmsFileReviewVo">
-        select file_id, reviewer_id, comment, is_passed from dms_file_review
+        select fr.file_id, fr.reviewer_id, fr.comment, fr.is_passed, fr.review_time, 
+        	fi.file_name,fi.file_path,fi.author,fi.reviewer,fi.file_type,fi.file_size,
+        	fi.file_status,fi.belongteam,fi.description,fi.update_by,fi.update_time
+        from dms_file_review fr
+        	left join dms_file_info fi on fr.file_id = fi.file_id
     </sql>
 
     <select id="selectDmsFileReviewList" parameterType="DmsFileReview" resultMap="DmsFileReviewResult">
         <include refid="selectDmsFileReviewVo"/>
         <where>  
-            <if test="fileId != null  and fileId != ''"> and file_id = #{fileId}</if>
-            <if test="reviewerId != null "> and reviewer_id = #{reviewerId}</if>
             <if test="comment != null  and comment != ''"> and comment = #{comment}</if>
             <if test="isPassed != null "> and is_passed = #{isPassed}</if>
+            <if test="reviewTime != null "> and review_time = #{reviewTime}</if>
+            <if test="fileId != null"> and fr.file_id = #{fileId}</if>
+        	<if test="reviewerId != null"> and fr.reviewer_id = #{reviewerId}</if>
         </where>
     </select>
     
-    <select id="selectDmsFileReviewByFileId" parameterType="String" resultMap="DmsFileReviewResult">
+    <select id="selectDmsFileReviewByFileIdAndReviewerId" parameterType="DmsFileReview" resultMap="DmsFileReviewResult">
         <include refid="selectDmsFileReviewVo"/>
-        where file_id = #{fileId}
+        where fr.file_id = #{fileId} and fr.reviewer_id = #{reviewerId}
     </select>
         
     <insert id="insertDmsFileReview" parameterType="DmsFileReview">
@@ -37,23 +54,25 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="reviewerId != null">reviewer_id,</if>
             <if test="comment != null">comment,</if>
             <if test="isPassed != null">is_passed,</if>
+            <if test="reviewTime != null">review_time,</if>
          </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="fileId != null">#{fileId},</if>
             <if test="reviewerId != null">#{reviewerId},</if>
             <if test="comment != null">#{comment},</if>
             <if test="isPassed != null">#{isPassed},</if>
+            <if test="reviewTime != null">#{reviewTime},</if>
          </trim>
     </insert>
 
     <update id="updateDmsFileReview" parameterType="DmsFileReview">
         update dms_file_review
         <trim prefix="SET" suffixOverrides=",">
-            <if test="reviewerId != null">reviewer_id = #{reviewerId},</if>
             <if test="comment != null">comment = #{comment},</if>
             <if test="isPassed != null">is_passed = #{isPassed},</if>
+            <if test="reviewTime != null">review_time = #{reviewTime},</if>
         </trim>
-        where file_id = #{fileId}
+        where file_id = #{fileId} and reviewer_id = #{reviewerId}
     </update>
 
     <delete id="deleteDmsFileReviewByFileId" parameterType="String">

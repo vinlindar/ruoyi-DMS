@@ -49,6 +49,14 @@ public interface ISysUserService
      * @return 用户对象信息
      */
     public SysUser selectUserById(Long userId);
+    
+    /**
+     * 通过岗位ID查询用户列表
+     * 新增 by hyz
+     * @param postName 岗位名称
+     * @return 用户对象信息
+     */
+    public List<SysUser> selectUsersByPostName(Long postId);
 
     /**
      * 根据用户ID查询用户所属角色组
@@ -203,4 +211,5 @@ public interface ISysUserService
      * @return 结果
      */
     public String importUser(List<SysUser> userList, Boolean isUpdateSupport, String operName);
+
 }

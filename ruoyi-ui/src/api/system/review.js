@@ -9,11 +9,11 @@ export function listReview(query) {
   })
 }
 
-// 查询文档评阅详细
-export function getReview(fileId) {
+// 查询文档评阅详细(根据fileId和reviewerId共同查询)
+export function getReview(fileId,reviewerId) {
   return request({
-    url: '/system/review/' + fileId,
-    method: 'get'
+    url: '/system/review/'+fileId + '/' + reviewerId,
+    method: 'get',
   })
 }
 

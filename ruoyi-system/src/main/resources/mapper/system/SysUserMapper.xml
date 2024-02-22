@@ -54,6 +54,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		    left join sys_dept d on u.dept_id = d.dept_id
 		    left join sys_user_role ur on u.user_id = ur.user_id
 		    left join sys_role r on r.role_id = ur.role_id
+		    left join sys_user_post up on u.user_id = up.user_id
+	        left join sys_post p on p.post_id = up.post_id
     </sql>
     
     <select id="selectUserList" parameterType="SysUser" resultMap="SysUserResult">
@@ -128,6 +130,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	<select id="selectUserById" parameterType="Long" resultMap="SysUserResult">
 		<include refid="selectUserVo"/>
 		where u.user_id = #{userId}
+	</select>
+	
+	<select id="selectUsersByPostName" parameterType="Long" resultMap="SysUserResult">
+	    <include refid="selectUserVo"/>
+	    where p.post_id = #{postId}
 	</select>
 	
 	<select id="checkUserNameUnique" parameterType="String" resultMap="SysUserResult">

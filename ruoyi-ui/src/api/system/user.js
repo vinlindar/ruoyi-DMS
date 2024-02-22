@@ -10,6 +10,14 @@ export function listUser(query) {
   })
 }
 
+// 查询评阅人列表
+export function listReviewer() {
+  return request({
+    url: '/system/user/postId/2',
+    method: 'get',
+  })
+}
+
 // 查询用户详细
 export function getUser(userId) {
   return request({

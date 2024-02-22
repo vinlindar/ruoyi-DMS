@@ -50,7 +50,15 @@ public interface SysUserMapper
      * @return 用户对象信息
      */
     public SysUser selectUserById(Long userId);
-
+    
+    /**
+     * 通过岗位ID查询用户列表
+     * 新增 by hyz
+     * @param postName 岗位名称
+     * @return 用户对象信息
+     */
+    public List<SysUser> selectUsersByPostName(Long postId);
+    
     /**
      * 新增用户信息
      * 
@@ -124,4 +132,5 @@ public interface SysUserMapper
      * @return 结果
      */
     public SysUser checkEmailUnique(String email);
+
 }
