@@ -42,6 +42,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </where>
     </select>
     
+    <select id="getAllReviewsResultByFileId" parameterType="DmsFileReview" resultMap="DmsFileReviewResult">
+        <include refid="selectDmsFileReviewVo"/>
+        where fr.file_id = #{fileId}
+    </select>
+    
     <select id="selectDmsFileReviewByFileIdAndReviewerId" parameterType="DmsFileReview" resultMap="DmsFileReviewResult">
         <include refid="selectDmsFileReviewVo"/>
         where fr.file_id = #{fileId} and fr.reviewer_id = #{reviewerId}

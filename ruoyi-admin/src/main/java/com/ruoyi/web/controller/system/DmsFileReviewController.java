@@ -18,6 +18,7 @@ import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.common.enums.BusinessType;
 import com.ruoyi.system.domain.DmsFileReview;
 import com.ruoyi.system.service.IDmsFileReviewService;
+import com.ruoyi.system.service.IDmsFileInfoService;
 import com.ruoyi.common.utils.poi.ExcelUtil;
 import com.ruoyi.common.core.page.TableDataInfo;
 
@@ -33,7 +34,9 @@ public class DmsFileReviewController extends BaseController
 {
     @Autowired
     private IDmsFileReviewService dmsFileReviewService;
-
+    @Autowired
+    private IDmsFileInfoService dmsFileInfoService;
+    
     /**
      * 查询文档评阅列表
      */
@@ -91,8 +94,29 @@ public class DmsFileReviewController extends BaseController
     @PutMapping
     public AjaxResult edit(@RequestBody DmsFileReview dmsFileReview)
     {
-        return toAjax(dmsFileReviewService.updateDmsFileReview(dmsFileReview));
+    	// 更新评审结果
+        int updateReviewResult = dmsFileReviewService.updateDmsFileReview(dmsFileReview);
+        // 查询所有评审结果
+        List<DmsFileReview> allReviews = dmsFileReviewService.getAllReviewsResultByFileId(dmsFileReview.getFileId());
+        // 检查是否所有评审都通过
+        boolean allApproved = allReviews.stream().allMatch(review -> review.getIsPassed() == 2);
+        if (allApproved) {
+        	long passedStatus = 2L;
+            int updateFileStatusResult = dmsFileInfoService.updateDmsFileStatus(dmsFileReview.getFileId(), passedStatus);
+            if (updateFileStatusResult > 0) {
+                return AjaxResult.success("评审已通过，并修改文件状态成功");
+            } else {
+                return AjaxResult.error("修改文件状态失败");
+            }
+        }
+    	
+        if (updateReviewResult > 0) {
+            return AjaxResult.success("评审结果修改成功");
+        } else {
+            return AjaxResult.error("评审结果修改失败");
+        }
     }
+    
 
     /**
      * 删除文档评阅

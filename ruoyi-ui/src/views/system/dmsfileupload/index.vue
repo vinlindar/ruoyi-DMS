@@ -256,7 +256,7 @@
 </template>
 
 <script>
-import { listDmsfileupload, getDmsfileupload, delDmsnpmfileupload, addDmsfileupload, updateDmsfileupload,deptTreeSelect  } from "@/api/system/dmsfileupload";
+import { listDmsfileupload, getDmsfileupload, delDmsfileupload, addDmsfileupload, updateDmsfileupload,deptTreeSelect  } from "@/api/system/dmsfileupload";
 import { listReviewer } from "@/api/system/user";
 import { addReview, delReview}from "@/api/system/review";
 import { getToken } from "@/utils/auth";
@@ -546,14 +546,12 @@ export default {
         this.$modal.msgError("文件待发布或已发布，请联系定稿人或管理员处理。");
         return;
       }
-      this.$modal.confirm('是否确认删除文件信息编号为"' + fileIds + '"的数据项？').then(function() {
+      this.$modal.confirm('是否确认删除文件信息编号为"' + fileIds + '"的数据项？').then(() => {
         // 删除文件关联的评审表
-        delReview(fileIds).then(() => {
+        return delReview(fileIds).then(() => {
           console.log(`Reviews for fileId ${fileIds} deleted successfully.`);
-        }).catch(error => {
-          console.error(`Failed to delete reviews for fileId ${fileIds}: ${error.message}`);
+          return delDmsfileupload(fileIds);
         });
-        return delDmsfileupload(fileIds);
       }).then(() => {
         this.getList();
         this.$modal.msgSuccess("删除成功");

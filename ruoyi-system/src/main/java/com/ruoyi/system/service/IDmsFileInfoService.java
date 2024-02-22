@@ -42,7 +42,15 @@ public interface IDmsFileInfoService
      * @return 结果
      */
     public int updateDmsFileInfo(DmsFileInfo dmsFileInfo);
-
+    
+    /**
+     * 修改文件状态
+     * 
+     * @param dmsFileInfo 文件信息
+     * @return 结果
+     */
+    public int updateDmsFileStatus(String fileId, Long fileStatus);
+    
     /**
      * 批量删除文件信息
      * 

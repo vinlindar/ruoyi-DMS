@@ -29,7 +29,7 @@ public class DmsFileReview extends BaseEntity
 
     /** 是否通过 */
     @Excel(name = "是否通过")
-    private Integer isPassed;
+    private Long  isPassed;
 
     /** 评阅时间 */
     @JsonFormat(pattern = "yyyy-MM-dd")
@@ -100,12 +100,12 @@ public class DmsFileReview extends BaseEntity
     {
         return comment;
     }
-    public void setIsPassed(Integer isPassed) 
+    public void setIsPassed(Long isPassed) 
     {
         this.isPassed = isPassed;
     }
 
-    public Integer getIsPassed() 
+    public Long getIsPassed() 
     {
         return isPassed;
     }

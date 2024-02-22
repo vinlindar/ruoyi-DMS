@@ -77,7 +77,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="updateTime != null">#{updateTime},</if>
          </trim>
     </insert>
-
+    
     <update id="updateDmsFileInfo" parameterType="DmsFileInfo">
         update dms_file_info
         <trim prefix="SET" suffixOverrides=",">
@@ -93,6 +93,14 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="updateBy != null">update_by = #{updateBy},</if>
             <if test="updateTime != null">update_time = #{updateTime},</if>
         </trim>
+        where file_id = #{fileId}
+    </update>
+    
+    <update id="updateDmsFileStatus" parameterType="DmsFileInfo">
+        update dms_file_info
+        <set>
+            <if test="fileStatus != null">file_status = #{fileStatus},</if>
+        </set>
         where file_id = #{fileId}
     </update>
 

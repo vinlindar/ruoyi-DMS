@@ -68,7 +68,21 @@ public class DmsFileInfoServiceImpl implements IDmsFileInfoService
         dmsFileInfo.setUpdateTime(DateUtils.getNowDate());
         return dmsFileInfoMapper.updateDmsFileInfo(dmsFileInfo);
     }
-
+    
+    /**
+     * 修改文件状态
+     * 
+     * @param fileId, fileStatus
+     * @return 结果
+     */
+    public int updateDmsFileStatus(String fileId, Long fileStatus)
+    {
+    	DmsFileInfo fileInfo = new DmsFileInfo();
+        fileInfo.setFileId(fileId);
+        fileInfo.setFileStatus(fileStatus); 
+    	return dmsFileInfoMapper.updateDmsFileStatus(fileInfo);
+    }
+    
     /**
      * 批量删除文件信息
      * 

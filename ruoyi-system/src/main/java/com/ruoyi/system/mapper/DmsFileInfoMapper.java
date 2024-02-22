@@ -42,7 +42,15 @@ public interface DmsFileInfoMapper
      * @return 结果
      */
     public int updateDmsFileInfo(DmsFileInfo dmsFileInfo);
-
+    
+    /**
+     * 修改文件状态
+     * 
+     * @param fileId, fileStatus
+     * @return 结果
+     */
+    public int updateDmsFileStatus(DmsFileInfo dmsFileInfo);
+    
     /**
      * 删除文件信息
      * 

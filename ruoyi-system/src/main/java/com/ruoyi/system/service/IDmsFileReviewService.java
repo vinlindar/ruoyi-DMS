@@ -26,7 +26,15 @@ public interface IDmsFileReviewService
      * @return 文档评阅集合
      */
     public List<DmsFileReview> selectDmsFileReviewList(DmsFileReview dmsFileReview);
-
+    
+    /**
+     * 查询文档所有的评阅结果
+     * 
+     * @param dmsFileReview 文档评阅
+     * @return 文档评阅
+     */
+    public List<DmsFileReview> getAllReviewsResultByFileId(String fileId);
+    
     /**
      * 新增文档评阅
      * 
