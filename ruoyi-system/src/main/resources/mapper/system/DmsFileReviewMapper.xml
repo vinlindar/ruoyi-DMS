@@ -7,6 +7,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <resultMap type="DmsFileReview" id="DmsFileReviewResult">
         <result property="fileId"    column="file_id"    />
         <result property="reviewerId"    column="reviewer_id"    />
+        <result property="reviewerName"    column="user_name"    />
         <result property="comment"    column="comment"    />
         <result property="isPassed"    column="is_passed"    />
         <result property="reviewTime"    column="review_time"    />
@@ -26,9 +27,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <sql id="selectDmsFileReviewVo">
         select fr.file_id, fr.reviewer_id, fr.comment, fr.is_passed, fr.review_time, 
         	fi.file_name,fi.file_path,fi.author,fi.reviewer,fi.file_type,fi.file_size,
-        	fi.file_status,fi.belongteam,fi.description,fi.update_by,fi.update_time
+        	fi.file_status,fi.belongteam,fi.description,fi.update_by,fi.update_time,
+        	su.user_name
         from dms_file_review fr
         	left join dms_file_info fi on fr.file_id = fi.file_id
+        	left join sys_user su on fr.reviewer_id = su.user_id
     </sql>
 
     <select id="selectDmsFileReviewList" parameterType="DmsFileReview" resultMap="DmsFileReviewResult">

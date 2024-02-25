@@ -22,6 +22,10 @@ public class DmsFileReview extends BaseEntity
 
     /** 评阅人ID */
     private Long reviewerId;
+    
+    /** 评阅人姓名 */
+    @Excel(name = "评阅人姓名")
+    private String reviewerName;
 
     /** 评阅意见 */
     @Excel(name = "评阅意见")
@@ -71,7 +75,6 @@ public class DmsFileReview extends BaseEntity
     /** 文件描述 */
     @Excel(name = "文件描述")
     private String description;
-    
 
     public void setFileId(String fileId) 
     {
@@ -191,6 +194,15 @@ public class DmsFileReview extends BaseEntity
     {
         return description;
     }
+    public void getreviewerName(String reviewerName) 
+    {
+        this.reviewerName = reviewerName;
+    }
+    public String getreviewerName() 
+    {
+        return reviewerName;
+    }
+
 
     @Override
     public String toString() {

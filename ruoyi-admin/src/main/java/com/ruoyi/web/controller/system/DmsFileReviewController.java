@@ -98,25 +98,38 @@ public class DmsFileReviewController extends BaseController
         int updateReviewResult = dmsFileReviewService.updateDmsFileReview(dmsFileReview);
         // 查询所有评审结果
         List<DmsFileReview> allReviews = dmsFileReviewService.getAllReviewsResultByFileId(dmsFileReview.getFileId());
-        // 检查是否所有评审都通过
-        boolean allApproved = allReviews.stream().allMatch(review -> review.getIsPassed() == 2);
-        if (allApproved) {
-        	long passedStatus = 2L;
-            int updateFileStatusResult = dmsFileInfoService.updateDmsFileStatus(dmsFileReview.getFileId(), passedStatus);
+        // 检查是否有评审结果为需修改
+        boolean hasResultThree = allReviews.stream().anyMatch(review -> review.getIsPassed() == 3);
+        if (hasResultThree) {
+            long fileStatus = 4L;
+            int updateFileStatusResult = dmsFileInfoService.updateDmsFileStatus(dmsFileReview.getFileId(), fileStatus);
             if (updateFileStatusResult > 0) {
-                return AjaxResult.success("评审已通过，并修改文件状态成功");
+                return AjaxResult.success("评审结果包含需修改，文件状态修改为待修改");
             } else {
                 return AjaxResult.error("修改文件状态失败");
             }
-        }
-    	
-        if (updateReviewResult > 0) {
-            return AjaxResult.success("评审结果修改成功");
-        } else {
-            return AjaxResult.error("评审结果修改失败");
+        }else {
+        	// 检查是否所有评审都通过
+            boolean allApproved = allReviews.stream().allMatch(review -> review.getIsPassed() == 2);
+            if (allApproved) {
+            	long fileStatus = 2L;
+                int updateFileStatusResult = dmsFileInfoService.updateDmsFileStatus(dmsFileReview.getFileId(), fileStatus);
+                if (updateFileStatusResult > 0) {
+                    return AjaxResult.success("评审已通过，文件状态修改为待发布");
+                } else {
+                    return AjaxResult.error("修改文件状态失败");
+                }
+            }else {
+            	long fileStatus = 1L;
+            	int updateFileStatusResult = dmsFileInfoService.updateDmsFileStatus(dmsFileReview.getFileId(), fileStatus);
+            	if (updateFileStatusResult > 0) {
+                    return AjaxResult.success("存在待评审，文件状态修改为待评审");
+                } else {
+                    return AjaxResult.error("修改文件状态失败");
+                }
+            }
         }
     }
-    
 
     /**
      * 删除文档评阅

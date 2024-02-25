@@ -247,25 +247,31 @@
         <el-button @click="cancel">取 消</el-button>
       </div>
     </el-dialog>
-    <!--查看文档评阅意见信息对话框
-    <el-dialog :title="评阅意见" :visible.sync="openreview" width="500px" append-to-body>
-      
-    </el-dialog>
-    -->
+
+    <!-- 评阅信息展示-->
+    <el-dialog title="评阅意见" :visible.sync="openreview" width="500px" append-to-body>
+    <el-card v-for="(review, index) in ReviewList" :key="index" class="review-card">
+      <p slot="header" class="reviewer">评阅人: {{ review.reviewerName }}</p>
+      <p>评阅结果: <dict-tag :options="getReviewResultText()" :value="review.isPassed" /></p>
+      <p>评阅信息: {{ review.comment }}</p>
+    <el-divider></el-divider>
+  </el-card>
+</el-dialog>
+
   </div>
 </template>
 
 <script>
 import { listDmsfileupload, getDmsfileupload, delDmsfileupload, addDmsfileupload, updateDmsfileupload,deptTreeSelect  } from "@/api/system/dmsfileupload";
 import { listReviewer } from "@/api/system/user";
-import { addReview, delReview}from "@/api/system/review";
+import { addReview, delReview,listReview}from "@/api/system/review";
 import { getToken } from "@/utils/auth";
 import Treeselect from "@riophae/vue-treeselect";
 import "@riophae/vue-treeselect/dist/vue-treeselect.css";
 
 export default {
   name: "Dmsfileupload",
-  dicts: ['dms_file_type', 'dms_file_status'],
+  dicts: ['dms_file_type', 'dms_file_status','dms_review_result'],
   components: { Treeselect },
   data() {
     return {
@@ -293,8 +299,10 @@ export default {
       deptOptions: undefined,
       // 部门名称
       deptName: undefined,
-      // 用户列表
+      // 评审人列表
       ReviewerList: undefined,
+      // 评审意见列表
+      ReviewList: undefined,
       // 是否显示新增修改弹出层
       open: false,
       // 是否显示评阅意见层
@@ -315,6 +323,15 @@ export default {
         description: null,
         updateBy: this.$store.state.user.name,
         updateTime: null,
+      },
+      // 查询评阅
+      reviewquery: {
+        pageNum: 1,
+        pageSize: 10,
+        fileId: null,
+        reviewerId: null,
+        comment: null,
+        isPassed: null
       },
       // 表单参数
       form: {},
@@ -375,9 +392,8 @@ export default {
       this.loading = true;
       listReviewer().then(response => {
           // 提取用户ID和用户名信息
-          console.log(response);
           this.ReviewerList = response.data;
-          this.total = response.length;
+          this.reviewertotal = response.length;
           this.loading = false;
         }
       );
@@ -442,7 +458,7 @@ export default {
       this.reset();
       const fileId = row.fileId || this.ids
       const fileStatus = row.fileStatus || this.selectfileStatus;
-      if(fileStatus !== 1) {
+      if(fileStatus !== 1 && fileStatus !== 4) {
         this.$modal.msgError("文件待发布或已发布，请联系定稿人或管理员处理。");
         return;
       }
@@ -453,10 +469,18 @@ export default {
         this.upload.fileList = [{ name: this.form.fileName, url: this.form.filePath }];
       });
     },
-    /** 查看评审意见操作 */
+    /** 查看评审意见 */
     handlereviewlist(){
       this.openreview = true;
-      
+      const fileId = this.ids
+      this.reviewquery.fileId = fileId[0]
+      listReview(this.reviewquery).then(response => {
+          // 提取用户ID和用户名信息
+          this.ReviewList = response.rows;
+          this.reviewtotal = response.total;
+          this.loading = false;
+          console.log(this)
+        });
     },
     /** 提交按钮 */
     submitForm() {
@@ -471,6 +495,8 @@ export default {
             return user ? user.userName : '';});
         // 拼接评阅人文本，存入form.reviewer
         this.form.reviewer = reviewerNames.join('、');
+        // 重置文件状态
+        this.form.fileStatus = 1;
         if (valid) {
           if (this.form.fileId != null) {
             updateDmsfileupload(this.form).then(response => {
@@ -618,6 +644,9 @@ export default {
       // 将组件连接起来形成文件ID
       const fileId = `${year}${month}${day}${hour}${randomNum}`;
       return fileId;
+    },
+    getReviewResultText() {
+      return this.dict.type.dms_review_result;
     },
   },
 };

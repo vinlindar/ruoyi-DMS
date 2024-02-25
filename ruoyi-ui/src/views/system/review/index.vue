@@ -12,9 +12,10 @@
       <el-form-item label="评阅人ID" prop="reviewerId">
         <el-input
           v-model="queryParams.reviewerId"
-          placeholder="请输入用户ID"
+          placeholder="仅管理员可操作"
           clearable
           @keyup.enter.native="handleQuery"
+          :readonly="!isAdmin"
         />
       </el-form-item>
       <el-form-item label="评阅结果" prop="isPassed">
@@ -52,8 +53,8 @@
       <el-table-column label="文件ID" align="center" prop="fileId" />
       <el-table-column label="文件名" align="center" prop="fileName" />
       <el-table-column label="作者" align="center" prop="author" />
-      <el-table-column label="评阅人" align="center" prop="reviewer" />
-      <el-table-column label="评阅人ID" align="center" prop="reviewerId" />
+      <el-table-column label="所有评阅人" align="center" prop="reviewer" />
+      <el-table-column label="当前评阅人" align="center" prop="reviewerName" />
       <el-table-column label="文件类型" align="center" prop="fileType">
         <template slot-scope="scope">
           <dict-tag :options="dict.type.dms_file_type" :value="scope.row.fileType"/>
@@ -103,7 +104,7 @@
     <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
         <el-form-item label="评阅意见" prop="comment">
-          <el-input v-model="form.comment" type="textarea" placeholder="请输入内容" />
+          <el-input v-model="form.comment" type="textarea" placeholder="最多500字" />
         </el-form-item>
         <el-form-item label="评阅结果" prop="isPassed">
           <el-select v-model="form.isPassed" placeholder="请选择评阅结果">
@@ -132,6 +133,8 @@ export default {
   dicts: ['dms_file_type', 'dms_file_status','dms_review_result'],
   data() {
     return {
+      //是否为管理员
+      isAdmin: this.$store.state.user.name === 'admin',
       // 遮罩层
       loading: true,
       // 选中数组
@@ -155,7 +158,7 @@ export default {
         pageNum: 1,
         pageSize: 10,
         fileId: null,
-        reviewerId: null,
+        reviewerId: this.$store.state.user.id,
         comment: null,
         isPassed: null
       },
@@ -177,7 +180,6 @@ export default {
         this.reviewList = response.rows;
         this.total = response.total;
         this.loading = false;
-        console.log(this.reviewList)
       });
     },
     // 取消按钮
@@ -185,7 +187,7 @@ export default {
       this.open = false;
       this.reset();
     },
-    // 表单重置
+    // 表单重置this.$store.state.user.id,
     reset() {
       this.form = {
         fileId: null,

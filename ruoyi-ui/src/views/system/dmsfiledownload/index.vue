@@ -45,12 +45,13 @@
         </el-select>
       </el-form-item>
       <el-form-item label="文件状态" prop="fileStatus">
-        <el-select v-model="queryParams.fileStatus" placeholder="请选择文件状态" clearable>
+        <el-select v-model="queryParams.fileStatus" placeholder="仅管理员可操作" clearable>
           <el-option
             v-for="dict in dict.type.dms_file_status"
             :key="dict.value"
             :label="dict.label"
-            :value="dict.value"
+            :value="parseInt(dict.value)"
+            :readonly="!isAdmin"
           />
         </el-select>
       </el-form-item>
@@ -140,6 +141,8 @@ export default {
   dicts: ['dms_file_type', 'dms_file_status'],
   data() {
     return {
+      //是否为管理员
+      isAdmin: this.$store.state.user.name === 'admin',
       // 遮罩层
       loading: true,
       // 选中数组
@@ -169,7 +172,7 @@ export default {
         reviewer: null,
         fileType: null,
         fileSize: null,
-        fileStatus: null,
+        fileStatus: 3,
         belongteam: null,
         description: null,
         updateBy: null,
@@ -193,6 +196,7 @@ export default {
         this.dmsfileuploadList = response.rows;
         this.total = response.total;
         this.loading = false;
+        console.log(this)
       });
     },
     // 取消按钮
