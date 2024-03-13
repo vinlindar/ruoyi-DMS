@@ -16,9 +16,11 @@ import com.ruoyi.common.annotation.Log;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.common.enums.BusinessType;
+import com.ruoyi.system.domain.DmsFilePublish;
 import com.ruoyi.system.domain.DmsFileReview;
 import com.ruoyi.system.service.IDmsFileReviewService;
 import com.ruoyi.system.service.IDmsFileInfoService;
+import com.ruoyi.system.service.IDmsFilePublishService;
 import com.ruoyi.common.utils.poi.ExcelUtil;
 import com.ruoyi.common.core.page.TableDataInfo;
 
@@ -36,7 +38,8 @@ public class DmsFileReviewController extends BaseController
     private IDmsFileReviewService dmsFileReviewService;
     @Autowired
     private IDmsFileInfoService dmsFileInfoService;
-    
+    @Autowired
+    private IDmsFilePublishService dmsFilePublishService;
     /**
      * 查询文档评阅列表
      */
@@ -115,6 +118,21 @@ public class DmsFileReviewController extends BaseController
             	long fileStatus = 2L;
                 int updateFileStatusResult = dmsFileInfoService.updateDmsFileStatus(dmsFileReview.getFileId(), fileStatus);
                 if (updateFileStatusResult > 0) {
+					// 文档定稿表新增信息（查询是否有重复ID，若无新增信息，若有修改信息）
+                    DmsFilePublish dmsFilePublish = new DmsFilePublish();
+                    dmsFilePublish.setFileId(dmsFileReview.getFileId());
+                    dmsFilePublish.setPublishId(dmsFileReview.getPublishId());
+                 // 查询是否存在相同ID的记录
+                    DmsFilePublish existingRecord = dmsFilePublishService.selectDmsFilePublishByFileId(dmsFilePublish.getFileId());
+                    if (existingRecord != null) {
+                        // 如果记录已存在，则重置定稿结果和定稿意见
+                    	dmsFilePublish.setIsPassed(1L);
+                    	dmsFilePublish.setComment("");
+                        int updateResult = dmsFilePublishService.updateDmsFilePublish(dmsFilePublish);
+                    } else {
+                        // 如果记录不存在，则执行插入操作
+                        int insertResult = dmsFilePublishService.insertDmsFilePublish(dmsFilePublish);
+                    }
                     return AjaxResult.success("评审已通过，文件状态修改为待发布");
                 } else {
                     return AjaxResult.error("修改文件状态失败");

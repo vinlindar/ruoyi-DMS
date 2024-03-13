@@ -17,10 +17,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="description"    column="description"    />
         <result property="updateBy"    column="update_by"    />
         <result property="updateTime"    column="update_time"    />
+        <result property="publishId"    column="publish_id"    />
     </resultMap>
 
     <sql id="selectDmsFileInfoVo">
-        select file_id, file_name, file_path, author, reviewer, file_type, file_size, file_status, belongteam, description, update_by, update_time from dms_file_info
+        select file_id, file_name, file_path, author, reviewer, file_type, file_size, file_status, belongteam, description, update_by, update_time, publish_id from dms_file_info
     </sql>
 
     <select id="selectDmsFileInfoList" parameterType="DmsFileInfo" resultMap="DmsFileInfoResult">
@@ -37,7 +38,52 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="belongteam != null  and belongteam != ''"> and belongteam = #{belongteam}</if>
             <if test="description != null  and description != ''"> and description = #{description}</if>
             <if test="updateBy != null  and updateBy != ''"> and update_by = #{updateBy}</if>
-            <if test="updateTime != null "> and update_time = #{updateTime}</if>
+            <if test="updateTime != null "> and DATE(update_time) = #{updateTime}</if>
+            <if test="publishId != null "> and publish_id = #{publishId}</if>
+        </where>
+    </select>
+    
+    <select id="selectDmsFileInfoListByPremission" parameterType="DmsFileInfo" resultMap="DmsFileInfoResult">
+        select DISTINCT
+        	fi.file_id,fi.file_name,fi.file_path,fi.author,fi.reviewer,fi.file_type,fi.file_size,fi.publish_id,
+        	fi.file_status,fi.belongteam,fi.description,fi.update_by,fi.update_time
+    	from dms_file_info fi
+    	inner join dms_file_permissions fp ON fi.file_id = fp.file_id
+   		inner join sys_user su ON fp.dept_id = su.dept_id
+        <where>
+        	<choose>
+        	    <when test="queryuserRole == null">
+        	 	</when>
+        	    <when test="queryuserRole == 1">
+        	 	</when>
+        	 	<when test="queryuserRole == 2">
+        	 		<if test="queryuserId != null">and su.user_id = #{queryuserId}</if>
+        	 	</when>
+        	 	<when test="queryuserRole == 3">
+        	 		<if test="queryuserId != null">and su.user_id = #{queryuserId}</if>
+            	</when>
+            	<when test="queryuserRole == 4">
+                	and fp.dept_id= #{queryuserDept}
+                	<if test="queryuserId != null">and su.user_id = #{queryuserId}</if>
+            	</when>
+            	<when test="queryuserRole == 5">
+                	and fp.dept_id= #{queryuserDept}
+                	<if test="queryuserId != null">and su.user_id = #{queryuserId}</if>
+            	</when>
+            </choose>
+            <if test="fileId != null  and fileId != ''"> and file_id = #{fileId}</if>
+            <if test="fileName != null  and fileName != ''"> and file_name like concat('%', #{fileName}, '%')</if>
+            <if test="filePath != null  and filePath != ''"> and file_path = #{filePath}</if>
+            <if test="author != null  and author != ''"> and author = #{author}</if>
+            <if test="reviewer != null  and reviewer != ''"> and reviewer = #{reviewer}</if>
+            <if test="fileType != null "> and file_type = #{fileType}</if>
+            <if test="fileSize != null  and fileSize != ''"> and file_size = #{fileSize}</if>
+            <if test="fileStatus != null "> and file_status = #{fileStatus}</if>
+            <if test="belongteam != null  and belongteam != ''"> and belongteam = #{belongteam}</if>
+            <if test="description != null  and description != ''"> and description = #{description}</if>
+            <if test="updateBy != null  and updateBy != ''"> and update_by = #{updateBy}</if>
+            <if test="updateTime != null "> and DATE(update_time) = #{updateTime}</if>
+            <if test="publishId != null "> and publish_id = #{publishId}</if>
         </where>
     </select>
     
@@ -61,6 +107,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="description != null">description,</if>
             <if test="updateBy != null">update_by,</if>
             <if test="updateTime != null">update_time,</if>
+            <if test="publishId != null">publish_id,</if>
          </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="fileId != null">#{fileId},</if>
@@ -75,6 +122,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="description != null">#{description},</if>
             <if test="updateBy != null">#{updateBy},</if>
             <if test="updateTime != null">#{updateTime},</if>
+            <if test="publishId != null">#{publishId},</if>
          </trim>
     </insert>
     
@@ -92,6 +140,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="description != null">description = #{description},</if>
             <if test="updateBy != null">update_by = #{updateBy},</if>
             <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="publishId != null">publish_id = #{publishId},</if>
         </trim>
         where file_id = #{fileId}
     </update>

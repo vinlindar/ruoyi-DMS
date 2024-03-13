@@ -12,19 +12,26 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
 import com.ruoyi.common.annotation.Log;
 import com.ruoyi.common.config.RuoYiConfig;
 import com.ruoyi.common.constant.Constants;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.AjaxResult;
+import com.ruoyi.common.core.domain.entity.SysUser;
 import com.ruoyi.common.enums.BusinessType;
 import com.ruoyi.system.domain.DmsFileInfo;
+import com.ruoyi.system.domain.DmsFilePublish;
 import com.ruoyi.system.service.IDmsFileInfoService;
+import com.ruoyi.system.service.IDmsFileReviewService;
 import com.ruoyi.common.utils.poi.ExcelUtil;
 import com.ruoyi.common.core.page.TableDataInfo;
 import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.common.utils.file.FileUtils;
+import com.ruoyi.system.service.ISysUserService;
+import com.ruoyi.common.core.domain.entity.SysRole;
+import com.ruoyi.system.domain.DmsFileReview;
+import com.ruoyi.system.service.IDmsFilePublishService;
+
 
 /**
  * 文件信息Controller
@@ -38,7 +45,12 @@ public class DmsFileInfoController extends BaseController
 {
     @Autowired
     private IDmsFileInfoService dmsFileInfoService;
-
+    @Autowired
+    private ISysUserService userService;
+    @Autowired
+    private IDmsFileReviewService dmsFileReviewService;
+    @Autowired
+    private IDmsFilePublishService dmsFilePublishService;
     /**
      * 查询文件信息列表
      */
@@ -46,9 +58,29 @@ public class DmsFileInfoController extends BaseController
     @GetMapping("/list")
     public TableDataInfo list(DmsFileInfo dmsFileInfo)
     {
-        startPage();
-        List<DmsFileInfo> list = dmsFileInfoService.selectDmsFileInfoList(dmsFileInfo);
-        return getDataTable(list);
+    	startPage();
+    	Long querykind = dmsFileInfo.getQuerykind();
+        // 判断querykind是否为1，若是则为文档浏览的查询
+        if(querykind == 1L) {
+        	// 根据用户id查询归属部门ID，用户角色ID，赋给dmsFileInfo
+        	Long userId = dmsFileInfo.getQueryuserId();
+        	SysUser sysUser = userService.selectUserById(userId);
+        	System.out.println("sysuser:"+sysUser.toString());
+        	Long userDept = sysUser.getDeptId();
+        	List<SysRole> roles = sysUser.getRoles();
+        	Long userRole = null;
+        	if (roles != null && !roles.isEmpty()) {
+        	    userRole = roles.get(0).getRoleId();
+        	}
+        	System.out.println("userRole:"+userRole.toString());
+        	dmsFileInfo.setQueryuserDept(userDept);
+        	dmsFileInfo.setQueryuserRole(userRole);
+        	List<DmsFileInfo> list = dmsFileInfoService.selectDmsFileInfoListByPremission(dmsFileInfo);
+        	return getDataTable(list);
+        }else {
+	        List<DmsFileInfo> list = dmsFileInfoService.selectDmsFileInfoList(dmsFileInfo);
+	        return getDataTable(list);
+        }
     }
 
     /**
@@ -82,7 +114,18 @@ public class DmsFileInfoController extends BaseController
     @PostMapping
     public AjaxResult add(@RequestBody DmsFileInfo dmsFileInfo)
     {
-        return toAjax(dmsFileInfoService.insertDmsFileInfo(dmsFileInfo));
+    	// 新增文件信息->新建评审信息
+    	dmsFileInfoService.insertDmsFileInfo(dmsFileInfo);
+    	//提取reviewID,构建reviewform,循环新建评审信息
+    	List<Long> reviewerIds = dmsFileInfo.getReviewerIds();
+    	DmsFileReview dmsFileReview = new DmsFileReview();
+    	dmsFileReview.setFileId(dmsFileInfo.getFileId());
+    	dmsFileReview.setIsPassed(1L);
+    	for (Long reviewerId : reviewerIds) {
+	    	dmsFileReview.setReviewerId(reviewerId);
+	    	dmsFileReviewService.insertDmsFileReview(dmsFileReview);
+    	}
+    	return AjaxResult.success("新建文件成功");
     }
 
     /**
@@ -93,7 +136,22 @@ public class DmsFileInfoController extends BaseController
     @PutMapping
     public AjaxResult edit(@RequestBody DmsFileInfo dmsFileInfo)
     {
-        return toAjax(dmsFileInfoService.updateDmsFileInfo(dmsFileInfo));
+    	// 修改文件信息->删除评审信息->删除定稿信息—>新建评审信息
+    	dmsFileInfoService.updateDmsFileInfo(dmsFileInfo);
+    	// 删除文件ID对应评审信息
+    	dmsFileReviewService.deleteDmsFileReviewByFileId(dmsFileInfo.getFileId());
+    	// 删除文件ID对应定稿信息
+    	dmsFilePublishService.deleteDmsFilePublishByFileId(dmsFileInfo.getFileId());
+    	//提取reviewID,构建reviewform,循环新建评审信息
+    	List<Long> reviewerIds = dmsFileInfo.getReviewerIds();
+    	DmsFileReview dmsFileReview = new DmsFileReview();
+    	dmsFileReview.setFileId(dmsFileInfo.getFileId());
+    	dmsFileReview.setIsPassed(1L);
+    	for (Long reviewerId : reviewerIds) {
+	    	dmsFileReview.setReviewerId(reviewerId);
+	    	dmsFileReviewService.insertDmsFileReview(dmsFileReview);
+    	}
+    	return AjaxResult.success("修改文件成功");
     }
 
     /**
@@ -119,7 +177,12 @@ public class DmsFileInfoController extends BaseController
         //System.out.println("Deleting file with path: " + deletaPath);
         FileUtils.deleteFile(deletaPath);
         
-     // 删除文件信息记录
-        return toAjax(dmsFileInfoService.deleteDmsFileInfoByFileId(fileId));
+     // 删除文件信息记录->删除评审信息->删除定稿信息
+    	dmsFileInfoService.deleteDmsFileInfoByFileId(dmsFileInfo.getFileId());
+    	// 删除文件ID对应评审信息
+    	dmsFileReviewService.deleteDmsFileReviewByFileId(dmsFileInfo.getFileId());
+    	// 删除文件ID对应定稿信息
+    	dmsFilePublishService.deleteDmsFilePublishByFileId(dmsFileInfo.getFileId());
+    	return AjaxResult.success("删除成功");
     }
 }

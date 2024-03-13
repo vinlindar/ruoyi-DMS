@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.DmsDownloadRecordsMapper">
+    
+    <resultMap type="DmsDownloadRecords" id="DmsDownloadRecordsResult">
+        <result property="id"    column="id"    />
+        <result property="fileId"    column="file_id"    />
+        <result property="fileName"    column="file_name"    />
+        <result property="deptId"    column="dept_id"    />
+        <result property="belongteam"    column="belongteam"    />
+        <result property="downloadUserid"    column="download_userid"    />
+        <result property="downloadUser"    column="download_user"    />
+        <result property="downloadTime"    column="download_time"    />
+    </resultMap>
+
+    <sql id="selectDmsDownloadRecordsVo">
+        select id, file_id, file_name, dept_id, belongteam, download_userid, download_user, download_time from dms_download_records
+    </sql>
+
+    <select id="selectDmsDownloadRecordsList" parameterType="DmsDownloadRecords" resultMap="DmsDownloadRecordsResult">
+        <include refid="selectDmsDownloadRecordsVo"/>
+        <where>  
+            <if test="fileId != null  and fileId != ''"> and file_id = #{fileId}</if>
+            <if test="fileName != null  and fileName != ''"> and file_name like concat('%', #{fileName}, '%')</if>
+            <if test="deptId != null "> and dept_id = #{deptId}</if>
+            <if test="belongteam != null  and belongteam != ''"> and belongteam = #{belongteam}</if>
+            <if test="downloadUserid != null "> and download_userid = #{downloadUserid}</if>
+            <if test="downloadUser != null  and downloadUser != ''"> and download_user = #{downloadUser}</if>
+            <if test="downloadTime != null "> and DATE(download_time) = #{downloadTime}</if>
+        </where>
+    </select>
+    
+    <select id="selectDmsDownloadRecordsById" parameterType="Long" resultMap="DmsDownloadRecordsResult">
+        <include refid="selectDmsDownloadRecordsVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertDmsDownloadRecords" parameterType="DmsDownloadRecords" useGeneratedKeys="true" keyProperty="id">
+        insert into dms_download_records
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="fileId != null and fileId != ''">file_id,</if>
+            <if test="fileName != null and fileName != ''">file_name,</if>
+            <if test="deptId != null">dept_id,</if>
+            <if test="belongteam != null">belongteam,</if>
+            <if test="downloadUserid != null">download_userid,</if>
+            <if test="downloadUser != null">download_user,</if>
+            <if test="downloadTime != null">download_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="fileId != null and fileId != ''">#{fileId},</if>
+            <if test="fileName != null and fileName != ''">#{fileName},</if>
+            <if test="deptId != null">#{deptId},</if>
+            <if test="belongteam != null">#{belongteam},</if>
+            <if test="downloadUserid != null">#{downloadUserid},</if>
+            <if test="downloadUser != null">#{downloadUser},</if>
+            <if test="downloadTime != null">#{downloadTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateDmsDownloadRecords" parameterType="DmsDownloadRecords">
+        update dms_download_records
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="fileId != null and fileId != ''">file_id = #{fileId},</if>
+            <if test="fileName != null and fileName != ''">file_name = #{fileName},</if>
+            <if test="deptId != null">dept_id = #{deptId},</if>
+            <if test="belongteam != null">belongteam = #{belongteam},</if>
+            <if test="downloadUserid != null">download_userid = #{downloadUserid},</if>
+            <if test="downloadUser != null">download_user = #{downloadUser},</if>
+            <if test="downloadTime != null">download_time = #{downloadTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteDmsDownloadRecordsById" parameterType="Long">
+        delete from dms_download_records where id = #{id}
+    </delete>
+
+    <delete id="deleteDmsDownloadRecordsByIds" parameterType="String">
+        delete from dms_download_records where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

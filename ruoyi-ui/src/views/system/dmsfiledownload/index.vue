@@ -26,14 +26,6 @@
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="审稿人" prop="reviewer">
-        <el-input
-          v-model="queryParams.reviewer"
-          placeholder="请输入审稿人"
-          clearable
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
       <el-form-item label="文件类型" prop="fileType">
         <el-select v-model="queryParams.fileType" placeholder="请选择文件类型" clearable>
           <el-option
@@ -56,11 +48,12 @@
         </el-select>
       </el-form-item>
       <el-form-item label="归属团队" prop="belongteam">
-        <el-input
+        <treeselect 
           v-model="queryParams.belongteam"
+          :options="deptOptions"
+          :show-count="true"
+          @select="handleSelect"
           placeholder="请输入归属团队"
-          clearable
-          @keyup.enter.native="handleQuery"
         />
       </el-form-item>
       <el-form-item label="创建者" prop="updateBy">
@@ -89,9 +82,13 @@
       <el-table-column type="selection" width="55" align="center" />
       <el-table-column label="文件ID" align="center" prop="fileId" />
       <el-table-column label="文件名" align="center" prop="fileName" />
-      <el-table-column label="文件路径" align="center" prop="filePath" />
       <el-table-column label="作者" align="center" prop="author" />
       <el-table-column label="审稿人" align="center" prop="reviewer" />
+      <el-table-column label="定稿人" align="center">
+        <template slot-scope="scope">
+          {{ getPublishNameById(scope.row.publishId) }}
+        </template>
+      </el-table-column>
       <el-table-column label="文件类型" align="center" prop="fileType">
         <template slot-scope="scope">
           <dict-tag :options="dict.type.dms_file_type" :value="scope.row.fileType"/>
@@ -135,10 +132,16 @@
 
 <script>
 import { listDmsfileupload} from "@/api/system/dmsfileupload";
+import { listUserbypostId } from "@/api/system/user";
+import { addRecords} from "@/api/system/records";
+import {deptTreeSelect} from "@/api/system/dmsfileupload";
+import Treeselect from "@riophae/vue-treeselect";
+import "@riophae/vue-treeselect/dist/vue-treeselect.css";
 
 export default {
   name: "Dmsfiledownload",
   dicts: ['dms_file_type', 'dms_file_status'],
+  components: { Treeselect },
   data() {
     return {
       //是否为管理员
@@ -159,6 +162,8 @@ export default {
       dmsfileuploadList: [],
       // 弹出层标题
       title: "",
+      // 部门树选项
+      deptOptions: undefined,
       // 是否显示弹出层
       open: false,
       // 查询参数
@@ -172,12 +177,21 @@ export default {
         reviewer: null,
         fileType: null,
         fileSize: null,
+        // 固定为已发布文档
         fileStatus: 3,
         belongteam: null,
         description: null,
         updateBy: null,
-        updateTime: null
+        updateTime: null,
+        publishId: null,
+        //区分文档上传的查询
+        querykind: 1,
+        // 用户权限控制需要
+        queryuserId:this.$store.state.user.id,
+        queryuserDept:null,
       },
+      // 下载记录表单
+      downloadrecord_form:{},
       // 表单参数
       form: {},
       // 表单校验
@@ -186,6 +200,8 @@ export default {
     };
   },
   created() {
+    this.getDeptTree();
+    this.getPublishList();
     this.getList();
   },
   methods: {
@@ -196,8 +212,34 @@ export default {
         this.dmsfileuploadList = response.rows;
         this.total = response.total;
         this.loading = false;
-        console.log(this)
       });
+    },
+    /** 查询部门下拉树结构 */
+    getDeptTree() {
+      deptTreeSelect().then(response => {
+        this.deptOptions = response.data;
+      });
+    },
+    // 筛选条件的部门选择事件
+    handleSelect(val) {
+      // 通过 Treeselect 实例获取选中的label值
+        this.queryParams.belongteam = val.label
+    },
+    /**  查询定稿人下拉列表 */
+    getPublishList() {
+      this.loading = true;
+      const postID = 1;
+      listUserbypostId(postID).then(response => {
+          // 提取用户ID和用户名信息
+          this.PublishList = response.data;
+          console.log(this)
+          this.loading = false;
+        }
+      );
+    },
+    getPublishNameById(userId) {
+      const user = this.PublishList.find(user => user.userId === userId);
+      return user ? user.userName : userId.toString();
     },
     // 取消按钮
     cancel() {
@@ -239,6 +281,23 @@ export default {
       this.multiple = !selection.length
     },
     handleDownload(row) {
+      // 新增下载记录
+      const currentDate = new Date();
+      const formattedDate = `${currentDate.getFullYear()}-${(currentDate.getMonth() + 1).toString().padStart(2, '0')}-${currentDate.getDate().toString().padStart(2, '0')} ${currentDate.getHours().toString().padStart(2, '0')}:${currentDate.getMinutes().toString().padStart(2, '0')}:${currentDate.getSeconds().toString().padStart(2, '0')}`;
+      // 查找belongteam对应的deptId
+      const deptId = this.getIdByLabel(this.deptOptions, row.belongteam)
+      this.downloadrecord_form = {
+        fileId: row.fileId,
+        fileName: row.fileName,
+        deptId:deptId,
+        belongteam: row.belongteam,
+        downloadUserid: this.$store.state.user.id,
+        downloadUser: this.$store.state.user.name,
+        downloadTime: formattedDate 
+      };
+      addRecords(this.downloadrecord_form);
+      console.log(this.downloadrecord_form);
+
       var name = row.fileName;
       var url = row.filePath;
       var suffix = url.substring(url.lastIndexOf("."), url.length);
@@ -248,6 +307,30 @@ export default {
       a.setAttribute('href', url)
       a.click()
     },
-  },
+    // 根据belongteam文本查deptId
+    getIdByLabel(deptOptions, targetLabel){
+      function findId(options, label) {
+        for (const option of options) {
+          if (option.label === label) {
+            return option.id;
+          }
+          if (option.children) {
+            const foundId = findId(option.children, label);
+            if (foundId) {
+              return foundId;
+            }
+          }
+        }
+        return null;
+      }
+      return findId(deptOptions, targetLabel);
+    },
+  }
 };
 </script>
+<style>
+.vue-treeselect{
+    height: 22px;
+    width: 220px;
+}
+</style>

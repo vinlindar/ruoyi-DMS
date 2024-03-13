@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.DmsFilePermissionsMapper">
+    
+    <resultMap type="DmsFilePermissions" id="DmsFilePermissionsResult">
+        <result property="fileId"    column="file_id"    />
+        <result property="deptId"    column="dept_id"    />
+    </resultMap>
+
+    <sql id="selectDmsFilePermissionsVo">
+        select file_id, dept_id from dms_file_permissions
+    </sql>
+
+    <select id="selectDmsFilePermissionsList" parameterType="DmsFilePermissions" resultMap="DmsFilePermissionsResult">
+        <include refid="selectDmsFilePermissionsVo"/>
+        <where>  
+            <if test="fileId != null  and fileId != ''"> and file_id = #{fileId}</if>
+            <if test="deptId != null "> and dept_id = #{deptId}</if>
+        </where>
+    </select>
+    
+    <select id="selectDmsFilePermissionsByFileId" parameterType="String" resultMap="DmsFilePermissionsResult">
+        <include refid="selectDmsFilePermissionsVo"/>
+        where file_id = #{fileId}
+    </select>
+        
+    <insert id="insertDmsFilePermissions" parameterType="DmsFilePermissions">
+        insert into dms_file_permissions
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="fileId != null">file_id,</if>
+            <if test="deptId != null">dept_id,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="fileId != null">#{fileId},</if>
+            <if test="deptId != null">#{deptId},</if>
+         </trim>
+    </insert>
+
+    <update id="updateDmsFilePermissions" parameterType="DmsFilePermissions">
+        update dms_file_permissions
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="deptId != null">dept_id = #{deptId},</if>
+        </trim>
+        where file_id = #{fileId}
+    </update>
+
+    <delete id="deleteDmsFilePermissionsByFileId" parameterType="String">
+        delete from dms_file_permissions where file_id = #{fileId}
+    </delete>
+
+    <delete id="deleteDmsFilePermissionsByFileIds" parameterType="String">
+        delete from dms_file_permissions where file_id in 
+        <foreach item="fileId" collection="array" open="(" separator="," close=")">
+            #{fileId}
+        </foreach>
+    </delete>
+</mapper>

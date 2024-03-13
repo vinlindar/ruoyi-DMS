@@ -119,7 +119,6 @@ public class SysUserController extends BaseController
     /**
      * 根据岗位ID获取用户信息
      */
-    @PreAuthorize("@ss.hasPermi('system:user:query')")
     @GetMapping("/postId/{postId}")
     public AjaxResult getUsersByPostName(@PathVariable("postId") Long postId) {
         List <SysUser> list = userService.selectUsersByPostName(postId);
@@ -252,7 +251,6 @@ public class SysUserController extends BaseController
     /**
      * 获取部门树列表
      */
-    @PreAuthorize("@ss.hasPermi('system:user:list')")
     @GetMapping("/deptTree")
     public AjaxResult deptTree(SysDept dept)
     {

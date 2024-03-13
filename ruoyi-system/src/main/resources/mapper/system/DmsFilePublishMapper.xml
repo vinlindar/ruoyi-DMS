@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.DmsFilePublishMapper">
+    
+    <resultMap type="DmsFilePublish" id="DmsFilePublishResult">
+        <result property="fileId"    column="file_id"    />
+        <result property="publishId"    column="publish_Id"    />
+        <result property="comment"    column="comment"    />
+        <result property="isPassed"    column="is_passed"    />
+        <result property="publishTime"    column="publish_time"    />
+        <result property="fileName"    column="file_name"    />
+        <result property="filePath"    column="file_path"    />
+        <result property="author"    column="author"    />
+        <result property="reviewer"    column="reviewer"    />
+        <result property="fileType"    column="file_type"    />
+        <result property="fileSize"    column="file_size"    />
+        <result property="fileStatus"    column="file_status"    />
+        <result property="belongteam"    column="belongteam"    />
+        <result property="description"    column="description"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectDmsFilePublishVo">
+    	select fi.file_name,fi.file_path,fi.author,fi.reviewer,fi.file_type,fi.file_size,fi.publish_id,
+        	fi.file_status,fi.belongteam,fi.description,fi.update_by,fi.update_time,
+        	fp.file_id, fp.publish_Id, fp.comment, fp.is_passed, fp.publish_time
+        from dms_file_publish fp
+        	left join dms_file_info fi on fp.file_id = fi.file_id
+    </sql>
+
+    <select id="selectDmsFilePublishList" parameterType="DmsFilePublish" resultMap="DmsFilePublishResult">
+        <include refid="selectDmsFilePublishVo"/>
+        <where>  
+            <if test="comment != null  and comment != ''"> and comment = #{comment}</if>
+            <if test="isPassed != null "> and is_passed = #{isPassed}</if>
+            <if test="publishTime != null "> and DATE(publish_time) = #{publishTime}</if>
+        </where>
+    </select>
+    
+    <select id="selectDmsFilePublishByFileId" parameterType="String" resultMap="DmsFilePublishResult">
+        <include refid="selectDmsFilePublishVo"/>
+        where fp.file_id = #{fileId}
+    </select>
+        
+    <insert id="insertDmsFilePublish" parameterType="DmsFilePublish">
+        insert into dms_file_publish
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="fileId != null">file_id,</if>
+            <if test="publishId != null">publish_id,</if>
+            <if test="comment != null">comment,</if>
+            <if test="isPassed != null">is_passed,</if>
+            <if test="publishTime != null">publish_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="fileId != null">#{fileId},</if>
+            <if test="publishId != null">#{publishId},</if>
+            <if test="comment != null">#{comment},</if>
+            <if test="isPassed != null">#{isPassed},</if>
+            <if test="publishTime != null">#{publishTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateDmsFilePublish" parameterType="DmsFilePublish">
+        update dms_file_publish
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="publishId != null">publish_Id = #{publishId},</if>
+            <if test="comment != null">comment = #{comment},</if>
+            <if test="isPassed != null">is_passed = #{isPassed},</if>
+            <if test="publishTime != null">publish_time = #{publishTime},</if>
+        </trim>
+        where file_id = #{fileId}
+    </update>
+
+    <delete id="deleteDmsFilePublishByFileId" parameterType="String">
+        delete from dms_file_publish where file_id = #{fileId}
+    </delete>
+
+    <delete id="deleteDmsFilePublishByFileIds" parameterType="String">
+        delete from dms_file_publish where file_id in 
+        <foreach item="fileId" collection="array" open="(" separator="," close=")">
+            #{fileId}
+        </foreach>
+    </delete>
+</mapper>

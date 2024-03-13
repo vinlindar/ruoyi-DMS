@@ -22,11 +22,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="description"    column="description"    />
         <result property="updateBy"    column="update_by"    />
         <result property="updateTime"    column="update_time"    />
+        <result property="publishId"    column="publish_id"    />
     </resultMap>
 
     <sql id="selectDmsFileReviewVo">
         select fr.file_id, fr.reviewer_id, fr.comment, fr.is_passed, fr.review_time, 
-        	fi.file_name,fi.file_path,fi.author,fi.reviewer,fi.file_type,fi.file_size,
+        	fi.file_name,fi.file_path,fi.author,fi.reviewer,fi.file_type,fi.file_size,fi.publish_id,
         	fi.file_status,fi.belongteam,fi.description,fi.update_by,fi.update_time,
         	su.user_name
         from dms_file_review fr

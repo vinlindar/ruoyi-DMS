@@ -43,7 +43,17 @@ public class DmsFileInfoServiceImpl implements IDmsFileInfoService
     {
         return dmsFileInfoMapper.selectDmsFileInfoList(dmsFileInfo);
     }
-
+    
+    /**
+     * 根据用户权限查询文件信息列表
+     * 
+     * @param dmsFileInfo 文件信息
+     * @return 文件信息集合
+     */
+    public List<DmsFileInfo> selectDmsFileInfoListByPremission(DmsFileInfo dmsFileInfo)
+    {
+        return dmsFileInfoMapper.selectDmsFileInfoListByPremission(dmsFileInfo);
+    }
     /**
      * 新增文件信息
      * 

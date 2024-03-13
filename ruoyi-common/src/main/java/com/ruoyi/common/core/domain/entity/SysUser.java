@@ -319,6 +319,7 @@ public class SysUser extends BaseEntity
             .append("updateTime", getUpdateTime())
             .append("remark", getRemark())
             .append("dept", getDept())
+            .append("roleId", getRoleId())
             .toString();
     }
 }

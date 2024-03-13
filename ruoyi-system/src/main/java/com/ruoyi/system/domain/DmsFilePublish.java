@@ -8,37 +8,33 @@ import com.ruoyi.common.annotation.Excel;
 import com.ruoyi.common.core.domain.BaseEntity;
 
 /**
- * 评阅对象 dms_file_review
+ * 定稿对象 dms_file_publish
  * 
- * @author ruoyi
- * @date 2024-02-18
+ * @author HYZ
+ * @date 2024-02-25
  */
-public class DmsFileReview extends BaseEntity
+public class DmsFilePublish extends BaseEntity
 {
     private static final long serialVersionUID = 1L;
 
     /** 文件ID */
     private String fileId;
 
-    /** 评阅人ID */
-    private Long reviewerId;
-    
-    /** 评阅人姓名 */
-    @Excel(name = "评阅人姓名")
-    private String reviewerName;
+    /** 定稿人ID */
+    private Long publishId;
 
-    /** 评阅意见 */
-    @Excel(name = "评阅意见")
+    /** 定稿意见 */
+    @Excel(name = "定稿意见")
     private String comment;
 
-    /** 是否通过 */
-    @Excel(name = "是否通过")
-    private Long  isPassed;
+    /** 定稿结果 */
+    @Excel(name = "定稿结果")
+    private Long isPassed;
 
-    /** 评阅时间 */
+    /** 定稿时间 */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    @Excel(name = "评阅时间", width = 30, dateFormat = "yyyy-MM-dd HH:mm:ss")
-    private Date reviewTime;
+    @Excel(name = "定稿时间", width = 30, dateFormat = "yyyy-MM-dd HH:mm:ss")
+    private Date publishTime;
     
     /** 文件名 */
     @Excel(name = "文件名")
@@ -76,9 +72,10 @@ public class DmsFileReview extends BaseEntity
     @Excel(name = "文件描述")
     private String description;
     
-    /** 定稿人ID */
-    @Excel(name = "定稿人ID")
-    private Long publishId;
+    /** 文件权限 */
+    @Excel(name = "文件部门权限")
+    private Long[] deptIds;
+    
 
     public void setFileId(String fileId) 
     {
@@ -89,14 +86,14 @@ public class DmsFileReview extends BaseEntity
     {
         return fileId;
     }
-    public void setReviewerId(Long reviewerId) 
+    public void setPublishId(Long publishId) 
     {
-        this.reviewerId = reviewerId;
+        this.publishId = publishId;
     }
 
-    public Long getReviewerId() 
+    public Long getPublishId() 
     {
-        return reviewerId;
+        return publishId;
     }
     public void setComment(String comment) 
     {
@@ -116,16 +113,15 @@ public class DmsFileReview extends BaseEntity
     {
         return isPassed;
     }
-    public void setReviewTime(Date reviewTime) 
+    public void setPublishTime(Date publishTime) 
     {
-        this.reviewTime = reviewTime;
+        this.publishTime = publishTime;
     }
 
-    public Date getReviewTime() 
+    public Date getPublishTime() 
     {
-        return reviewTime;
+        return publishTime;
     }
-    
     public void setFileName(String fileName) {
         this.fileName = fileName;
     }
@@ -198,31 +194,19 @@ public class DmsFileReview extends BaseEntity
     {
         return description;
     }
-    public void getreviewerName(String reviewerName) 
+    public Long[] getDeptIds() 
     {
-        this.reviewerName = reviewerName;
+        return deptIds;
     }
-    public String getreviewerName() 
-    {
-        return reviewerName;
-    }
-    public void setPublishId(Long publishId) 
-    {
-        this.publishId = publishId;
-    }
-    public Long getPublishId() 
-    {
-        return publishId;
-    }
-
+    
     @Override
     public String toString() {
         return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
             .append("fileId", getFileId())
-            .append("reviewerId", getReviewerId())
+            .append("publishId", getPublishId())
             .append("comment", getComment())
             .append("isPassed", getIsPassed())
-            .append("reviewTime", getReviewTime())
+            .append("publishTime", getPublishTime())
             .toString();
     }
 }

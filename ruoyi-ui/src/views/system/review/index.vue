@@ -9,14 +9,16 @@
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="评阅人ID" prop="reviewerId">
-        <el-input
-          v-model="queryParams.reviewerId"
-          placeholder="仅管理员可操作"
-          clearable
-          @keyup.enter.native="handleQuery"
-          :readonly="!isAdmin"
-        />
+      <el-form-item label="评阅人" prop="reviewerId">
+        <el-select v-model="queryParams.reviewerId" placeholder="仅管理员可操作" clearable>
+            <el-option 
+              v-for="user in ReviewerList" 
+              :key="user.userId" 
+              :label="user.userName" 
+              :value="parseInt(user.userId)"
+              :readonly="!isAdmin"
+            />
+          </el-select>
       </el-form-item>
       <el-form-item label="评阅结果" prop="isPassed">
         <el-select v-model="queryParams.isPassed" placeholder="请选择评阅结果" clearable>
@@ -127,6 +129,7 @@
 
 <script>
 import { listReview, getReview, delReview, addReview, updateReview } from "@/api/system/review";
+import { listUserbypostId } from "@/api/system/user";
 
 export default {
   name: "Review",
@@ -153,6 +156,8 @@ export default {
       title: "",
       // 是否显示弹出层
       open: false,
+      // 评审人列表
+      ReviewerList: undefined,
       // 查询参数
       queryParams: {
         pageNum: 1,
@@ -170,6 +175,7 @@ export default {
     };
   },
   created() {
+    this.getReviewerList();
     this.getList();
   },
   methods: {
@@ -178,16 +184,30 @@ export default {
       this.loading = true;
       listReview(this.queryParams).then(response => {
         this.reviewList = response.rows;
+        console.log(this.reviewList)
         this.total = response.total;
         this.loading = false;
       });
+    },
+        /**  查询评阅人下拉列表 */
+    getReviewerList() {
+      this.loading = true;
+      const postID = 2;
+      listUserbypostId(postID).then(response => {
+          // 提取用户ID和用户名信息
+          this.ReviewerList = response.data;
+          this.reviewertotal = response.length;
+          console.log( this)
+          this.loading = false;
+        }
+      );
     },
     // 取消按钮
     cancel() {
       this.open = false;
       this.reset();
     },
-    // 表单重置this.$store.state.user.id,
+    // 表单重置
     reset() {
       this.form = {
         fileId: null,
@@ -224,6 +244,11 @@ export default {
       this.reset();
       const fileId = row.fileId
       const reviewerId = row.reviewerId
+      const fileStatus = row.fileStatus || this.selectfileStatus;
+      if(fileStatus == 3) {
+        this.$modal.msgError("文件已发布，不支持评阅。");
+        return;
+      }
       getReview(fileId,reviewerId).then(response => {
         this.form = response.data;
         this.open = true;
@@ -235,6 +260,10 @@ export default {
       this.$refs["form"].validate(valid => {
         if (valid) {
           if (this.form.fileId != null) {
+            const currentDate = new Date();
+            const formattedDate = `${currentDate.getFullYear()}-${(currentDate.getMonth() + 1).toString().padStart(2, '0')}-${currentDate.getDate().toString().padStart(2, '0')} ${currentDate.getHours().toString().padStart(2, '0')}:${currentDate.getMinutes().toString().padStart(2, '0')}:${currentDate.getSeconds().toString().padStart(2, '0')}`;
+            this.form.reviewTime = formattedDate;
+            console.log(this.form.reviewTime)
             updateReview(this.form).then(response => {
               this.$modal.msgSuccess("评阅成功");
               this.open = false;
@@ -261,7 +290,9 @@ export default {
       }).catch(() => {});
     },
     /** 导出按钮操作 */
-    handleExport() {
+    handleExport(row) {
+      const fileIds = row.fileId || this.ids;
+      console.log(this);
       this.download('system/review/export', {
         ...this.queryParams
       }, `review_${new Date().getTime()}.xlsx`)
