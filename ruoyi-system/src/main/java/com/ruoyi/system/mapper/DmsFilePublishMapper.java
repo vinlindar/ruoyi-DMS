@@ -26,7 +26,13 @@ public interface DmsFilePublishMapper
      * @return 定稿集合
      */
     public List<DmsFilePublish> selectDmsFilePublishList(DmsFilePublish dmsFilePublish);
-
+    /**
+     * 查询最新定稿的10个列表
+     * 
+     * @param dmsFilePublish 定稿
+     * @return 定稿集合
+     */
+	public List<DmsFilePublish> selectDmsFilePublishlatestList();
     /**
      * 新增定稿
      * 
@@ -58,4 +64,5 @@ public interface DmsFilePublishMapper
      * @return 结果
      */
     public int deleteDmsFilePublishByFileIds(String[] fileIds);
+
 }

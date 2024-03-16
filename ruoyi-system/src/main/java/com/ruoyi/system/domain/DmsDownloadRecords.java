@@ -46,6 +46,10 @@ public class DmsDownloadRecords extends BaseEntity
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @Excel(name = "下载时间", width = 30, dateFormat = "yyyy-MM-dd HH:mm:ss")
     private Date downloadTime;
+    /** 下载数量 */
+    @Excel(name = "下载量")
+    private Long downloadCount;
+   
 
     public void setId(Long id) 
     {
@@ -120,6 +124,15 @@ public class DmsDownloadRecords extends BaseEntity
         return downloadTime;
     }
 
+    public void setDownloadCount(Long downloadCount) 
+    {
+        this.downloadCount = downloadCount;
+    }
+
+    public Long getDownloadCount() 
+    {
+        return downloadCount;
+    }
     @Override
     public String toString() {
         return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)

@@ -28,6 +28,14 @@ public interface IDmsFilePublishService
     public List<DmsFilePublish> selectDmsFilePublishList(DmsFilePublish dmsFilePublish);
 
     /**
+     * 查询最近10个定稿的信息
+     * 
+     * @param dmsFilePublish 定稿
+     * @return 定稿集合
+     */
+    public List<DmsFilePublish> selectDmsFilePublishlatestList();
+    
+    /**
      * 新增定稿
      * 
      * @param dmsFilePublish 定稿

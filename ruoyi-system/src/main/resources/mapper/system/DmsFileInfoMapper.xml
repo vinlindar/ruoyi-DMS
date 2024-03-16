@@ -19,6 +19,19 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="updateTime"    column="update_time"    />
         <result property="publishId"    column="publish_id"    />
     </resultMap>
+    
+    <resultMap type="DmsDeptfileNum" id="DmsDeptfileNumResult">
+    	<result property="teamname"    column="team_name"    />
+        <result property="teamid"    column="team_id"    />
+         <result property="filenum"    column="file_num"    />
+    </resultMap>
+    
+    <resultMap type="DmsBasicNum" id="DmsBasicNumResult">
+    	<result property="PublishNum"    column="Publish_num"    />
+        <result property="waitReviewNum"    column="waitReview_num"    />
+         <result property="waitPublishNum"    column="waitPublish_num"    />
+         <result property="waitModifyNum"    column="waitModify_num"    />
+    </resultMap>
 
     <sql id="selectDmsFileInfoVo">
         select file_id, file_name, file_path, author, reviewer, file_type, file_size, file_status, belongteam, description, update_by, update_time, publish_id from dms_file_info
@@ -91,7 +104,23 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <include refid="selectDmsFileInfoVo"/>
         where file_id = #{fileId}
     </select>
-        
+    
+     <select id="selectdeptfilenum" resultMap="DmsDeptfileNumResult">
+        select d.dept_id as team_id,d.dept_name as team_name,count(*) as file_num
+        from dms_file_info f
+        join sys_dept d on f.belongteam = d.dept_name
+        where f.file_status = 3
+        group by f.belongteam,d.dept_id,d.dept_name
+    </select>
+    
+    <select id="selectBacisnumByuserId" parameterType="Long" resultMap="DmsBasicNumResult">
+         SELECT
+	        (SELECT COUNT(*) FROM dms_file_info WHERE file_status = 3 AND update_by = (SELECT user_name FROM sys_user WHERE user_id = #{userid})) AS Publish_num,
+	        (SELECT COUNT(*) FROM dms_file_review WHERE reviewer_id = #{userid} AND is_passed = 1) AS waitReview_num,
+	        (SELECT COUNT(*) FROM dms_file_publish WHERE publish_id = #{userid} AND is_passed = 1) AS waitPublish_num,
+	        (SELECT COUNT(*) FROM dms_file_info WHERE file_status = 4 AND update_by = (SELECT user_name FROM sys_user WHERE user_id = #{userid})) AS waitModify_num
+    </select>
+    
     <insert id="insertDmsFileInfo" parameterType="DmsFileInfo">
         insert into dms_file_info
         <trim prefix="(" suffix=")" suffixOverrides=",">

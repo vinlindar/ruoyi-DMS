@@ -1,8 +1,10 @@
 package com.ruoyi.system.service;
 
 import java.util.List;
-import com.ruoyi.system.domain.DmsFileInfo;
 
+import com.ruoyi.system.domain.DmsDeptfileNum;
+import com.ruoyi.system.domain.DmsFileInfo;
+import com.ruoyi.system.domain.DmsBasicNum;
 /**
  * 文件信息Service接口
  * 
@@ -20,13 +22,28 @@ public interface IDmsFileInfoService
     public DmsFileInfo selectDmsFileInfoByFileId(String fileId);
 
     /**
+     * 查询所有部门已发布文档数量
+     * 
+     * @param fileId 文件信息主键
+     * @return 文件信息
+     */
+    public List<DmsDeptfileNum> selectdeptfilenum();
+    
+    /**
+     * 查询用户的已发布文档、待审阅、待定稿、待修改数量
+     * 
+     * @param fileId 文件信息主键
+     * @return 文件信息
+     */
+    public DmsBasicNum selectBacisnumByuserId(Long userid);
+    /**
      * 查询文件信息列表
      * 
      * @param dmsFileInfo 文件信息
      * @return 文件信息集合
      */
     public List<DmsFileInfo> selectDmsFileInfoList(DmsFileInfo dmsFileInfo);
-
+  
     /**
      * 根据用户权限查询文件信息列表
      * 

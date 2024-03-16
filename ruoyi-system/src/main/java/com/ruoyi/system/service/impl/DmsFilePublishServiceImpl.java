@@ -44,6 +44,17 @@ public class DmsFilePublishServiceImpl implements IDmsFilePublishService
     }
 
     /**
+     * 查询最近10个定稿的信息
+     * 
+     * @param dmsFilePublish 定稿
+     * @return 定稿集合
+     */
+    public List<DmsFilePublish> selectDmsFilePublishlatestList()
+    {
+        return dmsFilePublishMapper.selectDmsFilePublishlatestList();
+    }
+    
+    /**
      * 新增定稿
      * 
      * @param dmsFilePublish 定稿

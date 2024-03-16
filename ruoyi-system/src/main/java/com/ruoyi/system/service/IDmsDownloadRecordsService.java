@@ -26,7 +26,15 @@ public interface IDmsDownloadRecordsService
      * @return 下载记录集合
      */
     public List<DmsDownloadRecords> selectDmsDownloadRecordsList(DmsDownloadRecords dmsDownloadRecords);
-
+    
+    /**
+     * 查询下载次数最多的文件列表（10个）
+     * 
+     * @param dmsDownloadRecords 下载记录
+     * @return 下载记录集合
+     */
+    public List<DmsDownloadRecords> selectMostPopularFile();
+    
     /**
      * 新增下载记录
      * 

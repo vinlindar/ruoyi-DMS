@@ -44,6 +44,18 @@ public class DmsDownloadRecordsServiceImpl implements IDmsDownloadRecordsService
     }
 
     /**
+     * 查询下载次数最多的文件列表（10个）
+     * 
+     * @param dmsDownloadRecords 下载记录
+     * @return 下载记录集合
+     */
+    @Override
+    public List<DmsDownloadRecords> selectMostPopularFile()
+    {
+        return dmsDownloadRecordsMapper.selectMostPopularFile();
+    }
+    
+    /**
      * 新增下载记录
      * 
      * @param dmsDownloadRecords 下载记录

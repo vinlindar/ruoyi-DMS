@@ -40,6 +40,15 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </where>
     </select>
     
+    <select id="selectDmsFilePublishlatestList" resultMap="DmsFilePublishResult">
+        <include refid="selectDmsFilePublishVo"/>
+        <where> 
+        	is_passed = 2
+        </where>
+        ORDER BY publish_time DESC
+    	LIMIT 10
+    </select>
+    
     <select id="selectDmsFilePublishByFileId" parameterType="String" resultMap="DmsFilePublishResult">
         <include refid="selectDmsFilePublishVo"/>
         where fp.file_id = #{fileId}

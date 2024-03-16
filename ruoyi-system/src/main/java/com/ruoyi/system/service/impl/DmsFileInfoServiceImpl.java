@@ -7,7 +7,8 @@ import org.springframework.stereotype.Service;
 import com.ruoyi.system.mapper.DmsFileInfoMapper;
 import com.ruoyi.system.domain.DmsFileInfo;
 import com.ruoyi.system.service.IDmsFileInfoService;
-
+import com.ruoyi.system.domain.DmsBasicNum;
+import com.ruoyi.system.domain.DmsDeptfileNum;
 /**
  * 文件信息Service业务层处理
  * 
@@ -32,6 +33,28 @@ public class DmsFileInfoServiceImpl implements IDmsFileInfoService
         return dmsFileInfoMapper.selectDmsFileInfoByFileId(fileId);
     }
 
+    /**
+     * 查询所有部门已发布文档数量
+     * 
+     * @param fileId 文件信息主键
+     * @return 文件信息
+     */
+    public List<DmsDeptfileNum> selectdeptfilenum() 
+    {
+    	return dmsFileInfoMapper.selectdeptfilenum();
+    }
+    
+    /**
+     * 查询用户的已发布文档、待审阅、待定稿、待修改数量
+     * 
+     * @param fileId 文件信息主键
+     * @return 文件信息
+     */
+    public DmsBasicNum selectBacisnumByuserId(Long userid)
+    {
+    	return dmsFileInfoMapper.selectBacisnumByuserId(userid);
+    }
+    
     /**
      * 查询文件信息列表
      * 

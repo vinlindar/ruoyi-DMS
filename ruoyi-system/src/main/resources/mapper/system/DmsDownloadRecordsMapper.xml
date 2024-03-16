@@ -13,6 +13,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="downloadUserid"    column="download_userid"    />
         <result property="downloadUser"    column="download_user"    />
         <result property="downloadTime"    column="download_time"    />
+        <result property="downloadCount" column="download_count"/>
     </resultMap>
 
     <sql id="selectDmsDownloadRecordsVo">
@@ -31,6 +32,15 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="downloadTime != null "> and DATE(download_time) = #{downloadTime}</if>
         </where>
     </select>
+    
+    <select id="selectMostPopularFile" resultMap="DmsDownloadRecordsResult">
+			SELECT file_id, file_name, belongteam, COUNT(*) as download_count
+		    from dms_download_records
+		    GROUP BY file_id, file_name, belongteam
+		    ORDER BY download_count DESC
+		    LIMIT 10
+	</select>
+    
     
     <select id="selectDmsDownloadRecordsById" parameterType="Long" resultMap="DmsDownloadRecordsResult">
         <include refid="selectDmsDownloadRecordsVo"/>
