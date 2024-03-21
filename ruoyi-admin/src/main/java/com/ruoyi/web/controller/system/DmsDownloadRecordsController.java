@@ -72,7 +72,6 @@ public class DmsDownloadRecordsController extends BaseController
     /**
      * 新增下载记录
      */
-    @PreAuthorize("@ss.hasPermi('system:records:add')")
     @Log(title = "下载记录", businessType = BusinessType.INSERT)
     @PostMapping
     public AjaxResult add(@RequestBody DmsDownloadRecords dmsDownloadRecords)

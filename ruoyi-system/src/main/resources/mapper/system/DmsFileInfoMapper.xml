@@ -70,18 +70,16 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         	    <when test="queryuserRole == 1">
         	 	</when>
         	 	<when test="queryuserRole == 2">
-        	 		<if test="queryuserId != null">and su.user_id = #{queryuserId}</if>
         	 	</when>
         	 	<when test="queryuserRole == 3">
-        	 		<if test="queryuserId != null">and su.user_id = #{queryuserId}</if>
+        	 		<if test="queryuserId != null">and (su.user_id = #{queryuserId} or su.dept_id in (select parent_id from sys_dept where dept_id = (select dept_id from sys_user where user_id = #{queryuserId})))</if>
             	</when>
             	<when test="queryuserRole == 4">
                 	and fp.dept_id= #{queryuserDept}
                 	<if test="queryuserId != null">and su.user_id = #{queryuserId}</if>
             	</when>
             	<when test="queryuserRole == 5">
-                	and fp.dept_id= #{queryuserDept}
-                	<if test="queryuserId != null">and su.user_id = #{queryuserId}</if>
+                	and su.dept_id in (select parent_id from sys_dept where dept_id = (select dept_id from sys_user where user_id = #{queryuserId}))
             	</when>
             </choose>
             <if test="fileId != null  and fileId != ''"> and file_id = #{fileId}</if>

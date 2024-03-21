@@ -62,7 +62,6 @@ public class DmsFilePermissionsController extends BaseController
     /**
      * 获取文档权限详细信息
      */
-    @PreAuthorize("@ss.hasPermi('system:permissions:query')")
     @GetMapping(value = "/{fileId}")
     public AjaxResult getInfo(@PathVariable("fileId") String fileId)
     {

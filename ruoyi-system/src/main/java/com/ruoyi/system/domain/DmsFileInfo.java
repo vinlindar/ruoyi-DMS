@@ -220,7 +220,7 @@ public class DmsFileInfo extends BaseEntity
         return queryuserRole;
     }
 	public void setQueryuserRole(Long userRole) {
-		this.queryuserRole = queryuserRole;
+		this.queryuserRole = userRole;
 	}
     
     @Override

@@ -6,7 +6,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     
     <resultMap type="DmsFilePublish" id="DmsFilePublishResult">
         <result property="fileId"    column="file_id"    />
-        <result property="publishId"    column="publish_Id"    />
+        <result property="publishId"    column="publish_id"    />
         <result property="comment"    column="comment"    />
         <result property="isPassed"    column="is_passed"    />
         <result property="publishTime"    column="publish_time"    />
@@ -26,7 +26,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <sql id="selectDmsFilePublishVo">
     	select fi.file_name,fi.file_path,fi.author,fi.reviewer,fi.file_type,fi.file_size,fi.publish_id,
         	fi.file_status,fi.belongteam,fi.description,fi.update_by,fi.update_time,
-        	fp.file_id, fp.publish_Id, fp.comment, fp.is_passed, fp.publish_time
+        	fp.file_id, fp.publish_id, fp.comment, fp.is_passed, fp.publish_time
         from dms_file_publish fp
         	left join dms_file_info fi on fp.file_id = fi.file_id
     </sql>
@@ -36,6 +36,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <where>  
             <if test="comment != null  and comment != ''"> and comment = #{comment}</if>
             <if test="isPassed != null "> and is_passed = #{isPassed}</if>
+            <if test="publishId!= null "> and fp.publish_id = #{publishId}</if>
             <if test="publishTime != null "> and DATE(publish_time) = #{publishTime}</if>
         </where>
     </select>

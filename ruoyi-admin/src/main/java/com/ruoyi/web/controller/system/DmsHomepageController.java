@@ -56,7 +56,7 @@ public class DmsHomepageController extends BaseController
     /**
      * 获取用户的已发布文档、待审阅、待定稿、待修改数量和信息
      */
-    @PreAuthorize("@ss.hasPermi('system:homepage:query')")
+
     @GetMapping(value = "/{userid}")
     public AjaxResult getInfo(@PathVariable("userid") Long userid)
     {
@@ -69,7 +69,7 @@ public class DmsHomepageController extends BaseController
     /**
      * 查询最新发布的文件信息列表（10个）
      */
-    @PreAuthorize("@ss.hasPermi('system:homepage:list')")
+
     @GetMapping("/list")
     public TableDataInfo list( )
     {
@@ -81,7 +81,7 @@ public class DmsHomepageController extends BaseController
     /**
      * 查询最多下载的文档信息（10个）
      */
-    @PreAuthorize("@ss.hasPermi('system:homepage:popularfile')")
+
     @GetMapping("/popularfile")
     public TableDataInfo  popularfile( )
     {
@@ -92,7 +92,7 @@ public class DmsHomepageController extends BaseController
     /**
      * 获取各个部门已发布的文档数量
      */
-    @PreAuthorize("@ss.hasPermi('system:homepage:deptfilenum')")
+
     @GetMapping("/deptfilenum")
     public TableDataInfo  deptfilenum( )
     {
