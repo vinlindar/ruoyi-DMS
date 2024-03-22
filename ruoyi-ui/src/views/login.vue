@@ -73,7 +73,7 @@ export default {
       codeUrl: "",
       loginForm: {
         username: "admin",
-        password: "admin123",
+        password: "Ldf2qe",
         rememberMe: false,
         code: "",
         uuid: ""
