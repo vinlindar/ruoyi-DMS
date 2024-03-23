@@ -1,132 +1,161 @@
 <template>
   <div class="app-container">
-    <!--查询列表-->
-    <el-form :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch" label-width="68px">
-      <el-form-item label="文件ID" prop="fileId">
-        <el-input
-          v-model="queryParams.fileId"
-          placeholder="请输入文件ID"
-          clearable
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="文件名" prop="fileName">
-        <el-input
-          v-model="queryParams.fileName"
-          placeholder="请输入文件名"
-          clearable
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="作者" prop="author">
-        <el-input
-          v-model="queryParams.author"
-          placeholder="请输入作者"
-          clearable
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="文件类型" prop="fileType">
-        <el-select v-model="queryParams.fileType" placeholder="请选择文件类型" clearable>
-          <el-option
-            v-for="dict in dict.type.dms_file_type"
-            :key="dict.value"
-            :label="dict.label"
-            :value="dict.value"
+    <el-row :gutter="20">
+      <!--部门数据-->
+      <el-col :span="4" :xs="24">
+        <div class="head-container">
+          <el-input
+            v-model="deptName"
+            placeholder="请输入部门名称"
+            clearable
+            size="small"
+            prefix-icon="el-icon-search"
+            style="margin-bottom: 20px"
           />
-        </el-select>
-      </el-form-item>
-      <el-form-item label="文件状态" prop="fileStatus">
-        <el-select v-model="queryParams.fileStatus" placeholder="仅管理员可操作" clearable:disabled="!isAdmin">
-          <el-option
-            v-for="dict in dict.type.dms_file_status"
-            :key="dict.value"
-            :label="dict.label"
-            :value="parseInt(dict.value)"
-            :disabled="!isAdmin"
+        </div>
+        <div class="head-container">
+          <el-tree
+            :data="deptOptions"
+            :props="defaultProps"
+            :expand-on-click-node="false"
+            :filter-node-method="filterNode"
+            ref="tree"
+            node-key="id"
+            default-expand-all
+            highlight-current
+            @node-click="handleNodeClick"
           />
-        </el-select>
-      </el-form-item>
-      <el-form-item label="归属团队" prop="belongteam">
-        <treeselect 
-          v-model="queryParams.belongteam"
-          :options="deptOptions"
-          :show-count="true"
-          @select="handleSelect"
-          placeholder="请输入归属团队"
-        />
-      </el-form-item>
-      <el-form-item label="创建者" prop="updateBy">
-        <el-input
-          v-model="queryParams.updateBy"
-          placeholder="请输入创建者"
-          clearable
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="创建时间" prop="updateTime">
-        <el-date-picker clearable
-          v-model="queryParams.updateTime"
-          type="date"
-          value-format="yyyy-MM-dd"
-          placeholder="请选择创建时间">
-        </el-date-picker>
-      </el-form-item>
-      <el-form-item>
-        <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
-        <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
-      </el-form-item>
-    </el-form>
+        </div>
+      </el-col>
+      <!--文件数据-->
+      <el-col :span="20" :xs="24">
+        <el-form :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch" label-width="68px">
+          <el-form-item label="文件ID" prop="fileId">
+            <el-input
+              v-model="queryParams.fileId"
+              placeholder="请输入文件ID"
+              clearable
+              @keyup.enter.native="handleQuery"
+            />
+          </el-form-item>
+          <el-form-item label="文件名" prop="fileName">
+            <el-input
+              v-model="queryParams.fileName"
+              placeholder="请输入文件名"
+              clearable
+              @keyup.enter.native="handleQuery"
+            />
+          </el-form-item>
+          <el-form-item label="作者" prop="author">
+            <el-input
+              v-model="queryParams.author"
+              placeholder="请输入作者"
+              clearable
+              @keyup.enter.native="handleQuery"
+            />
+          </el-form-item>
+          <el-form-item label="文件类型" prop="fileType">
+            <el-select v-model="queryParams.fileType" placeholder="请选择文件类型" clearable>
+              <el-option
+                v-for="dict in dict.type.dms_file_type"
+                :key="dict.value"
+                :label="dict.label"
+                :value="dict.value"
+              />
+            </el-select>
+          </el-form-item>
+          <el-form-item label="文件状态" prop="fileStatus">
+            <el-select v-model="queryParams.fileStatus" placeholder="仅管理员可操作" clearable:disabled="!isAdmin">
+              <el-option
+                v-for="dict in dict.type.dms_file_status"
+                :key="dict.value"
+                :label="dict.label"
+                :value="parseInt(dict.value)"
+                :disabled="!isAdmin"
+              />
+            </el-select>
+          </el-form-item>
+          <el-form-item label="归属团队" prop="belongteam">
+            <treeselect 
+              v-model="queryParams.belongteam"
+              :options="deptOptions"
+              :show-count="true"
+              @select="handleSelect"
+              placeholder="请输入归属团队"
+            />
+          </el-form-item>
+          <el-form-item label="创建者" prop="updateBy">
+            <el-input
+              v-model="queryParams.updateBy"
+              placeholder="请输入创建者"
+              clearable
+              @keyup.enter.native="handleQuery"
+            />
+          </el-form-item>
+          <el-form-item label="创建时间" prop="updateTime">
+            <el-date-picker clearable
+              v-model="queryParams.updateTime"
+              type="date"
+              value-format="yyyy-MM-dd"
+              placeholder="请选择创建时间">
+            </el-date-picker>
+          </el-form-item>
+          <el-form-item>
+            <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
+            <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
+          </el-form-item>
+        </el-form>
 
-    <el-table v-loading="loading" :data="dmsfileuploadList" @selection-change="handleSelectionChange">
-      <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="文件ID" align="center" prop="fileId" />
-      <el-table-column label="文件名" align="center" prop="fileName" />
-      <el-table-column label="作者" align="center" prop="author" />
-      <el-table-column label="审稿人" align="center" prop="reviewer" />
-      <el-table-column label="定稿人" align="center">
-        <template slot-scope="scope">
-          {{ getPublishNameById(scope.row.publishId) }}
-        </template>
-      </el-table-column>
-      <el-table-column label="文件类型" align="center" prop="fileType">
-        <template slot-scope="scope">
-          <dict-tag :options="dict.type.dms_file_type" :value="scope.row.fileType"/>
-        </template>
-      </el-table-column>
-      <el-table-column label="文件大小" align="center" prop="fileSize" />
-      <el-table-column label="文件状态" align="center" prop="fileStatus">
-        <template slot-scope="scope">
-          <dict-tag :options="dict.type.dms_file_status" :value="scope.row.fileStatus"/>
-        </template>
-      </el-table-column>
-      <el-table-column label="归属团队" align="center" prop="belongteam" />
-      <el-table-column label="文件描述" align="center" prop="description" />
-      <el-table-column label="创建者" align="center" prop="updateBy" />
-      <el-table-column label="创建时间" align="center" prop="updateTime" width="180">
-        <template slot-scope="scope">
-          <span>{{ parseTime(scope.row.updateTime, '{y}-{m}-{d} {h}:{i}') }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="操作" >
-        <template slot-scope="scope">
-          <el-button
-            size="mini"
-            type="text"
-            icon="el-icon-edit"
-            @click="handleDownload(scope.row)"
-          >下载</el-button>
-        </template>
-      </el-table-column>
-    </el-table>
-    
-    <pagination
-      v-show="total>0"
-      :total="total"
-      :page.sync="queryParams.pageNum"
-      :limit.sync="queryParams.pageSize"
-      @pagination="getList"
-    />
+        <el-table v-loading="loading" :data="dmsfileuploadList" @selection-change="handleSelectionChange">
+          <el-table-column type="selection" width="55" align="center" />
+          <el-table-column label="文件ID" align="center" prop="fileId" />
+          <el-table-column label="文件名" align="center" prop="fileName" />
+          <el-table-column label="作者" align="center" prop="author" />
+          <el-table-column label="审稿人" align="center" prop="reviewer" />
+          <el-table-column label="定稿人" align="center">
+            <template slot-scope="scope">
+              {{ getPublishNameById(scope.row.publishId) }}
+            </template>
+          </el-table-column>
+          <el-table-column label="文件类型" align="center" prop="fileType">
+            <template slot-scope="scope">
+              <dict-tag :options="dict.type.dms_file_type" :value="scope.row.fileType"/>
+            </template>
+          </el-table-column>
+          <el-table-column label="文件大小" align="center" prop="fileSize" />
+          <el-table-column label="文件状态" align="center" prop="fileStatus">
+            <template slot-scope="scope">
+              <dict-tag :options="dict.type.dms_file_status" :value="scope.row.fileStatus"/>
+            </template>
+          </el-table-column>
+          <el-table-column label="归属团队" align="center" prop="belongteam" />
+          <el-table-column label="文件描述" align="center" prop="description" />
+          <el-table-column label="创建者" align="center" prop="updateBy" />
+          <el-table-column label="创建时间" align="center" prop="updateTime" width="180">
+            <template slot-scope="scope">
+              <span>{{ parseTime(scope.row.updateTime, '{y}-{m}-{d} {h}:{i}') }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column label="操作" >
+            <template slot-scope="scope">
+              <el-button
+                size="mini"
+                type="text"
+                icon="el-icon-edit"
+                @click="handleDownload(scope.row)"
+              >下载</el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+          <pagination
+            v-show="total>0"
+            :total="total"
+            :page.sync="queryParams.pageNum"
+            :limit.sync="queryParams.pageSize"
+            @pagination="getList"
+          />
+      </el-col>
+    </el-row>
   </div>
 </template>
 
@@ -164,6 +193,8 @@ export default {
       title: "",
       // 部门树选项
       deptOptions: undefined,
+      // 部门名称
+      deptName: undefined,
       // 是否显示弹出层
       open: false,
       // 查询参数
@@ -194,10 +225,20 @@ export default {
       downloadrecord_form:{},
       // 表单参数
       form: {},
+      defaultProps: {
+        children: "children",
+        label: "label"
+      },
       // 表单校验
       rules: {
       },
     };
+  },
+  watch: {
+    // 根据名称筛选部门树
+    deptName(val) {
+      this.$refs.tree.filter(val);
+    }
   },
   created() {
     this.getDeptTree();
@@ -272,6 +313,17 @@ export default {
     /** 重置按钮操作 */
     resetQuery() {
       this.resetForm("queryForm");
+      this.handleQuery();
+    },
+    // 筛选节点
+    filterNode(value, data) {
+      if (!value) return true;
+      return data.label.indexOf(value) !== -1;
+    },
+    // 节点单击事件
+    handleNodeClick(data) {
+      console.log(data)
+      this.queryParams.belongteam = data.label;
       this.handleQuery();
     },
     // 多选框选中数据

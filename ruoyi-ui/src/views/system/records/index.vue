@@ -246,6 +246,7 @@ export default {
     },
     /** 删除按钮操作 */
     handleDelete(row) {
+      const ids = row.Id || this.ids;
       this.$modal.confirm('是否确认删除该下载记录？').then(function() {
         return delRecords(ids);
       }).then(() => {
