@@ -37,13 +37,13 @@
         </el-select>
       </el-form-item>
       <el-form-item label="文件状态" prop="fileStatus">
-        <el-select v-model="queryParams.fileStatus" placeholder="仅管理员可操作" clearable>
+        <el-select v-model="queryParams.fileStatus" placeholder="仅管理员可操作" clearable:disabled="!isAdmin">
           <el-option
             v-for="dict in dict.type.dms_file_status"
             :key="dict.value"
             :label="dict.label"
             :value="parseInt(dict.value)"
-            :readonly="!isAdmin"
+            :disabled="!isAdmin"
           />
         </el-select>
       </el-form-item>

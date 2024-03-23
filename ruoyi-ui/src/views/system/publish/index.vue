@@ -10,13 +10,15 @@
         />
       </el-form-item>
       <el-form-item label="定稿人" prop="publishId">
-        <el-input
-          v-model="queryParams.publishId"
-          placeholder="仅管理员可操作"
-          clearable
-          @keyup.enter.native="handleQuery"
-          :readonly="!isAdmin"
-        />
+        <el-select v-model="queryParams.publishId" placeholder="仅管理员可操作" :clearable="isAdmin">
+            <el-option 
+              v-for="user in PublisherList" 
+              :key="user.userId" 
+              :label="user.userName" 
+              :value="parseInt(user.userId)"
+              :disabled="!isAdmin"
+            />
+          </el-select>
       </el-form-item>
       <el-form-item label="定稿结果" prop="isPassed">
         <el-select v-model="queryParams.isPassed" placeholder="请选择定稿结果" clearable>
@@ -251,7 +253,7 @@ export default {
         pageNum: 1,
         pageSize: 10,
         fileId: null,
-        publishId: null,
+        publishId: this.$store.state.user.id,
         comment: null,
         isPassed: null,
         publishTime: null

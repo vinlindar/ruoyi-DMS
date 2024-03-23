@@ -10,13 +10,13 @@
         />
       </el-form-item>
       <el-form-item label="评阅人" prop="reviewerId">
-        <el-select v-model="queryParams.reviewerId" placeholder="仅管理员可操作" clearable>
+        <el-select v-model="queryParams.reviewerId" placeholder="仅管理员可操作" :clearable="isAdmin">
             <el-option 
               v-for="user in ReviewerList" 
               :key="user.userId" 
               :label="user.userName" 
               :value="parseInt(user.userId)"
-              :readonly="!isAdmin"
+              :disabled="!isAdmin"
             />
           </el-select>
       </el-form-item>
@@ -69,7 +69,8 @@
         </template>
       </el-table-column>
       <el-table-column label="归属团队" align="center" prop="belongteam" />
-      <el-table-column label="创建者" align="center" prop="updateBy" />
+      <el-table-column label="上传者" align="center" prop="updateBy" />
+      <el-table-column label="提交时间" align="center" prop="updateTime" />
       <el-table-column label="评阅结果" align="center" prop="isPassed" >
         <template slot-scope="scope">
             <dict-tag :options="dict.type.dms_review_result" :value="scope.row.isPassed"/>
@@ -188,6 +189,16 @@ export default {
         this.total = response.total;
         this.loading = false;
       });
+    },
+    handleDownload(row) {
+      var name = row.fileName;
+      var url = row.filePath;
+      var suffix = url.substring(url.lastIndexOf("."), url.length);
+      const a = document.createElement('a')
+      a.setAttribute('download', name + suffix)
+      a.setAttribute('target', '_blank')
+      a.setAttribute('href', url)
+      a.click()
     },
         /**  查询评阅人下拉列表 */
     getReviewerList() {

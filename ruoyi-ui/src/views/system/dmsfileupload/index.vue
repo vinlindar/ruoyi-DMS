@@ -54,13 +54,13 @@
           @select="handleSelect2"
           placeholder="请选择归属团队" />
       </el-form-item>
-      <el-form-item label="创建者" prop="updateBy">
+      <el-form-item label="创建者" prop="updateBy":clearable="isAdmin">
         <el-input
           v-model="queryParams.updateBy"
           placeholder="仅管理员可操作"
           clearable
           @keyup.enter.native="handleQuery"
-          :readonly="!isAdmin"
+          :disabled="!isAdmin"
         />
       </el-form-item>
       <el-form-item label="创建时间" prop="updateTime">
@@ -406,7 +406,7 @@ export default {
         fileName: [
           { required: true, message: "文件名不能为空", trigger: "blur" }
         ],
-        reviewer: [
+        reviewerIds: [
           { required: true, message: "评阅人不能为空", trigger: "blur" }
         ],
         publishId: [
