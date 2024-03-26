@@ -106,6 +106,21 @@
           </el-form-item>
         </el-form>
 
+      <!-- 文档操作栏位-->
+      <el-row :gutter="10" class="mb8">
+        <el-col :span="1.5">
+          <el-button
+            type="primary"
+            plain
+            icon="el-icon-edit"
+            size="mini"
+            :disabled="single"
+            @click="handleaddfavorite"
+          >收藏文档</el-button>
+        </el-col>
+        <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
+      </el-row>
+
         <el-table v-loading="loading" :data="dmsfileuploadList" @selection-change="handleSelectionChange">
           <el-table-column type="selection" width="55" align="center" />
           <el-table-column label="文件ID" align="center" prop="fileId" />
@@ -129,7 +144,6 @@
             </template>
           </el-table-column>
           <el-table-column label="归属团队" align="center" prop="belongteam" />
-          <el-table-column label="文件描述" align="center" prop="description" />
           <el-table-column label="创建者" align="center" prop="updateBy" />
           <el-table-column label="创建时间" align="center" prop="updateTime" width="180">
             <template slot-scope="scope">
@@ -164,6 +178,7 @@ import { listDmsfileupload} from "@/api/system/dmsfileupload";
 import { listUserbypostId } from "@/api/system/user";
 import { addRecords} from "@/api/system/records";
 import {deptTreeSelect} from "@/api/system/dmsfileupload";
+import {addFavorites} from "@/api/system/favorites";
 import Treeselect from "@riophae/vue-treeselect";
 import "@riophae/vue-treeselect/dist/vue-treeselect.css";
 
@@ -189,6 +204,8 @@ export default {
       total: 0,
       // 文件信息表格数据
       dmsfileuploadList: [],
+      //文件收藏表格
+      favorite:{},
       // 弹出层标题
       title: "",
       // 部门树选项
@@ -266,6 +283,16 @@ export default {
       // 通过 Treeselect 实例获取选中的label值
         this.queryParams.belongteam = val.label
     },
+    //新增收藏文件
+    handleaddfavorite(){
+      const currentDate = new Date();
+      const formattedDate = `${currentDate.getFullYear()}-${(currentDate.getMonth() + 1).toString().padStart(2, '0')}-${currentDate.getDate().toString().padStart(2, '0')} ${currentDate.getHours().toString().padStart(2, '0')}:${currentDate.getMinutes().toString().padStart(2, '0')}:${currentDate.getSeconds().toString().padStart(2, '0')}`;
+      this.favorite.userId=this.$store.state.user.id;
+      this.favorite.fileId=this.ids[0];
+      this.favorite.collectTime=formattedDate;
+      addFavorites(this.favorite).then(response => {
+              this.$modal.msgSuccess("收藏成功");});
+    },
     /**  查询定稿人下拉列表 */
     getPublishList() {
       this.loading = true;
@@ -273,7 +300,6 @@ export default {
       listUserbypostId(postID).then(response => {
           // 提取用户ID和用户名信息
           this.PublishList = response.data;
-          console.log(this)
           this.loading = false;
         }
       );
@@ -322,7 +348,6 @@ export default {
     },
     // 节点单击事件
     handleNodeClick(data) {
-      console.log(data)
       this.queryParams.belongteam = data.label;
       this.handleQuery();
     },
@@ -348,7 +373,6 @@ export default {
         downloadTime: formattedDate 
       };
       addRecords(this.downloadrecord_form);
-      console.log(this.downloadrecord_form);
 
       var name = row.fileName;
       var url = row.filePath;

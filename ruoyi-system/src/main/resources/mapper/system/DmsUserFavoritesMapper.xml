@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.DmsUserFavoritesMapper">
+    
+    <resultMap type="DmsUserFavorites" id="DmsUserFavoritesResult">
+        <result property="userId"    column="user_id"    />
+        <result property="fileId"    column="file_id"    />
+        <result property="collectTime"    column="collect_time"    />
+        <result property="fileName"    column="file_name"    />
+        <result property="fileType"    column="file_type"    />
+        <result property="belongteam"    column="belongteam"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="publishTime"    column="publish_time"    />
+        <result property="filePath"    column="file_path"    />
+    </resultMap>
+
+    <sql id="selectDmsUserFavoritesVo">
+        select uf.user_id, uf.file_id, uf.collect_time,
+        	fi.file_name,fi.file_type,fi.belongteam,fi.update_by,fp.publish_time,fi.file_path
+        from dms_user_favorites uf
+        left join dms_file_info fi on uf.file_id = fi.file_id
+        left join dms_file_publish fp on uf.file_id = fp.file_id
+    </sql>
+
+    <select id="selectDmsUserFavoritesList" parameterType="DmsUserFavorites" resultMap="DmsUserFavoritesResult">
+        <include refid="selectDmsUserFavoritesVo"/>
+        <where>  
+            <if test="userId != null "> and uf.user_id = #{userId}</if>
+            <if test="fileId != null  and fileId != ''"> and uf.file_id = #{fileId}</if>
+            <if test="collectTime != null "> and uf.collect_time = #{collectTime}</if>
+        </where>
+        ORDER BY uf.collect_time DESC
+    </select>
+    
+    <select id="selectDmsUserFavoritesByUserId" parameterType="Long" resultMap="DmsUserFavoritesResult">
+        <include refid="selectDmsUserFavoritesVo"/>
+        where user_id = #{userId}
+    </select>
+        
+    <insert id="insertDmsUserFavorites" parameterType="DmsUserFavorites">
+        insert into dms_user_favorites
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="userId != null">user_id,</if>
+            <if test="fileId != null">file_id,</if>
+            <if test="collectTime != null">collect_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="userId != null">#{userId},</if>
+            <if test="fileId != null">#{fileId},</if>
+            <if test="collectTime != null">#{collectTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateDmsUserFavorites" parameterType="DmsUserFavorites">
+        update dms_user_favorites
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="fileId != null">file_id = #{fileId},</if>
+            <if test="collectTime != null">collect_time = #{collectTime},</if>
+        </trim>
+        where user_id = #{userId}
+    </update>
+
+    <delete id="deleteDmsUserFavorites" parameterType="DmsUserFavorites">
+        delete from dms_user_favorites where user_id = #{userId} and file_id = #{fileId}
+    </delete>
+
+</mapper>

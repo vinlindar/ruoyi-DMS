@@ -85,28 +85,76 @@
           </el-card>
       </el-col>
     </el-row>
+    <el-row type="flex" justify="space-around" class="row-bg" >
+      <el-card class="box-card cardDiv2">
+            <div slot="header" class="clearfix">
+              <span style="margin-right: 30px">我的收藏</span>
+            </div>
+            <el-table v-loading="loading" :data="favoritefilelist" height="300" style="width: 100%">
+              <el-table-column prop="fileId" label="文档ID" align="center"> </el-table-column>
+              <el-table-column prop="fileName" label="文档名" align="center"> </el-table-column>
+              <el-table-column prop="updateBy" label="上传人" align="center"> </el-table-column>
+              <el-table-column prop="fileType" label="文件类型" align="center"> 
+                <template slot-scope="scope">
+                  <dict-tag :options="dict.type.dms_file_type" :value="scope.row.fileType"/>
+                </template>
+              </el-table-column>
+              <el-table-column prop= "belongteam" label="归属团队" align="center"> </el-table-column>
+              <el-table-column prop="publishTime" label="发布时间" align="center"> </el-table-column>
+              <el-table-column prop="collectTime" label="收藏时间" align="center"> </el-table-column>
+              <el-table-column label="操作" >
+                <template slot-scope="scope">
+                  <el-button
+                    size="mini"
+                    type="text"
+                    icon="el-icon-edit"
+                    @click="handleDownload(scope.row)"
+                  >下载</el-button>
+                  <el-button
+                    size="mini"
+                    type="text"
+                    icon="el-icon-delete"
+                    @click="deletefavorite(scope.row)"
+                  >取消收藏</el-button>
+                </template>
+              </el-table-column>
+            </el-table>
+          </el-card>
+    </el-row>
   </div>
 </template>
  
 <script>
-import {userhomepagebasicinfo,listlatestfileinfo,getdeptfilenum,getmostpopularfileinfo} from "@/api/system/homepage"; 
+import {userhomepagebasicinfo,listlatestfileinfo,getdeptfilenum,getmostpopularfileinfo} from "@/api/system/homepage";
+import {listFavorites,delFavorites} from "@/api/system/favorites";
+import { addRecords} from "@/api/system/records";
+import {deptTreeSelect} from "@/api/system/dmsfileupload";
+import Treeselect from "@riophae/vue-treeselect";
+import "@riophae/vue-treeselect/dist/vue-treeselect.css";
 import * as echarts from 'echarts' 
 export default {
   name: "Index",
   dicts: ['dms_file_type'],
+  components: { Treeselect },
   data() {
     return {
+      // 部门树选项
+      deptOptions: undefined,
+      query:{},
       userbasicnum:{},
       latestfilelist: [],
       popularfilelist: [],
       deptfilenum:[],
+      favoritefilelist:[],
     };
   },
   created() {
+    this.getDeptTree();
     this.getcurrentuserbasicinfonum();
     this.getlatestfilelist();
     this.getpopularfilelist();
     this.getdeptpublishfilenum();
+    this.getfavoritefilelist();
   },
   mounted(){
     setTimeout(() => {
@@ -149,6 +197,88 @@ export default {
           this.loading = false;
         }
       );
+    },
+    /** 查询部门下拉树结构 */
+    getDeptTree() {
+      deptTreeSelect().then(response => {
+        this.deptOptions = response.data;
+      });
+    },
+    // 表单重置
+    reset() {
+      this.query = {
+        fileId: null,
+        userId: null,
+        collectTime: null,}
+    },
+    //获得用户的收藏文件列表
+    getfavoritefilelist(){
+      this.loading = true;
+      this.reset();
+      this.query.userId=this.$store.state.user.id;
+      listFavorites(this.query).then(response => {
+          this.favoritefilelist = response.rows;
+          this.loading = false;
+        }
+      );
+    },
+    //取消文件收藏
+    deletefavorite(row){
+      this.reset();
+      this.query.userId=this.$store.state.user.id;
+      this.query.fileId=row.fileId;
+      const self = this;
+      this.$modal.confirm('是否确认取消收藏？').then(function(){
+        return delFavorites(self.query);
+      }).then(() => {
+        this.getfavoritefilelist();
+        this.$modal.msgSuccess("取消收藏成功");
+      }).catch(() => {});
+    },
+    // 下载文件
+    handleDownload(row) {
+      // 新增下载记录
+      const currentDate = new Date();
+      const formattedDate = `${currentDate.getFullYear()}-${(currentDate.getMonth() + 1).toString().padStart(2, '0')}-${currentDate.getDate().toString().padStart(2, '0')} ${currentDate.getHours().toString().padStart(2, '0')}:${currentDate.getMinutes().toString().padStart(2, '0')}:${currentDate.getSeconds().toString().padStart(2, '0')}`;
+      // 查找belongteam对应的deptId
+      const deptId = this.getIdByLabel(this.deptOptions, row.belongteam)
+      this.downloadrecord_form = {
+        fileId: row.fileId,
+        fileName: row.fileName,
+        deptId:deptId,
+        belongteam: row.belongteam,
+        downloadUserid: this.$store.state.user.id,
+        downloadUser: this.$store.state.user.name,
+        downloadTime: formattedDate 
+      };
+      addRecords(this.downloadrecord_form);
+
+      var name = row.fileName;
+      var url = row.filePath;
+      var suffix = url.substring(url.lastIndexOf("."), url.length);
+      const a = document.createElement('a')
+      a.setAttribute('download', name + suffix)
+      a.setAttribute('target', '_blank')
+      a.setAttribute('href', url)
+      a.click()
+    },
+    // 根据belongteam文本查deptId
+    getIdByLabel(deptOptions, targetLabel){
+      function findId(options, label) {
+        for (const option of options) {
+          if (option.label === label) {
+            return option.id;
+          }
+          if (option.children) {
+            const foundId = findId(option.children, label);
+            if (foundId) {
+              return foundId;
+            }
+          }
+        }
+        return null;
+      }
+      return findId(deptOptions, targetLabel);
     },
     goTarget(href) {
       window.open(href, "_blank");
