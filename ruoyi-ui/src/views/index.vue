@@ -66,7 +66,7 @@
         <el-col :span="16">
           <el-card class="box-card cardDiv2">
             <div slot="header" class="clearfix">
-              <span style="margin-right: 30px">文档分布</span>
+              <span style="margin-right: 30px">各团队文件数</span>
             </div>
           <div id="pie-chart" style="height: 300px;width:300px"></div>
           </el-card>
@@ -147,7 +147,6 @@ export default {
       getdeptfilenum().then(response => {
           this.deptfilenum = response.rows;
           this.loading = false;
-          console.log(this)
         }
       );
     },
@@ -159,11 +158,10 @@ export default {
         name: item.teamName,
         value: item.fileNum
       }))
-      console.log(chartData)
       const myChart = echarts.init(document.getElementById('pie-chart'))
       const option = {
         title: {
-          text: '各团队文件数',
+          text: '',
           left: 'center'
         },
         tooltip: {
@@ -171,7 +169,7 @@ export default {
           formatter: '{a} <br/>{b} : {c} ({d}%)'
         },
         legend: {
-          bottom: 1,
+          top: 10,
           left: 'center',
         },
         series: [
@@ -299,7 +297,6 @@ export default {
   .webBox{
     display: -webkit-box;
     -webkit-box-orient: horizontal;
-    overflow: hidden;
   }
   .webO{
     display: -webkit-box;
@@ -307,7 +304,7 @@ export default {
     -webkit-box-align: center;
     font-size: 30px;
     font-weight: 700;
-    padding-right: 40px;
+    padding-right: 30px;
     padding-top: 0px;
     color: #fff;
   }
@@ -315,7 +312,7 @@ export default {
     display: -webkit-box;
     -webkit-box-pack: end;
     -webkit-box-align:center;
-    font-size: 50px;
+    font-size: 45px;
     font-weight: 700;
     padding-right: 1px;
     padding-top: 0px;

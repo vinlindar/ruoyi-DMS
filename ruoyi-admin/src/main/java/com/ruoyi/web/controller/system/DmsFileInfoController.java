@@ -65,14 +65,12 @@ public class DmsFileInfoController extends BaseController
         	// 根据用户id查询归属部门ID，用户角色ID，赋给dmsFileInfo
         	Long userId = dmsFileInfo.getQueryuserId();
         	SysUser sysUser = userService.selectUserById(userId);
-        	System.out.println("sysuser:"+sysUser.toString());
         	Long userDept = sysUser.getDeptId();
         	List<SysRole> roles = sysUser.getRoles();
         	Long userRole = null;
         	if (roles != null && !roles.isEmpty()) {
         	    userRole = roles.get(0).getRoleId();
         	}
-        	System.out.println("userRole:"+userRole.toString());
         	dmsFileInfo.setQueryuserDept(userDept);
         	dmsFileInfo.setQueryuserRole(userRole);
         	List<DmsFileInfo> list = dmsFileInfoService.selectDmsFileInfoListByPremission(dmsFileInfo);
