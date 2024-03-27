@@ -88,7 +88,7 @@
     <el-row type="flex" justify="space-around" class="row-bg" >
       <el-card class="box-card cardDiv2">
             <div slot="header" class="clearfix">
-              <span style="margin-right: 30px">我的收藏</span>
+              <span style="margin-right: 30px">我的置顶</span>
             </div>
             <el-table v-loading="loading" :data="favoritefilelist" height="300" style="width: 100%">
               <el-table-column prop="fileId" label="文档ID" align="center"> </el-table-column>
@@ -101,7 +101,7 @@
               </el-table-column>
               <el-table-column prop= "belongteam" label="归属团队" align="center"> </el-table-column>
               <el-table-column prop="publishTime" label="发布时间" align="center"> </el-table-column>
-              <el-table-column prop="collectTime" label="收藏时间" align="center"> </el-table-column>
+              <el-table-column prop="collectTime" label="置顶时间" align="center"> </el-table-column>
               <el-table-column label="操作" >
                 <template slot-scope="scope">
                   <el-button
@@ -115,7 +115,34 @@
                     type="text"
                     icon="el-icon-delete"
                     @click="deletefavorite(scope.row)"
-                  >取消收藏</el-button>
+                  >取消置顶</el-button>
+                </template>
+              </el-table-column>
+            </el-table>
+          </el-card>
+          <el-card class="box-card cardDiv2">
+            <div slot="header" class="clearfix">
+              <span style="margin-right: 30px">我的自定义文档</span>
+            </div>
+            <el-table v-loading="loading" :data="mysearchfilelist" height="300" style="width: 100%">
+              <el-table-column prop="fileId" label="文档ID" align="center"> </el-table-column>
+              <el-table-column prop="fileName" label="文档名" align="center"> </el-table-column>
+              <el-table-column prop="updateBy" label="上传人" align="center"> </el-table-column>
+              <el-table-column prop="fileType" label="文件类型" align="center"> 
+                <template slot-scope="scope">
+                  <dict-tag :options="dict.type.dms_file_type" :value="scope.row.fileType"/>
+                </template>
+              </el-table-column>
+              <el-table-column prop= "belongteam" label="归属团队" align="center"> </el-table-column>
+              <el-table-column prop="publishTime" label="发布时间" align="center"> </el-table-column>
+              <el-table-column label="操作" >
+                <template slot-scope="scope">
+                  <el-button
+                    size="mini"
+                    type="text"
+                    icon="el-icon-edit"
+                    @click="handleDownload(scope.row)"
+                  >下载</el-button>
                 </template>
               </el-table-column>
             </el-table>
@@ -127,8 +154,10 @@
 <script>
 import {userhomepagebasicinfo,listlatestfileinfo,getdeptfilenum,getmostpopularfileinfo} from "@/api/system/homepage";
 import {listFavorites,delFavorites} from "@/api/system/favorites";
+import { listDmsfileupload} from "@/api/system/dmsfileupload";
 import { addRecords} from "@/api/system/records";
 import {deptTreeSelect} from "@/api/system/dmsfileupload";
+import {listSearches} from "@/api/system/searches";
 import Treeselect from "@riophae/vue-treeselect";
 import "@riophae/vue-treeselect/dist/vue-treeselect.css";
 import * as echarts from 'echarts' 
@@ -146,6 +175,9 @@ export default {
       popularfilelist: [],
       deptfilenum:[],
       favoritefilelist:[],
+      mysearchfilelist:[],
+      searchquery:[],
+      myseachform:{},
     };
   },
   created() {
@@ -155,6 +187,7 @@ export default {
     this.getpopularfilelist();
     this.getdeptpublishfilenum();
     this.getfavoritefilelist();
+    this.getmysearchfilelist();
   },
   mounted(){
     setTimeout(() => {
@@ -197,6 +230,27 @@ export default {
           this.loading = false;
         }
       );
+    },
+    //获取我的自定义条件下的文件
+    async getmysearchfilelist(){
+      try {
+        this.myseachform.userId=this.$store.state.user.id;
+        this.loading = true;
+        // 第一个异步函数：listSearches
+        const searchResponse = await listSearches(this.myseachform); 
+        this.searchquery = searchResponse.rows[0];
+        
+        this.searchquery.queryuserId=this.$store.state.user.id;
+        this.searchquery.querykind=1;
+        this.searchquery.fileStatus=3;
+        this.loading = true;
+        const fileListResponse = await listDmsfileupload(this.searchquery)
+        this.mysearchfilelist = fileListResponse.rows;
+        this.loading = false;
+      }catch (error) {
+        console.error("An error occurred:", error);
+        this.loading = false;
+        }
     },
     /** 查询部门下拉树结构 */
     getDeptTree() {

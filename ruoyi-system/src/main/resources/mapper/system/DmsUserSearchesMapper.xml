@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.DmsUserSearchesMapper">
+    
+    <resultMap type="DmsUserSearches" id="DmsUserSearchesResult">
+        <result property="id"    column="id"    />
+        <result property="userId"    column="user_id"    />
+        <result property="fileId"    column="file_id"    />
+        <result property="author"    column="author"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="publishId"    column="publish_id"    />
+        <result property="fileType"    column="file_type"    />
+        <result property="belongteam"    column="belongteam"    />
+        <result property="publishTime"    column="publish_time"    />
+    </resultMap>
+
+    <sql id="selectDmsUserSearchesVo">
+        select id, user_id, file_id, author, update_by, publish_id, file_type, belongteam, publish_time from dms_user_searches
+    </sql>
+
+    <select id="selectDmsUserSearchesList" parameterType="DmsUserSearches" resultMap="DmsUserSearchesResult">
+        <include refid="selectDmsUserSearchesVo"/>
+        <where>  
+            <if test="userId != null "> and user_id = #{userId}</if>
+            <if test="fileId != null  and fileId != ''"> and file_id = #{fileId}</if>
+            <if test="author != null  and author != ''"> and author = #{author}</if>
+            <if test="updateBy != null  and updateBy != ''"> and update_by = #{updateBy}</if>
+            <if test="publishId != null "> and publish_id = #{publishId}</if>
+            <if test="fileType != null "> and file_type = #{fileType}</if>
+            <if test="belongteam != null  and belongteam != ''"> and belongteam = #{belongteam}</if>
+            <if test="publishTime != null "> and publish_time = #{publishTime}</if>
+        </where>
+    </select>
+    
+    <select id="selectDmsUserSearchesById" parameterType="Long" resultMap="DmsUserSearchesResult">
+        <include refid="selectDmsUserSearchesVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertDmsUserSearches" parameterType="DmsUserSearches" useGeneratedKeys="true" keyProperty="id">
+        insert into dms_user_searches
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="userId != null">user_id,</if>
+            <if test="fileId != null">file_id,</if>
+            <if test="author != null">author,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="publishId != null">publish_id,</if>
+            <if test="fileType != null">file_type,</if>
+            <if test="belongteam != null">belongteam,</if>
+            <if test="publishTime != null">publish_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="userId != null">#{userId},</if>
+            <if test="fileId != null">#{fileId},</if>
+            <if test="author != null">#{author},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="publishId != null">#{publishId},</if>
+            <if test="fileType != null">#{fileType},</if>
+            <if test="belongteam != null">#{belongteam},</if>
+            <if test="publishTime != null">#{publishTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateDmsUserSearches" parameterType="DmsUserSearches">
+        update dms_user_searches
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="fileId != null">file_id = #{fileId},</if>
+            <if test="author != null">author = #{author},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="publishId != null">publish_id = #{publishId},</if>
+            <if test="fileType != null">file_type = #{fileType},</if>
+            <if test="belongteam != null">belongteam = #{belongteam},</if>
+            <if test="publishTime != null">publish_time = #{publishTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteDmsUserSearchesByuserId" parameterType="Long">
+        delete from dms_user_searches where user_id = #{userId}
+    </delete>
+
+</mapper>

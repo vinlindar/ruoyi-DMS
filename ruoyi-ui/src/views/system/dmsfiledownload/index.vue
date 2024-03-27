@@ -54,6 +54,22 @@
               @keyup.enter.native="handleQuery"
             />
           </el-form-item>
+          <el-form-item label="上传人" prop="updateBy">
+            <el-input
+              v-model="queryParams.updateBy"
+              placeholder="请输入上传人"
+              clearable
+              @keyup.enter.native="handleQuery"
+            />
+          </el-form-item>
+          <el-form-item label="定稿人" prop="publishId">
+            <el-input
+              v-model="queryParams.publishId"
+              placeholder="请输入定稿人"
+              clearable
+              @keyup.enter.native="handleQuery"
+            />
+          </el-form-item>
           <el-form-item label="文件类型" prop="fileType">
             <el-select v-model="queryParams.fileType" placeholder="请选择文件类型" clearable>
               <el-option
@@ -77,32 +93,25 @@
           </el-form-item>
           <el-form-item label="归属团队" prop="belongteam">
             <treeselect 
-              v-model="queryParams.belongteam"
+              v-model="form.deptId"
               :options="deptOptions"
               :show-count="true"
               @select="handleSelect"
               placeholder="请输入归属团队"
             />
           </el-form-item>
-          <el-form-item label="创建者" prop="updateBy">
-            <el-input
-              v-model="queryParams.updateBy"
-              placeholder="请输入创建者"
-              clearable
-              @keyup.enter.native="handleQuery"
-            />
-          </el-form-item>
-          <el-form-item label="创建时间" prop="updateTime">
+          <el-form-item label="发布时间" prop="publishTime">
             <el-date-picker clearable
-              v-model="queryParams.updateTime"
+              v-model="queryParams.publishTime"
               type="date"
               value-format="yyyy-MM-dd"
-              placeholder="请选择创建时间">
+              placeholder="请选择发布时间">
             </el-date-picker>
           </el-form-item>
           <el-form-item>
             <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
             <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
+            <el-button icon="el-icon-edit" size="mini" @click="handlemyseachesQuery">加入我的自定义</el-button>
           </el-form-item>
         </el-form>
 
@@ -116,7 +125,7 @@
             size="mini"
             :disabled="single"
             @click="handleaddfavorite"
-          >收藏文档</el-button>
+          >置顶文档</el-button>
         </el-col>
         <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
       </el-row>
@@ -126,6 +135,7 @@
           <el-table-column label="文件ID" align="center" prop="fileId" />
           <el-table-column label="文件名" align="center" prop="fileName" />
           <el-table-column label="作者" align="center" prop="author" />
+          <el-table-column label="上传人" align="center" prop="updateBy" />
           <el-table-column label="审稿人" align="center" prop="reviewer" />
           <el-table-column label="定稿人" align="center">
             <template slot-scope="scope">
@@ -138,14 +148,13 @@
             </template>
           </el-table-column>
           <el-table-column label="文件大小" align="center" prop="fileSize" />
+          <el-table-column label="归属团队" align="center" prop="belongteam" />
           <el-table-column label="文件状态" align="center" prop="fileStatus">
             <template slot-scope="scope">
               <dict-tag :options="dict.type.dms_file_status" :value="scope.row.fileStatus"/>
             </template>
           </el-table-column>
-          <el-table-column label="归属团队" align="center" prop="belongteam" />
-          <el-table-column label="创建者" align="center" prop="updateBy" />
-          <el-table-column label="创建时间" align="center" prop="updateTime" width="180">
+          <el-table-column label="发布时间" align="center" prop="publishTime" width="180">
             <template slot-scope="scope">
               <span>{{ parseTime(scope.row.updateTime, '{y}-{m}-{d} {h}:{i}') }}</span>
             </template>
@@ -179,6 +188,7 @@ import { listUserbypostId } from "@/api/system/user";
 import { addRecords} from "@/api/system/records";
 import {deptTreeSelect} from "@/api/system/dmsfileupload";
 import {addFavorites} from "@/api/system/favorites";
+import {addSearches} from "@/api/system/searches";
 import Treeselect from "@riophae/vue-treeselect";
 import "@riophae/vue-treeselect/dist/vue-treeselect.css";
 
@@ -292,6 +302,13 @@ export default {
       this.favorite.collectTime=formattedDate;
       addFavorites(this.favorite).then(response => {
               this.$modal.msgSuccess("收藏成功");});
+    },
+    //新增用户自定义文件查询条件
+    handlemyseachesQuery(){
+      this.queryParams.userId=this.$store.state.user.id;
+      addSearches(this.queryParams).then(response => {
+              this.$modal.msgSuccess("新增成功");
+      });
     },
     /**  查询定稿人下拉列表 */
     getPublishList() {

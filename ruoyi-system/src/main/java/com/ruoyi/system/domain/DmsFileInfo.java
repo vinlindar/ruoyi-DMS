@@ -2,8 +2,12 @@ package com.ruoyi.system.domain;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.ruoyi.common.annotation.Excel;
 import com.ruoyi.common.core.domain.BaseEntity;
+
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -59,6 +63,11 @@ public class DmsFileInfo extends BaseEntity
     /** 定稿人ID */
     @Excel(name = "定稿人ID")
     private Long publishId;
+    
+    /** 定稿时间 */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @Excel(name = "定稿时间", width = 30, dateFormat = "yyyy-MM-dd HH:mm:ss")
+    private Date publishTime;
     
     /** 评阅人ID列表 */
     @Excel(name = "评阅人ID列表")
@@ -222,7 +231,15 @@ public class DmsFileInfo extends BaseEntity
 	public void setQueryuserRole(Long userRole) {
 		this.queryuserRole = userRole;
 	}
-    
+    public void setPublishTime(Date publishTime) 
+    {
+        this.publishTime = publishTime;
+    }
+
+    public Date getPublishTime() 
+    {
+        return publishTime;
+    }
     @Override
     public String toString() {
         return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)

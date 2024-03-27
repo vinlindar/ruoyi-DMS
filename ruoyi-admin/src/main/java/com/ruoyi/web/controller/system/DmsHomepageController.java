@@ -62,7 +62,6 @@ public class DmsHomepageController extends BaseController
     {
     	// 查询文件信息表,获得该用户已发布文档、待审阅文档、待定稿文档、待修改文档数量
     	DmsBasicNum result = dmsFileInfoService.selectBacisnumByuserId(userid);
-    	System.out.println("返回的 JSON 格式报文：" + result.toString());
     	 return success(result);
     }
     
