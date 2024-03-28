@@ -123,7 +123,20 @@
           <el-card class="box-card cardDiv2">
             <div slot="header" class="clearfix">
               <span style="margin-right: 30px">我的自定义文档</span>
+              <right-toolbar :showSearch.sync="showSearch" @queryTable="getmysearchfilelist"></right-toolbar>
             </div>
+
+            <div slot="header" v-show="showSearch" style="display: flex; align-items: center;">
+              <span style="margin-right: 10px;">搜索条件：</span>
+              <span>{{ searchquery.fileId ? '（文件ID）' + searchquery.fileId : ''}}</span>
+              <span>{{ searchquery.fileName ? '（文件名）' + searchquery.fileName : ''}}</span>
+              <span>{{ searchquery.updateBy ? '（上传人）' + searchquery.updateBy : ''}}</span>
+              <span>{{ searchquery.publishId ? '（定稿人）' + searchquery.publishId : ''}}</span>
+              <span>{{ searchquery.fileType ? getFileTypeLabel(searchquery.fileType) : ''}}</span>
+              <span>{{ searchquery.belongteam ? '（归属团队）' + searchquery.belongteam:''}}</span>
+              <span>{{ searchquery.publishTime ? '（发布时间）' + searchquery.publishTime:''}}</span>
+            </div>
+            
             <el-table v-loading="loading" :data="mysearchfilelist" height="300" style="width: 100%">
               <el-table-column prop="fileId" label="文档ID" align="center"> </el-table-column>
               <el-table-column prop="fileName" label="文档名" align="center"> </el-table-column>
@@ -169,6 +182,8 @@ export default {
     return {
       // 部门树选项
       deptOptions: undefined,
+      // 显示搜索条件
+      showSearch: false,
       query:{},
       userbasicnum:{},
       latestfilelist: [],
@@ -257,6 +272,11 @@ export default {
       deptTreeSelect().then(response => {
         this.deptOptions = response.data;
       });
+    },
+    // 根据文件类型获取对应的标签
+    getFileTypeLabel(fileType) {
+      const type = this.dict.type.dms_file_type.find(item => item.value == fileType);
+      return type ? `（文件类型）${type.label}` : '';
     },
     // 表单重置
     reset() {
