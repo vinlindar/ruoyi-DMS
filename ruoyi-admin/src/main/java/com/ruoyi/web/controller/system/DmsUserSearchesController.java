@@ -37,7 +37,6 @@ public class DmsUserSearchesController extends BaseController
     /**
      * 查询用户自定义搜索列表
      */
-    @PreAuthorize("@ss.hasPermi('system:searches:list')")
     @GetMapping("/list")
     public TableDataInfo list(DmsUserSearches dmsUserSearches)
     {
@@ -62,7 +61,6 @@ public class DmsUserSearchesController extends BaseController
     /**
      * 获取用户自定义搜索详细信息
      */
-    @PreAuthorize("@ss.hasPermi('system:searches:query')")
     @GetMapping(value = "/{id}")
     public AjaxResult getInfo(@PathVariable("id") Long id)
     {
@@ -84,7 +82,6 @@ public class DmsUserSearchesController extends BaseController
     /**
      * 修改用户自定义搜索
      */
-    @PreAuthorize("@ss.hasPermi('system:searches:edit')")
     @Log(title = "用户自定义搜索", businessType = BusinessType.UPDATE)
     @PutMapping
     public AjaxResult edit(@RequestBody DmsUserSearches dmsUserSearches)

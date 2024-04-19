@@ -77,8 +77,11 @@
     }
 
     // menu hover
-    .submenu-title-noDropdown,
+    .submenu-title-noDropdown{
+      font-size: 16px;
+    }
     .el-submenu__title {
+      font-size: 16px;
       &:hover {
         background-color: rgba(0, 0, 0, 0.06) !important;
       }

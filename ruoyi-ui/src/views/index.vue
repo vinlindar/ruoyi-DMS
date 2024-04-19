@@ -47,7 +47,7 @@
       <el-col :span="16">
           <el-card class="box-card cardDiv2">
             <div slot="header" class="clearfix">
-              <span style="margin-right: 30px">近期文档</span>
+              <span style="margin-right: 30px"><b>近期文档</b></span>
             </div>
             <el-table :data="latestfilelist" height="300" style="width: 100%">
               <el-table-column prop="fileId" label="文档ID" align="center"> </el-table-column>
@@ -66,7 +66,7 @@
         <el-col :span="16">
           <el-card class="box-card cardDiv2">
             <div slot="header" class="clearfix">
-              <span style="margin-right: 30px">各团队文件数</span>
+              <span style="margin-right: 30px"><b>各团队文件数</b></span>
             </div>
           <div id="pie-chart" style="height: 300px;width:300px"></div>
           </el-card>
@@ -88,7 +88,7 @@
     <el-row type="flex" justify="space-around" class="row-bg" >
       <el-card class="box-card cardDiv2">
             <div slot="header" class="clearfix">
-              <span style="margin-right: 30px">我的置顶</span>
+              <span style="margin-right: 30px"><b>我的置顶</b></span>
             </div>
             <el-table v-loading="loading" :data="favoritefilelist" height="300" style="width: 100%">
               <el-table-column prop="fileId" label="文档ID" align="center"> </el-table-column>
@@ -122,7 +122,7 @@
           </el-card>
           <el-card class="box-card cardDiv2">
             <div slot="header" class="clearfix">
-              <span style="margin-right: 30px">我的自定义文档</span>
+              <span style="margin-right: 30px"><b>我的自定义搜索</b></span>
               <right-toolbar :showSearch.sync="showSearch" @queryTable="getmysearchfilelist"></right-toolbar>
             </div>
 
@@ -302,11 +302,11 @@ export default {
       this.query.userId=this.$store.state.user.id;
       this.query.fileId=row.fileId;
       const self = this;
-      this.$modal.confirm('是否确认取消收藏？').then(function(){
+      this.$modal.confirm('是否确认取消置顶？').then(function(){
         return delFavorites(self.query);
       }).then(() => {
         this.getfavoritefilelist();
-        this.$modal.msgSuccess("取消收藏成功");
+        this.$modal.msgSuccess("取消成功");
       }).catch(() => {});
     },
     // 下载文件
@@ -453,6 +453,9 @@ export default {
   }
   .col-item {
     margin-bottom: 20px;
+  }
+  .clearfix{
+    font-size:18px;
   }
  
   ul {

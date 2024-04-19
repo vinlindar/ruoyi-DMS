@@ -94,9 +94,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="fileStatus != null "> and file_status = #{fileStatus}</if>
             <if test="belongteam != null  and belongteam != ''"> and belongteam = #{belongteam}</if>
             <if test="description != null  and description != ''"> and description = #{description}</if>
-            <if test="updateBy != null  and updateBy != ''"> and update_by = #{updateBy}</if>
+            <if test="updateBy != null  and updateBy != ''"> and fi.update_by = #{updateBy}</if>
             <if test="updateTime != null "> and DATE(fi.update_time) = #{updateTime}</if>
-            <if test="publishId != null "> and publish_id = #{publishId}</if>
+            <if test="publishId != null "> and fi.publish_id = #{publishId}</if>
             <if test="publishTime != null "> and DATE(publish_time) = #{publishTime}</if>
         </where>
         ORDER BY publish_time DESC
