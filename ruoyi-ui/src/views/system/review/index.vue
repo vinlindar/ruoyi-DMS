@@ -1,14 +1,6 @@
 <template>
   <div class="app-container">
     <el-form :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch" label-width="68px">
-      <el-form-item label="文件ID" prop="fileId">
-        <el-input
-          v-model="queryParams.fileId"
-          placeholder="请输入文件ID"
-          clearable
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
       <el-form-item label="评阅人" prop="reviewerId">
         <el-select v-model="queryParams.reviewerId" placeholder="仅管理员可操作" :clearable="isAdmin">
             <el-option 
@@ -20,10 +12,10 @@
             />
           </el-select>
       </el-form-item>
-      <el-form-item label="评阅结果" prop="isPassed">
-        <el-select v-model="queryParams.isPassed" placeholder="请选择评阅结果" clearable>
+      <el-form-item label="评阅状态" prop="isPassed">
+        <el-select v-model="queryParams.isPassed" placeholder="请选择评阅状态" clearable>
           <el-option
-            v-for="dict in dict.type.dms_review_result"
+            v-for="dict in dict.type.dms_review_status"
             :key="dict.value"
             :label="dict.label"
             :value="dict.value"
@@ -52,17 +44,12 @@
     <!-- 文档信息展示-->
     <el-table v-loading="loading" :data="reviewList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="文件ID" align="center" prop="fileId" />
-      <el-table-column label="文件名" align="center" prop="fileName" />
-      <el-table-column label="作者" align="center" prop="author" />
-      <el-table-column label="所有评阅人" align="center" prop="reviewer" />
-      <el-table-column label="当前评阅人" align="center" prop="reviewerName" />
-      <el-table-column label="文件类型" align="center" prop="fileType">
+      <el-table-column label="文件名" align="center" prop="fileName" width="600"/>
+      <el-table-column label="文件分类" align="center" prop="fileType">
         <template slot-scope="scope">
           <dict-tag :options="dict.type.dms_file_type" :value="scope.row.fileType"/>
         </template>
       </el-table-column>
-      <el-table-column label="文件大小" align="center" prop="fileSize" />
       <el-table-column label="文件状态" align="center" prop="fileStatus">
         <template slot-scope="scope">
           <dict-tag :options="dict.type.dms_file_status" :value="scope.row.fileStatus"/>
@@ -71,9 +58,9 @@
       <el-table-column label="归属团队" align="center" prop="belongteam" />
       <el-table-column label="上传者" align="center" prop="updateBy" />
       <el-table-column label="提交时间" align="center" prop="updateTime" />
-      <el-table-column label="评阅结果" align="center" prop="isPassed" >
+      <el-table-column label="评阅状态" align="center" prop="isPassed" >
         <template slot-scope="scope">
-            <dict-tag :options="dict.type.dms_review_result" :value="scope.row.isPassed"/>
+            <dict-tag :options="dict.type.dms_review_status" :value="scope.row.isPassed"/>
           </template>
         </el-table-column>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
@@ -110,7 +97,7 @@
         <el-form-item label="评阅结果" prop="isPassed">
           <el-select v-model="form.isPassed" placeholder="请选择评阅结果">
             <el-option
-              v-for="dict in dict.type.dms_review_result"
+              v-for="dict in dict.type.dms_review_status"
               :key="dict.value"
               :label="dict.label"
               :value="parseInt(dict.value)"
@@ -132,7 +119,7 @@ import { listUserbypostId } from "@/api/system/user";
 
 export default {
   name: "Review",
-  dicts: ['dms_file_type', 'dms_file_status','dms_review_result'],
+  dicts: ['dms_file_type', 'dms_file_status','dms_review_status'],
   data() {
     return {
       //是否为管理员
