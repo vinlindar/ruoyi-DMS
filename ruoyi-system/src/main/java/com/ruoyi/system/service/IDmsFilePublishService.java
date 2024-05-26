@@ -2,6 +2,7 @@ package com.ruoyi.system.service;
 
 import java.util.List;
 import com.ruoyi.system.domain.DmsFilePublish;
+import com.ruoyi.system.domain.DmsFileReview;
 
 /**
  * 定稿Service接口
@@ -11,13 +12,21 @@ import com.ruoyi.system.domain.DmsFilePublish;
  */
 public interface IDmsFilePublishService 
 {
+	
     /**
      * 查询定稿
      * 
-     * @param fileId 定稿主键
+     * @param id 主键
+     * @return 
+     */
+    public DmsFilePublish selectDmsFilePublishById(Long id);
+    /**
+     * 查询fileId所有定稿
+     * 
+     * @param fileId 定稿
      * @return 定稿
      */
-    public DmsFilePublish selectDmsFilePublishByFileId(String fileId);
+    public List<DmsFilePublish> selectDmsFilePublishByFileId(String fileId);
 
     /**
      * 查询定稿列表
@@ -57,7 +66,7 @@ public interface IDmsFilePublishService
      * @param fileIds 需要删除的定稿主键集合
      * @return 结果
      */
-    public int deleteDmsFilePublishByFileIds(String[] fileIds);
+    public int deleteDmsFilePublishByIds(Long[] ids);
 
     /**
      * 删除定稿信息

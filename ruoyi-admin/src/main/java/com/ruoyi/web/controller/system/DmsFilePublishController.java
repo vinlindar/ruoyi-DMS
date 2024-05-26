@@ -64,22 +64,14 @@ public class DmsFilePublishController extends BaseController
         ExcelUtil<DmsFilePublish> util = new ExcelUtil<DmsFilePublish>(DmsFilePublish.class);
         util.exportExcel(response, list, "定稿数据");
     }
-
     /**
-     * 获取定稿详细信息
+     * 获取id定稿详细信息
      */
     @PreAuthorize("@ss.hasPermi('system:publish:query')")
-    @GetMapping(value = "/{fileId}")
-    public AjaxResult getInfo(@PathVariable("fileId") String fileId)
-    { 
-    	DmsFilePublish result = dmsFilePublishService.selectDmsFilePublishByFileId(fileId);
-        if (result != null) {
-            // 查询结果不为空，返回成功响应
-            return success(result);
-        } else {
-            // 查询结果为空，返回自定义的失败响应，这里假设你的 AjaxResult 类有一个适当的构造函数
-            return AjaxResult.error("未找到对应的定稿意见");
-        }
+    @GetMapping(value = "/{id}")
+    public AjaxResult getInfo(@PathVariable("id") Long id)
+    {
+        return success(dmsFilePublishService.selectDmsFilePublishById(id));
     }
     /**
      * 新增定稿
@@ -101,7 +93,7 @@ public class DmsFilePublishController extends BaseController
     public AjaxResult edit(@RequestBody DmsFilePublish dmsFilePublish)
     {
     	// 更新定稿结果
-    	int updatePublishResult =dmsFilePublishService.updateDmsFilePublish(dmsFilePublish);
+    	dmsFilePublishService.updateDmsFilePublish(dmsFilePublish);
     	// 如果is_passsed是待发布(1)，则重置文档状态为待发布(2)
     	// 如果is_passsed是通过(2)，则修改文档状态为已发布(3) 同时更新文档权限表（先删除所有权限，后新建权限）
     	// 如果is_passed是需修改(3),则修改文档状态为需修改(4)
@@ -109,25 +101,25 @@ public class DmsFilePublishController extends BaseController
         if (IsPassed == 2L) {
         	long fileStatus = 3L;
         	// 修改文档状态为已发布（3）
-        	int updateFileStatusResult = dmsFileInfoService.updateDmsFileStatus(dmsFilePublish.getFileId(), fileStatus);
+        	dmsFileInfoService.updateDmsFileStatus(dmsFilePublish.getFileId(), fileStatus);
         	// 删除已有文档权限
-        	int delFilePermissionsResult = dmsFilePermissionsService.deleteDmsFilePermissionsByFileId(dmsFilePublish.getFileId());
+        	dmsFilePermissionsService.deleteDmsFilePermissionsByFileId(dmsFilePublish.getFileId());
         	// 创建文档权限表新增信息
         	DmsFilePermissions dmsFilePermissions = new DmsFilePermissions ();
         	dmsFilePermissions.setFileId(dmsFilePublish.getFileId());
         	Long[] deptIds = dmsFilePublish.getDeptIds();
         	for (Long deptId : deptIds) {
 	        	dmsFilePermissions.setDeptId(deptId);
-		        int insertFilePermissionsResult = dmsFilePermissionsService.insertDmsFilePermissions(dmsFilePermissions);
+		        dmsFilePermissionsService.insertDmsFilePermissions(dmsFilePermissions);
         	}
         	return AjaxResult.success("定稿成功");
         }else if (IsPassed == 3L) {
         	long fileStatus = 4L;
-        	int updateFileStatusResult = dmsFileInfoService.updateDmsFileStatus(dmsFilePublish.getFileId(), fileStatus);
+        	dmsFileInfoService.updateDmsFileStatus(dmsFilePublish.getFileId(), fileStatus);
         	return AjaxResult.success("定稿成功");
         }else if (IsPassed == 1L) {
         	long fileStatus = 2L;
-        	int updateFileStatusResult = dmsFileInfoService.updateDmsFileStatus(dmsFilePublish.getFileId(), fileStatus);
+        	dmsFileInfoService.updateDmsFileStatus(dmsFilePublish.getFileId(), fileStatus);
         	return AjaxResult.success("定稿成功");
         }else {
         	return AjaxResult.error("未知的定稿结果");
@@ -140,8 +132,8 @@ public class DmsFilePublishController extends BaseController
     @PreAuthorize("@ss.hasPermi('system:publish:remove')")
     @Log(title = "定稿", businessType = BusinessType.DELETE)
 	@DeleteMapping("/{fileIds}")
-    public AjaxResult remove(@PathVariable String[] fileIds)
+    public AjaxResult remove(@PathVariable Long[] ids)
     {
-        return toAjax(dmsFilePublishService.deleteDmsFilePublishByFileIds(fileIds));
+        return toAjax(dmsFilePublishService.deleteDmsFilePublishByIds(ids));
     }
 }

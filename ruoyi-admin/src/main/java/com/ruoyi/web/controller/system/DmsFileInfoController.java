@@ -112,17 +112,21 @@ public class DmsFileInfoController extends BaseController
     @PostMapping
     public AjaxResult add(@RequestBody DmsFileInfo dmsFileInfo)
     {
-    	// 新增文件信息->新建评审信息
+    	// 新增文件信息->新建评审信息->新建定稿信息
     	dmsFileInfoService.insertDmsFileInfo(dmsFileInfo);
-    	//提取reviewID,构建reviewform,循环新建评审信息
+    	//提取reviewID,构建dmsFileReview,循环新建评审信息(is_current默认true,通过上传人修改操作触发false)
     	List<Long> reviewerIds = dmsFileInfo.getReviewerIds();
     	DmsFileReview dmsFileReview = new DmsFileReview();
     	dmsFileReview.setFileId(dmsFileInfo.getFileId());
-    	dmsFileReview.setIsPassed(1L);
     	for (Long reviewerId : reviewerIds) {
 	    	dmsFileReview.setReviewerId(reviewerId);
 	    	dmsFileReviewService.insertDmsFileReview(dmsFileReview);
     	}
+    	//提取publishID,构建dmsFilePublish,新建定稿信息(is_current默认true,通过上传人修改操作触发false)
+    	DmsFilePublish dmsFilePublish = new DmsFilePublish();
+    	dmsFilePublish.setFileId(dmsFileInfo.getFileId());
+    	dmsFilePublish.setPublishId(dmsFileInfo.getPublishId());
+    	dmsFilePublishService.insertDmsFilePublish(dmsFilePublish);
     	return AjaxResult.success("新建文件成功");
     }
 
@@ -134,21 +138,33 @@ public class DmsFileInfoController extends BaseController
     @PutMapping
     public AjaxResult edit(@RequestBody DmsFileInfo dmsFileInfo)
     {
-    	// 修改文件信息->删除评审信息->删除定稿信息—>新建评审信息
+    	// 修改文件信息->修改当前评阅信息is_current状态->修改当前定稿信息状态is_current—>新建评审和定稿信息
     	dmsFileInfoService.updateDmsFileInfo(dmsFileInfo);
-    	// 删除文件ID对应评审信息
-    	dmsFileReviewService.deleteDmsFileReviewByFileId(dmsFileInfo.getFileId());
-    	// 删除文件ID对应定稿信息
-    	dmsFilePublishService.deleteDmsFilePublishByFileId(dmsFileInfo.getFileId());
-    	//提取reviewID,构建reviewform,循环新建评审信息
-    	List<Long> reviewerIds = dmsFileInfo.getReviewerIds();
+    	
+    	// 修改文件ID对应所有评审信息状态（is_current改为false）
     	DmsFileReview dmsFileReview = new DmsFileReview();
     	dmsFileReview.setFileId(dmsFileInfo.getFileId());
-    	dmsFileReview.setIsPassed(1L);
+    	dmsFileReview.setIsCurrent(0);
+    	dmsFileReviewService.updateDmsFileReview(dmsFileReview);
+    	
+    	// 修改文件ID对应定稿信息（is_current改为false）
+    	DmsFilePublish dmsFilePublish = new DmsFilePublish();
+    	dmsFilePublish.setFileId(dmsFileInfo.getFileId());
+    	dmsFilePublish.setIsCurrent(0);
+    	dmsFilePublishService.updateDmsFilePublish(dmsFilePublish);
+    	
+    	//提取reviewID,构建dmsFileReview2,循环新建评审信息，新建定稿信息
+    	List<Long> reviewerIds = dmsFileInfo.getReviewerIds();
+    	DmsFileReview dmsFileReview2 = new DmsFileReview();
+    	dmsFileReview2.setFileId(dmsFileInfo.getFileId());
     	for (Long reviewerId : reviewerIds) {
-	    	dmsFileReview.setReviewerId(reviewerId);
-	    	dmsFileReviewService.insertDmsFileReview(dmsFileReview);
+	    	dmsFileReview2.setReviewerId(reviewerId);
+	    	dmsFileReviewService.insertDmsFileReview(dmsFileReview2);
     	}
+    	DmsFilePublish dmsFilePublish2 = new DmsFilePublish();
+    	dmsFilePublish2.setFileId(dmsFileInfo.getFileId());
+    	dmsFilePublish2.setPublishId(dmsFileInfo.getPublishId());
+    	dmsFilePublishService.insertDmsFilePublish(dmsFilePublish2);
     	return AjaxResult.success("修改文件成功");
     }
 
@@ -168,19 +184,15 @@ public class DmsFileInfoController extends BaseController
         String localPath = RuoYiConfig.getProfile();
         //映射路径
         String filePath = dmsFileInfo.getFilePath();
-        // 删除路径
+        //删除路径
         String deletaPath = localPath + StringUtils.substringAfter(filePath, Constants.RESOURCE_PREFIX );
         // 调用文件删除方法，删除实际文件
         
         //System.out.println("Deleting file with path: " + deletaPath);
         FileUtils.deleteFile(deletaPath);
         
-     // 删除文件信息记录->删除评审信息->删除定稿信息
+        // 删除文件信息记录->删除评审信息->删除定稿信息（依靠外键约束删除）
     	dmsFileInfoService.deleteDmsFileInfoByFileId(dmsFileInfo.getFileId());
-    	// 删除文件ID对应评审信息
-    	dmsFileReviewService.deleteDmsFileReviewByFileId(dmsFileInfo.getFileId());
-    	// 删除文件ID对应定稿信息
-    	dmsFilePublishService.deleteDmsFilePublishByFileId(dmsFileInfo.getFileId());
     	return AjaxResult.success("删除成功");
     }
 }

@@ -118,7 +118,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <select id="selectBacisnumByuserId" parameterType="Long" resultMap="DmsBasicNumResult">
          SELECT
 	        (SELECT COUNT(*) FROM dms_file_info WHERE file_status = 3 AND update_by = (SELECT user_name FROM sys_user WHERE user_id = #{userid})) AS Publish_num,
-	        (SELECT COUNT(*) FROM dms_file_review WHERE reviewer_id = #{userid} AND is_passed = 1) AS waitReview_num,
+	        (SELECT COUNT(*) FROM dms_file_review WHERE reviewer_id = #{userid} AND is_current = 1 AND status = 1) AS waitReview_num,
 	        (SELECT COUNT(*) FROM dms_file_publish WHERE publish_id = #{userid} AND is_passed = 1) AS waitPublish_num,
 	        (SELECT COUNT(*) FROM dms_file_info WHERE file_status = 4 AND update_by = (SELECT user_name FROM sys_user WHERE user_id = #{userid})) AS waitModify_num
     </select>

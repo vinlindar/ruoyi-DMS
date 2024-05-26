@@ -17,6 +17,9 @@ public class DmsFilePublish extends BaseEntity
 {
     private static final long serialVersionUID = 1L;
 
+    /** $column.columnComment */
+    private Long id;
+    
     /** 文件ID */
     private String fileId;
 
@@ -35,6 +38,10 @@ public class DmsFilePublish extends BaseEntity
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @Excel(name = "定稿时间", width = 30, dateFormat = "yyyy-MM-dd HH:mm:ss")
     private Date publishTime;
+    
+    /** 是否为当前项 */
+    @Excel(name = "是否为当前项")
+    private Integer isCurrent;
     
     /** 文件名 */
     @Excel(name = "文件名")
@@ -76,7 +83,15 @@ public class DmsFilePublish extends BaseEntity
     @Excel(name = "文件部门权限")
     private Long[] deptIds;
     
+    public void setId(Long id) 
+    {
+        this.id = id;
+    }
 
+    public Long getId() 
+    {
+        return id;
+    }
     public void setFileId(String fileId) 
     {
         this.fileId = fileId;
@@ -121,6 +136,15 @@ public class DmsFilePublish extends BaseEntity
     public Date getPublishTime() 
     {
         return publishTime;
+    }
+    public void setIsCurrent(Integer isCurrent) 
+    {
+        this.isCurrent = isCurrent;
+    }
+
+    public Integer getIsCurrent() 
+    {
+        return isCurrent;
     }
     public void setFileName(String fileName) {
         this.fileName = fileName;

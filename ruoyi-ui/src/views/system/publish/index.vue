@@ -342,7 +342,7 @@ export default {
       console.log(this)
     },
     getReviewResultText() {
-      return this.dict.type.dms_review_result;
+      return this.dict.type.dms_review_status;
     },
     getFileTypeLabel(fileType){
       const dictItem = this.dict.type.dms_file_type.find(item => item.value ===  String(fileType));
@@ -389,12 +389,8 @@ export default {
     /** 修改按钮操作 */
     handleUpdate(row) {
       this.reset();
-      const fileId = row.fileId || this.ids
-      const fileStatus = row.fileStatus || this.selectfileStatus;
-      const currentDate = new Date();
-      const formattedDate = `${currentDate.getFullYear()}-${(currentDate.getMonth() + 1).toString().padStart(2, '0')}-${currentDate.getDate().toString().padStart(2, '0')} ${currentDate.getHours().toString().padStart(2, '0')}:${currentDate.getMinutes().toString().padStart(2, '0')}:${currentDate.getSeconds().toString().padStart(2, '0')}`;
-      this.form.publishTime = formattedDate;
-      getPublish(fileId).then(response => {
+      const id = row.id
+      getPublish(id).then(response => {
         this.form = response.data;
         this.open = true;
         this.title = "文档定稿";
@@ -406,21 +402,14 @@ export default {
       const formattedDate = `${currentDate.getFullYear()}-${(currentDate.getMonth() + 1).toString().padStart(2, '0')}-${currentDate.getDate().toString().padStart(2, '0')} ${currentDate.getHours().toString().padStart(2, '0')}:${currentDate.getMinutes().toString().padStart(2, '0')}:${currentDate.getSeconds().toString().padStart(2, '0')}`;
       this.form.publishTime = formattedDate;
       this.form.deptIdsNum = this.form.deptIds.length;
+      console.log(this.form);
       this.$refs["form"].validate(valid => {
         if (valid) {
-          if (this.form.fileId != null) {
             updatePublish(this.form).then(response => {
               this.$modal.msgSuccess("定稿成功");
               this.open = false;
               this.getList();
             });
-          } else {
-            addPublish(this.form).then(response => {
-              this.$modal.msgSuccess("新增成功");
-              this.open = false;
-              this.getList();
-            });
-          }
         }
       });
     },
