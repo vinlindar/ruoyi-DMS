@@ -1,5 +1,10 @@
 <template>
   <div class="app-container home">
+    <div class="row">
+      <div class="col-md-8">
+
+      </div>
+    </div>
     <el-row  type="flex" justify="space-around" class="row-bg">
       <el-card class="box-card cardDiv1">
         <el-col :span="6">

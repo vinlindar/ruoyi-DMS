@@ -34,6 +34,21 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
          <result property="waitModifyNum"    column="waitModify_num"    />
     </resultMap>
 
+    <resultMap type="DmsClassifiedfileNum" id="DmsClassifiedfileNumResult">
+    	 <result property="classifiedId"    column="classified_id"    />
+         <result property="filenum"    column="file_num"    />
+    </resultMap>
+    
+    <resultMap type="DmsfileNumbyYear" id="DmsfileNumbyYearResult">
+    	 <result property="year"    column="year"    />
+         <result property="filenum"    column="file_num"    />
+    </resultMap>
+    
+    <resultMap type="DmsfileNumbyMonth" id="DmsfileNumbyMonthResult">
+    	 <result property="month"    column="month"    />
+         <result property="filenum"    column="file_num"    />
+    </resultMap>
+
     <sql id="selectDmsFileInfoVo">
         select file_id, file_name, file_path, author, reviewer, file_type, file_size, file_status, belongteam, description, update_by, update_time, publish_id from dms_file_info
     </sql>
@@ -123,6 +138,31 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	        (SELECT COUNT(*) FROM dms_file_info WHERE file_status = 4 AND update_by = (SELECT user_name FROM sys_user WHERE user_id = #{userid})) AS waitModify_num
     </select>
     
+    <select id="selectclassifiedfilenum" resultMap="DmsClassifiedfileNumResult">
+        select f.file_type as classified_id,count(*) as file_num
+        from dms_file_info f
+        where f.file_status = 3
+        group by f.file_type
+    </select>
+    
+    <select id="selectfilenumbyYear" resultMap="DmsfileNumbyYearResult">
+        select YEAR(f.update_time) as year ,count(*) as file_num
+        from dms_file_info f
+        where f.file_status = 3
+        group by YEAR(f.update_time)
+    </select>
+    
+    <select id="selectfilenumbyMonth" resultMap="DmsfileNumbyMonthResult">
+	    SELECT DATE_FORMAT(f.update_time, '%Y-%m') AS month,
+	        COUNT(*) AS file_num
+	    FROM dms_file_info f
+	    WHERE f.file_status = 3
+	        AND f.update_time >= DATE_SUB(CURDATE(), INTERVAL 12 MONTH)
+	    GROUP BY 
+	        DATE_FORMAT(f.update_time, '%Y-%m')
+	    ORDER BY month DESC
+	</select>
+	
     <insert id="insertDmsFileInfo" parameterType="DmsFileInfo">
         insert into dms_file_info
         <trim prefix="(" suffix=")" suffixOverrides=",">

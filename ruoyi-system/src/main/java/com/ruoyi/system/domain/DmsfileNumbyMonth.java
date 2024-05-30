@@ -11,40 +11,26 @@ import com.ruoyi.common.core.domain.BaseEntity;
  * @author HYZ
  * @date 2024-03-16
  */
-public class DmsDeptfileNum extends BaseEntity
+public class DmsfileNumbyMonth extends BaseEntity
 {
     private static final long serialVersionUID = 1L;
 
-    /** 团队名称 */
-    @Excel(name = "团队名称")
-    private String teamname;
-
-    /** 团队ID */
-    @Excel(name = "团队ID")
-    private Long teamid;
+    /** 月份 */
+    @Excel(name = "月份")
+    private String month;
 
     /** 已发布文件数 */
     @Excel(name = "已发布文件数")
     private Long filenum;
 
-    public void setTeamName(String teamname) 
+    public void setMonth(String month) 
     {
-        this.teamname= teamname;
+        this.month= month;
     }
 
-    public String getTeamName() 
+    public String getMonth() 
     {
-        return teamname;
-    }
-    
-    public void setTeamId(Long teamid) 
-    {
-        this.teamid= teamid;
-    }
-
-    public Long getTeamId() 
-    {
-        return teamid;
+        return month;
     }
     
     public void setFileNum(Long filenum) 
@@ -60,8 +46,7 @@ public class DmsDeptfileNum extends BaseEntity
     @Override
     public String toString() {
         return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
-            .append("teamname", getTeamName() )
-            .append("teamid", getTeamId())
+            .append("teamname", getMonth() )
             .append("filenum", getFileNum())
             .toString();
     }

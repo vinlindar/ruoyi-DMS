@@ -68,7 +68,17 @@ public class DmsDownloadRecordsController extends BaseController
     {
         return success(dmsDownloadRecordsService.selectDmsDownloadRecordsById(id));
     }
-
+    
+    /**
+     * 获取文件下载次数
+     */
+    @PreAuthorize("@ss.hasPermi('system:records:query')")
+    @GetMapping(value = "/fileId/{fileId}")
+    public AjaxResult getInfo1(@PathVariable("fileId") Long fileId)
+    {
+        return success(dmsDownloadRecordsService.selectDownloadNumbyFileid(fileId));
+    }
+    
     /**
      * 新增下载记录
      */

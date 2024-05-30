@@ -50,7 +50,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <select id="selectDmsFilePublishlatestList" resultMap="DmsFilePublishResult">
         <include refid="selectDmsFilePublishVo"/>
         <where> 
-        	is_passed = 2 
+        	is_passed = 2 and is_current = 1
         </where>
         ORDER BY publish_time DESC
     	LIMIT 10

@@ -16,7 +16,7 @@
             <tr><td class="label">文件大小:</td><td  class="value">{{ this.filedetail.fileSize }}</td></tr>
             <tr><td class="label">提交时间:</td><td  class="value">{{ this.filedetail.updateTime }}</td></tr>
             <tr><td class="label">发布时间:</td><td  class="value">{{ this.filedetail.publishTime }}</td></tr>
-            <tr><td class="label">下载次数:</td><td  class="value">{{ this.filedetail.belongteam }}</td></tr>
+            <tr><td class="label">下载次数:</td><td  class="value">{{ this.filedetail.downloadNum}}</td></tr>
             <tr><td class="label">文档描述:</td><td  class="value">{{ this.filedetail.description }}</td></tr>
           </table>
         </div>
@@ -70,7 +70,7 @@ import { listPublish} from "@/api/system/publish";
 import {listReview}from "@/api/system/review";
 import { getPermissions } from "@/api/system/permissions";
 import { listUserbypostId } from "@/api/system/user";
-import { addRecords} from "@/api/system/records";
+import { addRecords,getDownloadNumbyfileId} from "@/api/system/records";
 import {deptTreeSelect,getDmsfileupload} from "@/api/system/dmsfileupload";
 import Treeselect from "@riophae/vue-treeselect";
 import "@riophae/vue-treeselect/dist/vue-treeselect.css";
@@ -201,6 +201,11 @@ export default {
         this.Permissionlist = response.data;
         this.loading = false;
       });
+      getDownloadNumbyfileId(fileId).then(response => {
+        this.filedetail.downloadNum = response.data;
+        console.log(response.data);
+        this.loading = false;
+      });
       console.log(this)
     },
         /**  查询评阅人下拉列表 */
@@ -236,10 +241,6 @@ export default {
           this.loading = false;
         }
       );
-    },
-    getPublishNameById(userId) {
-      const user = this.PublisherList.find(user => user.userId == userId);
-      return user ? user.userName : userId.toString();
     },
     // 取消按钮
     cancel() {
@@ -369,7 +370,7 @@ export default {
       if (userId === undefined || userId === null) {
         return "Unknown User";
     }
-      const user = this.PublisherList.find(user => user.userId === userId);
+      const user = this.PublisherList.find(item => item.userId === userId);
       return user ? user.userName : userId.toString();
     },
     /** 根据定稿人ID查姓名 */

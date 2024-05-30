@@ -15,6 +15,20 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="downloadTime"    column="download_time"    />
         <result property="downloadCount" column="download_count"/>
     </resultMap>
+    <resultMap id="DmsDownloadNumbyfileId" type="int">
+	    <id property="downloadCount" column="download_count"/>
+	</resultMap>
+	
+	<resultMap type="DmsDeptfileNum" id="DmsDeptfileNumResult">
+    	<result property="teamname"    column="team_name"    />
+        <result property="teamid"    column="team_id"    />
+         <result property="filenum"    column="file_num"    />
+    </resultMap>
+    
+    <resultMap type="DmsClassifiedfileNum" id="DmsClassifiedfileNumResult">
+    	 <result property="classifiedId"    column="classified_id"    />
+         <result property="filenum"    column="file_num"    />
+    </resultMap>
 
     <sql id="selectDmsDownloadRecordsVo">
         select id, file_id, file_name, dept_id, belongteam, download_userid, download_user, download_time from dms_download_records
@@ -40,7 +54,39 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		    ORDER BY download_count DESC
 		    LIMIT 10
 	</select>
+	
+	<select id="selectDownloadNumbyFileid" parameterType="Long" resultMap="DmsDownloadNumbyfileId">
+			SELECT COUNT(*) as download_count
+		    from dms_download_records
+		    where file_id = #{fileId}
+	</select>
     
+    <select id="selectdeptdownloadfilenum" resultMap="DmsDeptfileNumResult">
+		SELECT 
+	        d.dept_id AS team_id,
+	        d.dept_name AS team_name,
+	        COUNT(*) AS file_num
+	    FROM 
+	        dms_download_records fdr
+	    JOIN 
+	        sys_user u ON fdr.download_userid = u.user_id
+	    JOIN 
+	        sys_dept d ON u.dept_id = d.dept_id
+	    GROUP BY 
+	        d.dept_id, d.dept_name
+    </select>
+    
+    <select id="selectclassifieddownloadfilenum" resultMap="DmsClassifiedfileNumResult">
+		SELECT
+	        fi.file_type AS classified_id,
+	        COUNT(*) AS file_num
+	    FROM 
+	        dms_download_records fdr
+	    JOIN
+	    	dms_file_info fi ON fdr.file_id = fi.file_id
+	    GROUP BY
+	    	fi.file_type
+    </select>
     
     <select id="selectDmsDownloadRecordsById" parameterType="Long" resultMap="DmsDownloadRecordsResult">
         <include refid="selectDmsDownloadRecordsVo"/>
