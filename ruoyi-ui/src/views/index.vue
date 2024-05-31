@@ -1,8 +1,36 @@
 <template>
   <div class="app-container home">
     <div class="row">
+      <!-- 图片走马灯 -->
       <div class="col-md-8">
-
+        <div id="carouselExample" class="carousel slide" data-ride="carousel">
+          <div class="carousel-inner">
+            <div 
+              v-for="(image, index) in images" 
+              :key="image.id" 
+              :class="['carousel-item', { active: index === 0 }]"
+            >
+              <img :src="image.path" :alt="image.description" class="d-block w-100">
+              <div class="carousel-caption">
+                <p>{{ image.description }}</p>
+              </div>
+            </div>
+          </div>
+          <a class="carousel-control-prev" href="#carouselExample" role="button" data-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="sr-only">Previous</span>
+          </a>
+          <a class="carousel-control-next" href="#carouselExample" role="button" data-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="sr-only">Next</span>
+          </a>
+        </div>
+      </div>
+      <!-- 图片简要解释 -->
+      <div class="col-md-4">
+        <ul class="description-list">
+          <li v-for="(image, index) in images" :key="image.id">{{ image.description }}</li>
+        </ul>
       </div>
     </div>
     <el-row  type="flex" justify="space-around" class="row-bg">
@@ -170,7 +198,7 @@
 </template>
  
 <script>
-import {userhomepagebasicinfo,listlatestfileinfo,getdeptfilenum,getmostpopularfileinfo} from "@/api/system/homepage";
+import {userhomepagebasicinfo,listlatestfileinfo,getdeptfilenum,getmostpopularfileinfo,getlistimages} from "@/api/system/homepage";
 import {listFavorites,delFavorites} from "@/api/system/favorites";
 import { listDmsfileupload} from "@/api/system/dmsfileupload";
 import { addRecords} from "@/api/system/records";
@@ -198,6 +226,7 @@ export default {
       mysearchfilelist:[],
       searchquery:[],
       myseachform:{},
+      images:[],
     };
   },
   created() {
@@ -212,9 +241,21 @@ export default {
   mounted(){
     setTimeout(() => {
       this.renderPieChart()//饼图
-    }, 500)
+    }, 500);
   },
   methods: {
+    //
+    fetchImages() {
+      this.loading = true;
+      getlistimages().then(response => {
+          this.images = response.data;
+          this.loading = false;
+        })
+        .catch(error => {
+          console.error("There was an error fetching the images!", error);
+          this.loading = false;
+        });
+    },
     // 获取当前用户的已办文档、待审阅、待定稿、待修改数量
     getcurrentuserbasicinfonum(){
       this.loading = true;
@@ -559,6 +600,23 @@ export default {
     box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.349019607843137);
     font-family: 'Arial Negreta', 'Arial Normal', 'Arial';
   }
+}
+.carousel-inner img {
+  width: 100%;
+  height: 400px;
+}
+.carousel-caption {
+  background-color: rgba(0, 0, 0, 0.5);
+  padding: 10px;
+}
+.description-list {
+  list-style-type: none;
+  padding: 0;
+}
+.description-list li {
+  margin-bottom: 10px;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 10px;
 }
 </style>
  
