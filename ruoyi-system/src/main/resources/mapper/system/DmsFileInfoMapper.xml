@@ -22,8 +22,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
     
     <resultMap type="DmsDeptfileNum" id="DmsDeptfileNumResult">
-    	<result property="teamname"    column="team_name"    />
-        <result property="teamid"    column="team_id"    />
+    	<result property="label"    column="label"    />
          <result property="filenum"    column="file_num"    />
     </resultMap>
     
@@ -35,17 +34,18 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <resultMap type="DmsClassifiedfileNum" id="DmsClassifiedfileNumResult">
+    	 <result property="label"    column="label"    />	
     	 <result property="classifiedId"    column="classified_id"    />
          <result property="filenum"    column="file_num"    />
     </resultMap>
     
     <resultMap type="DmsfileNumbyYear" id="DmsfileNumbyYearResult">
-    	 <result property="year"    column="year"    />
+    	 <result property="label"    column="label"    />
          <result property="filenum"    column="file_num"    />
     </resultMap>
     
     <resultMap type="DmsfileNumbyMonth" id="DmsfileNumbyMonthResult">
-    	 <result property="month"    column="month"    />
+    	 <result property="label"    column="label"    />
          <result property="filenum"    column="file_num"    />
     </resultMap>
 
@@ -123,11 +123,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </select>
     
      <select id="selectdeptfilenum" resultMap="DmsDeptfileNumResult">
-        select d.dept_id as team_id,d.dept_name as team_name,count(*) as file_num
-        from dms_file_info f
-        join sys_dept d on f.belongteam = d.dept_name
-        where f.file_status = 3
-        group by f.belongteam,d.dept_id,d.dept_name
+     	select sd.dept_name as label, coalesce(count(case when f.belongteam = sd.dept_name then 1 else null end), 0) as file_num
+     	from sys_dept sd
+        left join dms_file_info f on f.file_status = 3
+        where sd.parent_id = 100
+        group by sd.dept_name
     </select>
     
     <select id="selectBacisnumByuserId" parameterType="Long" resultMap="DmsBasicNumResult">
@@ -139,28 +139,30 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </select>
     
     <select id="selectclassifiedfilenum" resultMap="DmsClassifiedfileNumResult">
-        select f.file_type as classified_id,count(*) as file_num
-        from dms_file_info f
-        where f.file_status = 3
-        group by f.file_type
+        select sdd.dict_label as label,sdd.dict_value as classified_id,
+        coalesce(count(case when f.file_type = sdd.dict_value then 1 else null end), 0) as file_num
+        from sys_dict_data sdd
+        left join dms_file_info f on f.file_status = 3
+        where sdd.dict_type = 'dms_file_type' 
+        group by sdd.dict_label,sdd.dict_value
     </select>
     
     <select id="selectfilenumbyYear" resultMap="DmsfileNumbyYearResult">
-        select YEAR(f.update_time) as year ,count(*) as file_num
+        select YEAR(f.update_time) as label ,count(*) as file_num
         from dms_file_info f
         where f.file_status = 3
         group by YEAR(f.update_time)
     </select>
     
     <select id="selectfilenumbyMonth" resultMap="DmsfileNumbyMonthResult">
-	    SELECT DATE_FORMAT(f.update_time, '%Y-%m') AS month,
+	    SELECT DATE_FORMAT(f.update_time, '%Y-%m') AS label,
 	        COUNT(*) AS file_num
 	    FROM dms_file_info f
 	    WHERE f.file_status = 3
 	        AND f.update_time >= DATE_SUB(CURDATE(), INTERVAL 12 MONTH)
 	    GROUP BY 
 	        DATE_FORMAT(f.update_time, '%Y-%m')
-	    ORDER BY month DESC
+	    ORDER BY label DESC
 	</select>
 	
     <insert id="insertDmsFileInfo" parameterType="DmsFileInfo">

@@ -14,6 +14,10 @@ import com.ruoyi.common.core.domain.BaseEntity;
 public class DmsClassifiedfileNum extends BaseEntity
 {
     private static final long serialVersionUID = 1L;
+    
+    /** 分类名称 */
+    @Excel(name = "分类名称")
+    private String label;
 
     /** 分类ID */
     @Excel(name = "分类ID")
@@ -22,6 +26,16 @@ public class DmsClassifiedfileNum extends BaseEntity
     /** 文件数 */
     @Excel(name = "文件数")
     private Long filenum;
+    
+    public void setlabel(String label) 
+    {
+        this.label= label;
+    }
+
+    public String getlabel() 
+    {
+        return label;
+    }
 
     public void setClassifiedId(Long classifiedId) 
     {
@@ -46,6 +60,7 @@ public class DmsClassifiedfileNum extends BaseEntity
     @Override
     public String toString() {
         return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
+        	.append("label", getlabel() )
             .append("classifiedname", getClassifiedId() )
             .append("filenum", getFileNum())
             .toString();

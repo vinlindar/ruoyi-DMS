@@ -102,7 +102,22 @@ export const constantRoutes = [
         meta: { title: '文档详情' }
       }
     ]
-  }
+  },
+  //新闻详情路由
+  {
+    path: '/news',
+    component: Layout,
+    hidden: true,
+    redirect: 'noredirect',
+    children: [
+      {
+        path: 'list',
+        component: () => import('@/views/system/images/imagesdetail'),
+        name: 'newsdetail',
+        meta: { title: '新闻详情' }
+      }
+    ]
+  },
 ]
 
 // 动态路由，基于用户权限动态去加载

@@ -17,20 +17,20 @@ public class DmsfileNumbyMonth extends BaseEntity
 
     /** 月份 */
     @Excel(name = "月份")
-    private String month;
+    private String label;
 
     /** 已发布文件数 */
     @Excel(name = "已发布文件数")
     private Long filenum;
 
-    public void setMonth(String month) 
+    public void setlabel(String label) 
     {
-        this.month= month;
+        this.label= label;
     }
 
-    public String getMonth() 
+    public String getlabel() 
     {
-        return month;
+        return label;
     }
     
     public void setFileNum(Long filenum) 
@@ -46,7 +46,7 @@ public class DmsfileNumbyMonth extends BaseEntity
     @Override
     public String toString() {
         return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
-            .append("teamname", getMonth() )
+            .append("label", getlabel() )
             .append("filenum", getFileNum())
             .toString();
     }

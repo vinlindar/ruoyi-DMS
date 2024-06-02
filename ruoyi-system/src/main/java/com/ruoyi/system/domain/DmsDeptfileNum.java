@@ -17,7 +17,7 @@ public class DmsDeptfileNum extends BaseEntity
 
     /** 团队名称 */
     @Excel(name = "团队名称")
-    private String teamname;
+    private String label;
 
     /** 团队ID */
     @Excel(name = "团队ID")
@@ -27,14 +27,14 @@ public class DmsDeptfileNum extends BaseEntity
     @Excel(name = "已发布文件数")
     private Long filenum;
 
-    public void setTeamName(String teamname) 
+    public void setlabel(String label) 
     {
-        this.teamname= teamname;
+        this.label= label;
     }
 
-    public String getTeamName() 
+    public String getlabel() 
     {
-        return teamname;
+        return label;
     }
     
     public void setTeamId(Long teamid) 
@@ -60,7 +60,7 @@ public class DmsDeptfileNum extends BaseEntity
     @Override
     public String toString() {
         return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
-            .append("teamname", getTeamName() )
+            .append("label", getlabel() )
             .append("teamid", getTeamId())
             .append("filenum", getFileNum())
             .toString();

@@ -17,20 +17,20 @@ public class DmsfileNumbyYear extends BaseEntity
 
     /** 年份 */
     @Excel(name = "年份")
-    private Long year;
+    private Long label;
 
     /** 已发布文件数 */
     @Excel(name = "已发布文件数")
     private Long filenum;
 
-    public void setYear(Long year) 
+    public void setlabel(Long label) 
     {
-        this.year= year;
+        this.label= label;
     }
 
-    public Long getYear() 
+    public Long getlabel() 
     {
-        return year;
+        return label;
     }
     
     public void setFileNum(Long filenum) 
@@ -46,7 +46,7 @@ public class DmsfileNumbyYear extends BaseEntity
     @Override
     public String toString() {
         return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
-            .append("teamname", getYear() )
+            .append("label", getlabel() )
             .append("filenum", getFileNum())
             .toString();
     }

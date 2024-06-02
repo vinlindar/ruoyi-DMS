@@ -28,3 +28,10 @@ export function getdeptfilenum() {
     method: 'get',
   })
 }
+//获取首页走马灯图片
+export function getlistimages() {
+  return request({
+    url: '/system/homepage/images',
+    method: 'get',
+  })
+}

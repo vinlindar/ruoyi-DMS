@@ -1,38 +1,40 @@
 <template>
   <div class="app-container home">
-    <div class="row">
-      <!-- 图片走马灯 -->
-      <div class="col-md-8">
-        <div id="carouselExample" class="carousel slide" data-ride="carousel">
-          <div class="carousel-inner">
-            <div 
-              v-for="(image, index) in images" 
-              :key="image.id" 
-              :class="['carousel-item', { active: index === 0 }]"
-            >
-              <img :src="image.path" :alt="image.description" class="d-block w-100">
-              <div class="carousel-caption">
-                <p>{{ image.description }}</p>
-              </div>
-            </div>
+    <el-row  type="flex" justify="space-around" class="row-bg">
+      <el-card class="box-card cardDiv3">
+        <!-- 图片走马灯 -->
+        <el-carousel class="image_carousel" height="400px">
+          <el-carousel-item v-for="(image, index) in images"  :key="index" class="carousel-item">
+            <img :src=getImageUrl(image.path) width="100%" >
+            <div class="image-title">{{ image.title }}</div>
+          </el-carousel-item>
+        </el-carousel>
+        <div class="news_detail">
+          <div class="news_header">
+            <h2> 
+              <i class="icon el-icon-camera"></i>
+              <strong>头条新闻</strong>
+            </h2>
+            <router-link to="/news/list" class="more-link">更多&gt;&gt;</router-link>
           </div>
-          <a class="carousel-control-prev" href="#carouselExample" role="button" data-slide="prev">
-            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-            <span class="sr-only">Previous</span>
-          </a>
-          <a class="carousel-control-next" href="#carouselExample" role="button" data-slide="next">
-            <span class="carousel-control-next-icon" aria-hidden="true"></span>
-            <span class="sr-only">Next</span>
-          </a>
+          <el-table v-loading="loading" :data="images" :show-header="false">
+            <el-table-column width="20">
+                <template slot-scope="scope">
+                  <div class="circle"></div>
+                </template>
+            </el-table-column>
+            <el-table-column align="left" prop="title"></el-table-column>
+            <el-table-column align="right" prop="creatTime" width="100px" >
+              <template slot-scope="scope">
+                <span :style="{ fontSize: '14px' }">{{ scope.row.creatTime }}</span>
+              </template>
+            </el-table-column>
+          </el-table>
         </div>
-      </div>
-      <!-- 图片简要解释 -->
-      <div class="col-md-4">
-        <ul class="description-list">
-          <li v-for="(image, index) in images" :key="image.id">{{ image.description }}</li>
-        </ul>
-      </div>
-    </div>
+      </el-card>
+    </el-row>
+
+    <!--我的已办/代办 -->
     <el-row  type="flex" justify="space-around" class="row-bg">
       <el-card class="box-card cardDiv1">
         <el-col :span="6">
@@ -94,14 +96,6 @@
               <el-table-column prop= "belongteam" label="归属团队" align="center"> </el-table-column>
               <el-table-column prop="publishTime" label="发布时间" align="center"> </el-table-column>
             </el-table>
-          </el-card>
-        </el-col>
-        <el-col :span="16">
-          <el-card class="box-card cardDiv2">
-            <div slot="header" class="clearfix">
-              <span style="margin-right: 30px"><b>各团队文件数</b></span>
-            </div>
-          <div id="pie-chart" style="height: 300px;width:300px"></div>
           </el-card>
         </el-col>
       <el-col :span="16">
@@ -199,6 +193,7 @@
  
 <script>
 import {userhomepagebasicinfo,listlatestfileinfo,getdeptfilenum,getmostpopularfileinfo,getlistimages} from "@/api/system/homepage";
+import { listImages } from "@/api/system/images";
 import {listFavorites,delFavorites} from "@/api/system/favorites";
 import { listDmsfileupload} from "@/api/system/dmsfileupload";
 import { addRecords} from "@/api/system/records";
@@ -206,7 +201,6 @@ import {deptTreeSelect} from "@/api/system/dmsfileupload";
 import {listSearches} from "@/api/system/searches";
 import Treeselect from "@riophae/vue-treeselect";
 import "@riophae/vue-treeselect/dist/vue-treeselect.css";
-import * as echarts from 'echarts' 
 export default {
   name: "Index",
   dicts: ['dms_file_type'],
@@ -227,6 +221,9 @@ export default {
       searchquery:[],
       myseachform:{},
       images:[],
+      newsquery:{
+        isShow:1,
+      }
     };
   },
   created() {
@@ -237,18 +234,17 @@ export default {
     this.getdeptpublishfilenum();
     this.getfavoritefilelist();
     this.getmysearchfilelist();
+    this.fetchImages();
+    console.log(this)
   },
   mounted(){
-    setTimeout(() => {
-      this.renderPieChart()//饼图
-    }, 500);
   },
   methods: {
-    //
+    // 获得新闻照片
     fetchImages() {
       this.loading = true;
-      getlistimages().then(response => {
-          this.images = response.data;
+      listImages(this.newsquery).then(response => {
+          this.images = response.rows;
           this.loading = false;
         })
         .catch(error => {
@@ -369,7 +365,7 @@ export default {
         belongteam: row.belongteam,
         downloadUserid: this.$store.state.user.id,
         downloadUser: this.$store.state.user.name,
-        downloadTime: formattedDate 
+        downloadTime: formattedDate,
       };
       addRecords(this.downloadrecord_form);
 
@@ -403,48 +399,15 @@ export default {
     goTarget(href) {
       window.open(href, "_blank");
     },
-    renderPieChart() {
-      const chartData = this.deptfilenum.map(item => ({
-        name: item.teamName,
-        value: item.fileNum
-      }))
-      const myChart = echarts.init(document.getElementById('pie-chart'))
-      const option = {
-        title: {
-          text: '',
-          left: 'center'
-        },
-        tooltip: {
-          trigger: 'item',
-          formatter: '{a} <br/>{b} : {c} ({d}%)'
-        },
-        legend: {
-          top: 10,
-          left: 'center',
-        },
-        series: [
-          {
-            name: '文件数量',
-            type: 'pie',
-            radius: '55%',
-            center: ['50%', '60%'],
-            data: chartData,
-            emphasis: {
-              itemStyle: {
-                shadowBlur: 10,
-                shadowOffsetX: 0,
-                shadowColor: 'rgba(0, 0, 0, 0.5)'
-              }
-            }
-          }
-        ]
-      }
+    getImageUrl(path) {
+      // 返回完整的图片URL，确保路径正确
+      return process.env.VUE_APP_BASE_API + path;
+    },
+    onPageChange(){
 
-      // 使用配置项绘制饼状图
-      myChart.setOption(option)
-    }
+    },
   }
-};
+}
 </script>
  
 <style scoped lang="scss">
@@ -473,10 +436,14 @@ export default {
     width: 100%;
     margin-bottom: 10px;
   }
+  .cardDiv3{
+    width: 1847px;
+    margin-bottom: 10px;
+  }
   //第三行背景框宽度，与第二行框的间距
   .cardDiv2{
     width: 100%;
-    margin-bottom: 20px;
+    margin-bottom: 10px;
   }
   // 页面整体边距
   .app-container {
@@ -496,9 +463,6 @@ export default {
     margin-bottom: 20px;
     border: 0;
     border-top: 1px solid #eee;
-  }
-  .col-item {
-    margin-bottom: 20px;
   }
   .clearfix{
     font-size:18px;
@@ -601,22 +565,58 @@ export default {
     font-family: 'Arial Negreta', 'Arial Normal', 'Arial';
   }
 }
-.carousel-inner img {
+.image_carousel{
+  width: 50%;
+  margin-right:10px;
+}
+.image-title {
+  position: absolute;
+  bottom: 0px;
   width: 100%;
-  height: 400px;
+  padding: 5px 10px;
+  color: white;
+  background-color: rgba(0, 0, 0, 0.7);
+  font-size: 16px;
+  white-space: nowrap;
 }
-.carousel-caption {
-  background-color: rgba(0, 0, 0, 0.5);
-  padding: 10px;
+.news_detail{
+  width: 50%;
+  margin-left: 10px;
 }
-.description-list {
-  list-style-type: none;
-  padding: 0;
+.news_header {
+  display: flex;
+  align-items: center; /* 垂直居中 */
+  height: 50px; /* 固定高度 */
+  background-color: rgba(0, 0, 128);
 }
-.description-list li {
-  margin-bottom: 10px;
-  border-bottom: 1px solid #ddd;
-  padding-bottom: 10px;
+.news_header h2{
+  margin-top: 0;
+  margin-bottom: 0;
+  color: white;
+  align-items: center;
+  margin-right: auto
 }
+.more-link{
+  font-size: 14px;
+  color: white; /* 蓝色链接的颜色 */
+  text-decoration: none; /* 去掉下划线 */
+  margin-left: 10px;
+  margin-right: 10px;
+}
+.table_date{
+  color: white;
+  font-size: 12px;
+}
+.circle {
+  width: 10px;
+  height: 10px;
+  border: 2px solid red;
+  border-radius: 50%;
+  margin: 0 auto; /* 可以根据需要调整位置 */
+}
+.icon {
+    margin-left: 10px;
+    margin-right: 10px; /* 图标与文本间距 */
+  }
 </style>
  
