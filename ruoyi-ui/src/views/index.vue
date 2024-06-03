@@ -1,39 +1,5 @@
 <template>
   <div class="app-container home">
-    <el-row  type="flex" justify="space-around" class="row-bg">
-      <el-card class="box-card cardDiv3">
-        <!-- 图片走马灯 -->
-        <el-carousel class="image_carousel" height="400px">
-          <el-carousel-item v-for="(image, index) in images"  :key="index" class="carousel-item">
-            <img :src=getImageUrl(image.path) width="100%" >
-            <div class="image-title">{{ image.title }}</div>
-          </el-carousel-item>
-        </el-carousel>
-        <div class="news_detail">
-          <div class="news_header">
-            <h2> 
-              <i class="icon el-icon-camera"></i>
-              <strong>头条新闻</strong>
-            </h2>
-            <router-link to="/news/list" class="more-link">更多&gt;&gt;</router-link>
-          </div>
-          <el-table v-loading="loading" :data="images" :show-header="false">
-            <el-table-column width="20">
-                <template slot-scope="scope">
-                  <div class="circle"></div>
-                </template>
-            </el-table-column>
-            <el-table-column align="left" prop="title"></el-table-column>
-            <el-table-column align="right" prop="creatTime" width="100px" >
-              <template slot-scope="scope">
-                <span :style="{ fontSize: '14px' }">{{ scope.row.creatTime }}</span>
-              </template>
-            </el-table-column>
-          </el-table>
-        </div>
-      </el-card>
-    </el-row>
-
     <!--我的已办/代办 -->
     <el-row  type="flex" justify="space-around" class="row-bg">
       <el-card class="box-card cardDiv1">
@@ -75,6 +41,40 @@
             </div>
             </a>
         </el-col>
+      </el-card>
+    </el-row>
+    <!-- 图片走马灯 -->
+    <el-row  type="flex" justify="space-around" class="row-bg">
+      <el-card class="box-card cardDiv3">
+        <!-- 图片走马灯 -->
+        <el-carousel class="image_carousel" height="400px">
+          <el-carousel-item v-for="(image, index) in images"  :key="index" class="carousel-item">
+            <img :src=getImageUrl(image.path) width="100%" >
+            <div class="image-title">{{ image.title }}</div>
+          </el-carousel-item>
+        </el-carousel>
+        <div class="news_detail">
+          <div class="news_header">
+            <h2> 
+              <i class="icon el-icon-camera"></i>
+              <strong>头条新闻</strong>
+            </h2>
+            <router-link to="/news/list" class="more-link">更多&gt;&gt;</router-link>
+          </div>
+          <el-table v-loading="loading" :data="images" :show-header="false">
+            <el-table-column width="20">
+                <template slot-scope="scope">
+                  <div class="circle"></div>
+                </template>
+            </el-table-column>
+            <el-table-column align="left" prop="title"></el-table-column>
+            <el-table-column align="right" prop="creatTime" width="100px" >
+              <template slot-scope="scope">
+                <span :style="{ fontSize: '14px' }">{{ scope.row.creatTime }}</span>
+              </template>
+            </el-table-column>
+          </el-table>
+        </div>
       </el-card>
     </el-row>
 
@@ -425,7 +425,7 @@ export default {
     height: 120px;
     padding: 35px;
     // margin: 25px 25px 15px 15px; /* 上右下左 */
-    margin: 38px;
+    margin: 20px;
     // margin-bottom: 25px; /* 增加盒子之间的垂直间距 */
     // margin-top: 25px;
     margin-left: 38px;
@@ -494,7 +494,6 @@ export default {
  
   p {
     margin-top: 10px;
- 
     b {
       font-weight: 700;
     }
@@ -510,6 +509,12 @@ export default {
       margin-inline-end: 0;
       padding-inline-start: 40px;
     }
+  }
+  .box-div {
+    display: flex;
+    justify-content: center; /* 水平居中 */
+    align-items: center; /* 垂直居中 */
+    height: 100%; /* 确保父容器的高度 */
   }
   .webBox{
     display: -webkit-box;
@@ -541,6 +546,7 @@ export default {
     border-radius: 10px;
     box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.349019607843137);
     font-family: 'Arial Negreta', 'Arial Normal', 'Arial';
+    height: 50px;
   }
   .card2{
     background: linear-gradient(90deg, rgba(99, 170, 160, 1) 100%, rgba(244, 174, 149, 1) 0%, rgba(226, 113, 140, 1) 100%, rgba(226, 113, 140, 1) 100%);
@@ -548,6 +554,7 @@ export default {
     border-radius: 10px;
     box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.349019607843137);
     font-family: 'Arial Negreta', 'Arial Normal', 'Arial';
+    height: 50px;
   }
   .card3{
     // background: linear-gradient(180deg, rgba(255, 153, 51, 1) 0%, rgba(255, 153, 51, 1) 0%, rgba(239, 203, 45, 1) 100%, rgba(239, 203, 45, 1) 100%);
@@ -556,6 +563,7 @@ export default {
     border-radius: 10px;
     box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.349019607843137);
     font-family: 'Arial Negreta', 'Arial Normal', 'Arial';
+    height: 50px;
   }
   .card4{
     background: linear-gradient(90deg, rgba(99, 157, 170, 1) 100%, rgba(45, 169, 250, 1) 0%, rgba(102, 204, 255, 1) 100%, rgba(102, 204, 255, 1) 100%);
@@ -563,6 +571,7 @@ export default {
     border-radius: 10px;
     box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.349019607843137);
     font-family: 'Arial Negreta', 'Arial Normal', 'Arial';
+    height: 50px;
   }
 }
 .image_carousel{

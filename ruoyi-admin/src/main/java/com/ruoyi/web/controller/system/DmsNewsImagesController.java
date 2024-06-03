@@ -37,19 +37,18 @@ public class DmsNewsImagesController extends BaseController
     /**
      * 查询新闻照片列表
      */
-    @PreAuthorize("@ss.hasPermi('system:images:list')")
     @GetMapping("/list")
     public TableDataInfo list(DmsNewsImages dmsNewsImages)
     {
         startPage();
         List<DmsNewsImages> list = dmsNewsImagesService.selectDmsNewsImagesList(dmsNewsImages);
+        System.out.println("返回的新闻照片列表: " + list);
         return getDataTable(list);
     }
 
     /**
      * 导出新闻照片列表
      */
-    @PreAuthorize("@ss.hasPermi('system:images:export')")
     @Log(title = "新闻照片", businessType = BusinessType.EXPORT)
     @PostMapping("/export")
     public void export(HttpServletResponse response, DmsNewsImages dmsNewsImages)
@@ -62,7 +61,6 @@ public class DmsNewsImagesController extends BaseController
     /**
      * 获取新闻照片详细信息
      */
-    @PreAuthorize("@ss.hasPermi('system:images:query')")
     @GetMapping(value = "/{id}")
     public AjaxResult getInfo(@PathVariable("id") Long id)
     {
@@ -72,7 +70,6 @@ public class DmsNewsImagesController extends BaseController
     /**
      * 新增新闻照片
      */
-    @PreAuthorize("@ss.hasPermi('system:images:add')")
     @Log(title = "新闻照片", businessType = BusinessType.INSERT)
     @PostMapping
     public AjaxResult add(@RequestBody DmsNewsImages dmsNewsImages)
@@ -83,7 +80,6 @@ public class DmsNewsImagesController extends BaseController
     /**
      * 修改新闻照片
      */
-    @PreAuthorize("@ss.hasPermi('system:images:edit')")
     @Log(title = "新闻照片", businessType = BusinessType.UPDATE)
     @PutMapping
     public AjaxResult edit(@RequestBody DmsNewsImages dmsNewsImages)
@@ -94,7 +90,6 @@ public class DmsNewsImagesController extends BaseController
     /**
      * 删除新闻照片
      */
-    @PreAuthorize("@ss.hasPermi('system:images:remove')")
     @Log(title = "新闻照片", businessType = BusinessType.DELETE)
 	@DeleteMapping("/{ids}")
     public AjaxResult remove(@PathVariable Long[] ids)
