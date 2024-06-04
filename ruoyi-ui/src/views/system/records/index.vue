@@ -1,14 +1,14 @@
 <template>
   <div class="app-container">
     <el-form :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch" label-width="68px">
-      <el-form-item label="文件ID" prop="fileId">
+      <!-- <el-form-item label="文件ID" prop="fileId">
         <el-input
           v-model="queryParams.fileId"
           placeholder="请输入文件ID"
           clearable
           @keyup.enter.native="handleQuery"
         />
-      </el-form-item>
+      </el-form-item> -->
       <el-form-item label="文件名" prop="fileName">
         <el-input
           v-model="queryParams.fileName"
@@ -74,9 +74,15 @@
 
     <el-table v-loading="loading" :data="recordsList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="文件ID" align="center" prop="fileId" />
-      <el-table-column label="文件名" align="center" prop="fileName" />
-      <el-table-column label="归属部门" align="center" prop="belongteam" />
+      <!-- <el-table-column label="文件ID" align="center" prop="fileId" /> -->
+      <el-table-column label="文件名" align="center" prop="fileName" width="200px" class-name="file-name-column">
+        <template slot-scope="scope">
+          <router-link :to="'/file/filedetai1/' + scope.row.fileId" class="link-type">
+            <span class="file-name">{{ scope.row.fileName }}</span>
+          </router-link>
+        </template>
+      </el-table-column>
+      <el-table-column label="归属团队" align="center" prop="belongteam" />
       <el-table-column label="下载人" align="center" prop="downloadUser" />
       <el-table-column label="下载时间" align="center" prop="downloadTime" width="180">
         <template slot-scope="scope">
@@ -95,6 +101,16 @@
 
   </div>
 </template>
+
+<style scoped>
+.file-name-column .file-name {
+  max-width: 200px; /* 设置最大宽度 */
+  white-space: nowrap; /* 不换行 */
+  overflow: hidden; /* 超出部分隐藏 */
+  text-overflow: ellipsis; /* 显示省略号 */
+  display: inline-block; /* 确保 ellipsis 生效 */
+}
+</style>
 
 <script>
 import { listRecords, getRecords, delRecords, addRecords, updateRecords } from "@/api/system/records";
