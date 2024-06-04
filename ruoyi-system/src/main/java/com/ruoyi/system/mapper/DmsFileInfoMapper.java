@@ -3,6 +3,9 @@ package com.ruoyi.system.mapper;
 import java.util.List;
 
 import com.ruoyi.system.domain.DmsBasicNum;
+import com.ruoyi.system.domain.DmsClassifiedfileNum;
+import com.ruoyi.system.domain.DmsfileNumbyMonth;
+import com.ruoyi.system.domain.DmsfileNumbyYear;
 import com.ruoyi.system.domain.DmsDeptfileNum;
 import com.ruoyi.system.domain.DmsFileInfo;
 
@@ -93,4 +96,28 @@ public interface DmsFileInfoMapper
      * @return 结果
      */
     public int deleteDmsFileInfoByFileIds(String fileIds);
+    
+    /**
+     * 获取分类下的已发布文件数
+     * 
+     * @param fileId 文件信息主键
+     * @return 结果
+     */
+	public List<DmsClassifiedfileNum> selectclassifiedfilenum();
+    
+	/**
+     * 获取各年的已发布文件数
+     * 
+     * @param fileId 文件信息主键
+     * @return 结果
+     */
+	public List<DmsfileNumbyYear> selectfilenumbyYear();
+	
+    /**
+     * 获取近12个月各个月的已发布文件数
+     * 
+     * @param fileId 文件信息主键
+     * @return 结果
+     */
+	public List<DmsfileNumbyMonth> selectfilenumbyMonth();
 }

@@ -16,6 +16,13 @@ export function getRecords(id) {
     method: 'get'
   })
 }
+// 查询文件id下载次数
+export function getDownloadNumbyfileId(fileId) {
+  return request({
+    url: '/system/records/fileId/' + fileId,
+    method: 'get'
+  })
+}
 
 // 新增下载记录
 export function addRecords(data) {

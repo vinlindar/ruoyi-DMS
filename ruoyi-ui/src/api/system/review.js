@@ -1,6 +1,6 @@
 import request from '@/utils/request'
 
-// 查询文档评阅列表
+// 查询评阅列表
 export function listReview(query) {
   return request({
     url: '/system/review/list',
@@ -9,15 +9,15 @@ export function listReview(query) {
   })
 }
 
-// 查询文档评阅详细(根据fileId和reviewerId共同查询)
-export function getReview(fileId,reviewerId) {
+// 查询评阅详细
+export function getReview(id) {
   return request({
-    url: '/system/review/'+fileId + '/' + reviewerId,
-    method: 'get',
+    url: '/system/review/' + id,
+    method: 'get'
   })
 }
 
-// 新增文档评阅
+// 新增评阅
 export function addReview(data) {
   return request({
     url: '/system/review',
@@ -26,7 +26,7 @@ export function addReview(data) {
   })
 }
 
-// 修改文档评阅
+// 修改评阅
 export function updateReview(data) {
   return request({
     url: '/system/review',
@@ -35,10 +35,10 @@ export function updateReview(data) {
   })
 }
 
-// 删除文档评阅
-export function delReview(fileId) {
+// 删除评阅
+export function delReview(id) {
   return request({
-    url: '/system/review/' + fileId,
+    url: '/system/review/' + id,
     method: 'delete'
   })
 }

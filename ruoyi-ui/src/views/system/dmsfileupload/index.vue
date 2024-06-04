@@ -208,7 +208,7 @@
     />
     <!-- 新增或修改文件信息对话框 -->
     <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
-      <el-form ref="form" :model="form" :rules="rules" label-width="80px">
+      <el-form ref="form" :model="form" :rules="rules" label-width="110px">
         <el-form-item label="文件名" prop="fileName">
           <el-input v-model="form.fileName" placeholder="请输入文件名" />
         </el-form-item>
@@ -231,7 +231,7 @@
         <el-form-item label="作者" prop="author">
           <el-input v-model="form.author" placeholder="请输入作者" />
         </el-form-item>
-        <el-form-item label="评阅人" prop="reviewer">
+        <el-form-item label="评阅人" prop="reviewerIds">
           <el-select v-model="form.reviewerIds" placeholder="请选择评阅人" multiple>
             <el-option 
               v-for="user in ReviewerList" 
@@ -409,6 +409,9 @@ export default {
         reviewerIds: [
           { required: true, message: "评阅人不能为空", trigger: "blur" }
         ],
+        fileType:[
+          { required: true, message: "文档类型不能为空", trigger: "blur" }
+        ],
         publishId: [
           { required: true, message: "定稿人不能为空", trigger: "blur" }
         ],
@@ -582,7 +585,6 @@ export default {
         this.openpublish = true;
           this.PublishList = response.data;
           this.loading = false;
-          console.log(this)
         })
         .catch(error => {
             // 处理错误，例如打印错误消息或采取其他适当的措施

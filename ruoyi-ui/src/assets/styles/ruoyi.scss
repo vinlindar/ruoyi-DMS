@@ -82,7 +82,7 @@
 			background-color: #f8f8f9;
 			color: #515a6e;
 			height: 40px;
-			font-size: 13px;
+			font-size: 18px;
 		}
 	}
 	.el-table__body-wrapper {
@@ -91,6 +91,13 @@
 		}
 	}
 }
+.el-form-item__label {
+	font-size: 16px;
+	width: 100px!important;
+  }
+  .element.style {
+	margin-left:120px!important;
+  }
 
 /** 表单布局 **/
 .form-header {

@@ -39,8 +39,8 @@
         </el-date-picker>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
-        <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
+        <el-button type="primary" icon="el-icon-search" size="small" @click="handleQuery">搜索</el-button>
+        <el-button icon="el-icon-refresh" size="small" @click="resetQuery">重置</el-button>
       </el-form-item>
     </el-form>
     <!-- 文档操作栏位-->
@@ -50,7 +50,7 @@
           type="success"
           plain
           icon="el-icon-search"
-          size="mini"
+          size="small"
           :disabled="single"
           @click="handlefiledetail"
         >查看文档详情</el-button>
@@ -60,7 +60,7 @@
           type="primary"
           plain
           icon="el-icon-edit"
-          size="mini"
+          size="small"
           :disabled="single"
           @click="handleUpdate"
           v-hasPermi="['system:publish:edit']"
@@ -71,7 +71,7 @@
           type="warning"
           plain
           icon="el-icon-download"
-          size="mini"
+          size="small"
           @click="handleExport"
           v-hasPermi="['system:publish:export']"
         >导出信息列表</el-button>
@@ -137,16 +137,16 @@
 
     <!-- 文档详情展示-->
     <el-dialog title="文档详情" :visible.sync="openfiledetail" width="500px" append-to-body>
-      <el-card>
-        <p>文件ID: {{ this.filedetail.fileId }}</p>
-        <p>文件名: {{ this.filedetail.fileName }}</p>
-        <p>作者: {{ this.filedetail.author }}</p>
-        <p>归属团队: {{ this.filedetail.belongteam }}</p>
-        <p>上传人: {{ this.filedetail.updateBy }}</p>
-        <p>上传时间: {{ this.filedetail.updateTime }}</p>
-        <p>文件类型:{{ getFileTypeLabel(this.filedetail.fileType) }} </p>
-        <p>文件大小: {{ this.filedetail.fileSize }}</p>
-        <p>文件描述: {{ this.filedetail.description }}</p>
+      <el-card class="review-card">
+        <p class="custom-text">文件ID: {{ this.filedetail.fileId }}</p>
+        <p class="custom-text">文件名: {{ this.filedetail.fileName }}</p>
+        <p class="custom-text">作者: {{ this.filedetail.author }}</p>
+        <p class="custom-text">归属团队: {{ this.filedetail.belongteam }}</p>
+        <p class="custom-text">上传人: {{ this.filedetail.updateBy }}</p>
+        <p class="custom-text">上传时间: {{ this.filedetail.updateTime }}</p>
+        <p class="custom-text">文件类型:{{ getFileTypeLabel(this.filedetail.fileType) }} </p>
+        <p class="custom-text">文件大小: {{ this.filedetail.fileSize }}</p>
+        <p class="custom-text">文件描述: {{ this.filedetail.description }}</p>
       </el-card>
       <el-card v-for="(review, index) in ReviewList" :key="index" class="review-card">
         <div class="review-info">
@@ -158,10 +158,10 @@
         <p>评阅信息: {{ review.comment }}</p>
         <el-divider></el-divider>
       </el-card>
-      <el-card>
+      <el-card class="review-card">
         <ul>
           <li v-for="(item, index) in Permissionlist" :key="index">
-            <p>发布范围: {{ item.deptId }},{{ getLabelById(deptOptions, item.deptId) }}</p>
+            <p class="custom-text">发布范围: {{ item.deptId }},{{ getLabelById(deptOptions, item.deptId) }}</p>
           </li>
         </ul>
       </el-card>
@@ -177,7 +177,7 @@
 
     <!-- 添加或修改定稿对话框 -->
     <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
-      <el-form ref="form" :model="form" :rules="rules" label-width="80px">
+      <el-form ref="form" :model="form" :rules="rules" label-width="110px">
         <el-form-item label="定稿意见" prop="comment">
           <el-input v-model="form.comment" type="textarea" placeholder="请输入内容" />
         </el-form-item>
@@ -360,7 +360,7 @@ export default {
       console.log(this)
     },
     getReviewResultText() {
-      return this.dict.type.dms_review_result;
+      return this.dict.type.dms_review_status;
     },
     getFileTypeLabel(fileType){
       const dictItem = this.dict.type.dms_file_type.find(item => item.value ===  String(fileType));
@@ -407,12 +407,8 @@ export default {
     /** 修改按钮操作 */
     handleUpdate(row) {
       this.reset();
-      const fileId = row.fileId || this.ids
-      const fileStatus = row.fileStatus || this.selectfileStatus;
-      const currentDate = new Date();
-      const formattedDate = `${currentDate.getFullYear()}-${(currentDate.getMonth() + 1).toString().padStart(2, '0')}-${currentDate.getDate().toString().padStart(2, '0')} ${currentDate.getHours().toString().padStart(2, '0')}:${currentDate.getMinutes().toString().padStart(2, '0')}:${currentDate.getSeconds().toString().padStart(2, '0')}`;
-      this.form.publishTime = formattedDate;
-      getPublish(fileId).then(response => {
+      const id = row.id
+      getPublish(id).then(response => {
         this.form = response.data;
         this.open = true;
         this.title = "文档定稿";
@@ -424,21 +420,14 @@ export default {
       const formattedDate = `${currentDate.getFullYear()}-${(currentDate.getMonth() + 1).toString().padStart(2, '0')}-${currentDate.getDate().toString().padStart(2, '0')} ${currentDate.getHours().toString().padStart(2, '0')}:${currentDate.getMinutes().toString().padStart(2, '0')}:${currentDate.getSeconds().toString().padStart(2, '0')}`;
       this.form.publishTime = formattedDate;
       this.form.deptIdsNum = this.form.deptIds.length;
+      console.log(this.form);
       this.$refs["form"].validate(valid => {
         if (valid) {
-          if (this.form.fileId != null) {
             updatePublish(this.form).then(response => {
               this.$modal.msgSuccess("定稿成功");
               this.open = false;
               this.getList();
             });
-          } else {
-            addPublish(this.form).then(response => {
-              this.$modal.msgSuccess("新增成功");
-              this.open = false;
-              this.getList();
-            });
-          }
         }
       });
     },
@@ -483,5 +472,10 @@ export default {
   display: flex;
   justify-content: space-between; /* 子元素水平间距平均分布 */
   align-items: flex-start; /* 子元素垂直居中 */
+  font-size: 16px;
 }
+.custom-text {
+  font-size: 16px;
+}
+
 </style>

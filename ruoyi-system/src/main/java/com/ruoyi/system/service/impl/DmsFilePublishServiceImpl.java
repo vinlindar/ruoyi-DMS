@@ -4,7 +4,9 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.ruoyi.system.mapper.DmsFilePublishMapper;
+import com.ruoyi.system.mapper.DmsFileReviewMapper;
 import com.ruoyi.system.domain.DmsFilePublish;
+import com.ruoyi.system.domain.DmsFileReview;
 import com.ruoyi.system.service.IDmsFilePublishService;
 
 /**
@@ -18,15 +20,25 @@ public class DmsFilePublishServiceImpl implements IDmsFilePublishService
 {
     @Autowired
     private DmsFilePublishMapper dmsFilePublishMapper;
-
     /**
-     * 查询定稿
+     * 查询评阅
      * 
-     * @param fileId 定稿主键
+     * @param id 定稿主键
      * @return 定稿
      */
     @Override
-    public DmsFilePublish selectDmsFilePublishByFileId(String fileId)
+    public DmsFilePublish selectDmsFilePublishById(Long id)
+    {
+        return dmsFilePublishMapper.selectDmsFilePublishById(id);
+    }
+    /**
+     * 查询定稿
+     * 
+     * @param fileId 定稿
+     * @return 定稿
+     */
+    @Override
+    public List<DmsFilePublish> selectDmsFilePublishByFileId(String fileId)
     {
         return dmsFilePublishMapper.selectDmsFilePublishByFileId(fileId);
     }
@@ -85,9 +97,9 @@ public class DmsFilePublishServiceImpl implements IDmsFilePublishService
      * @return 结果
      */
     @Override
-    public int deleteDmsFilePublishByFileIds(String[] fileIds)
+    public int deleteDmsFilePublishByIds(Long[] ids)
     {
-        return dmsFilePublishMapper.deleteDmsFilePublishByFileIds(fileIds);
+        return dmsFilePublishMapper.deleteDmsFilePublishByIds(ids);
     }
 
     /**

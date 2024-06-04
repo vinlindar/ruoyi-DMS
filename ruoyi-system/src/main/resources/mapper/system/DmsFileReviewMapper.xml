@@ -5,12 +5,14 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 <mapper namespace="com.ruoyi.system.mapper.DmsFileReviewMapper">
     
     <resultMap type="DmsFileReview" id="DmsFileReviewResult">
+        <result property="id"    column="id"    />
         <result property="fileId"    column="file_id"    />
         <result property="reviewerId"    column="reviewer_id"    />
-        <result property="reviewerName"    column="user_name"    />
         <result property="comment"    column="comment"    />
-        <result property="isPassed"    column="is_passed"    />
+        <result property="status"    column="status"    />
         <result property="reviewTime"    column="review_time"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="isCurrent"    column="is_current"    />
         <result property="fileName"    column="file_name"    />
         <result property="filePath"    column="file_path"    />
         <result property="author"    column="author"    />
@@ -22,76 +24,85 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="description"    column="description"    />
         <result property="updateBy"    column="update_by"    />
         <result property="updateTime"    column="update_time"    />
-        <result property="publishId"    column="publish_id"    />
     </resultMap>
 
     <sql id="selectDmsFileReviewVo">
-        select fr.file_id, fr.reviewer_id, fr.comment, fr.is_passed, fr.review_time, 
-        	fi.file_name,fi.file_path,fi.author,fi.reviewer,fi.file_type,fi.file_size,fi.publish_id,
+        select fi.file_name,fi.file_path,fi.author,fi.reviewer,fi.file_type,fi.file_size,fi.publish_id,
         	fi.file_status,fi.belongteam,fi.description,fi.update_by,fi.update_time,
-        	su.user_name
+        fr.id, fr.file_id, fr.reviewer_id, fr.comment, fr.status, fr.review_time, fr.create_time, fr.is_current
         from dms_file_review fr
         	left join dms_file_info fi on fr.file_id = fi.file_id
-        	left join sys_user su on fr.reviewer_id = su.user_id
     </sql>
 
     <select id="selectDmsFileReviewList" parameterType="DmsFileReview" resultMap="DmsFileReviewResult">
         <include refid="selectDmsFileReviewVo"/>
         <where>  
+            <if test="fileId != null  and fileId != ''"> and fr.file_id = #{fileId}</if>
+            <if test="reviewerId != null "> and reviewer_id = #{reviewerId}</if>
             <if test="comment != null  and comment != ''"> and comment = #{comment}</if>
-            <if test="isPassed != null "> and is_passed = #{isPassed}</if>
+            <if test="status != null "> and status = #{status}</if>
             <if test="reviewTime != null "> and review_time = #{reviewTime}</if>
-            <if test="fileId != null"> and fr.file_id = #{fileId}</if>
-        	<if test="reviewerId != null"> and fr.reviewer_id = #{reviewerId}</if>
+            <if test="isCurrent != null "> and is_current = #{isCurrent}</if>
         </where>
+         ORDER BY create_time DESC
     </select>
     
-    <select id="getAllReviewsResultByFileId" parameterType="DmsFileReview" resultMap="DmsFileReviewResult">
+    <select id="selectDmsFileReviewById" parameterType="Long" resultMap="DmsFileReviewResult">
         <include refid="selectDmsFileReviewVo"/>
-        where fr.file_id = #{fileId}
-    </select>
-    
-    <select id="selectDmsFileReviewByFileIdAndReviewerId" parameterType="DmsFileReview" resultMap="DmsFileReviewResult">
-        <include refid="selectDmsFileReviewVo"/>
-        where fr.file_id = #{fileId} and fr.reviewer_id = #{reviewerId}
+        where id = #{id}
     </select>
         
-    <insert id="insertDmsFileReview" parameterType="DmsFileReview">
+    <insert id="insertDmsFileReview" parameterType="DmsFileReview" useGeneratedKeys="true" keyProperty="id">
         insert into dms_file_review
         <trim prefix="(" suffix=")" suffixOverrides=",">
-            <if test="fileId != null">file_id,</if>
+            <if test="fileId != null and fileId != ''">file_id,</if>
             <if test="reviewerId != null">reviewer_id,</if>
             <if test="comment != null">comment,</if>
-            <if test="isPassed != null">is_passed,</if>
+            <if test="status != null">status,</if>
             <if test="reviewTime != null">review_time,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="isCurrent != null">is_current,</if>
          </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
-            <if test="fileId != null">#{fileId},</if>
+            <if test="fileId != null and fileId != ''">#{fileId},</if>
             <if test="reviewerId != null">#{reviewerId},</if>
             <if test="comment != null">#{comment},</if>
-            <if test="isPassed != null">#{isPassed},</if>
+            <if test="status != null">#{status},</if>
             <if test="reviewTime != null">#{reviewTime},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="isCurrent != null">#{isCurrent},</if>
          </trim>
     </insert>
 
     <update id="updateDmsFileReview" parameterType="DmsFileReview">
         update dms_file_review
         <trim prefix="SET" suffixOverrides=",">
+            <if test="fileId != null and fileId != ''">file_id = #{fileId},</if>
+            <if test="reviewerId != null">reviewer_id = #{reviewerId},</if>
             <if test="comment != null">comment = #{comment},</if>
-            <if test="isPassed != null">is_passed = #{isPassed},</if>
+            <if test="status != null">status = #{status},</if>
             <if test="reviewTime != null">review_time = #{reviewTime},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="isCurrent != null">is_current = #{isCurrent},</if>
         </trim>
-        where file_id = #{fileId} and reviewer_id = #{reviewerId}
+        <where>
+        	<if test="id != null">
+            id = #{id}
+        	</if>
+        	<if test="id == null and fileId != null">
+            file_id = #{fileId}
+        	</if>
+    	</where>
     </update>
 
-    <delete id="deleteDmsFileReviewByFileId" parameterType="String">
-        delete from dms_file_review where file_id = #{fileId}
+    <delete id="deleteDmsFileReviewById" parameterType="Long">
+        delete from dms_file_review where id = #{id}
     </delete>
 
-    <delete id="deleteDmsFileReviewByFileIds" parameterType="String">
-        delete from dms_file_review where file_id in 
-        <foreach item="fileId" collection="array" open="(" separator="," close=")">
-            #{fileId}
+    <delete id="deleteDmsFileReviewByIds" parameterType="String">
+        delete from dms_file_review where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
         </foreach>
     </delete>
 </mapper>

@@ -8,7 +8,11 @@ import com.ruoyi.system.mapper.DmsFileInfoMapper;
 import com.ruoyi.system.domain.DmsFileInfo;
 import com.ruoyi.system.service.IDmsFileInfoService;
 import com.ruoyi.system.domain.DmsBasicNum;
+import com.ruoyi.system.domain.DmsClassifiedfileNum;
 import com.ruoyi.system.domain.DmsDeptfileNum;
+import com.ruoyi.system.domain.DmsfileNumbyMonth;
+import com.ruoyi.system.domain.DmsfileNumbyYear;
+
 /**
  * 文件信息Service业务层处理
  * 
@@ -139,4 +143,40 @@ public class DmsFileInfoServiceImpl implements IDmsFileInfoService
     {
         return dmsFileInfoMapper.deleteDmsFileInfoByFileId(fileId);
     }
+    /**
+     * 获取分类下的已发布文件数
+     * 
+     * @param 
+     * @return 结果
+     */
+    @Override
+	public List<DmsClassifiedfileNum> selectclassifiedfilenum()
+    {
+    	return dmsFileInfoMapper.selectclassifiedfilenum();
+    }
+    
+    /**
+    * 获取各年的已发布文件数
+     * 
+     * @param 
+     * @return 结果
+     */
+    @Override
+	public List<DmsfileNumbyYear> selectfilenumbyYear()
+    {
+    	return dmsFileInfoMapper.selectfilenumbyYear();
+    }
+    
+    /**
+    * 获取近12个月各个月的已发布文件数
+     * 
+     * @param 
+     * @return 结果
+     */
+    @Override
+	public List<DmsfileNumbyMonth> selectfilenumbyMonth()
+    {
+    	return dmsFileInfoMapper.selectfilenumbyMonth();
+    }
+    
 }

@@ -4,6 +4,8 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.ruoyi.system.mapper.DmsDownloadRecordsMapper;
+import com.ruoyi.system.domain.DmsClassifiedfileNum;
+import com.ruoyi.system.domain.DmsDeptfileNum;
 import com.ruoyi.system.domain.DmsDownloadRecords;
 import com.ruoyi.system.service.IDmsDownloadRecordsService;
 
@@ -54,7 +56,15 @@ public class DmsDownloadRecordsServiceImpl implements IDmsDownloadRecordsService
     {
         return dmsDownloadRecordsMapper.selectMostPopularFile();
     }
-    
+    /**
+     * 查询文件下载次数
+     * 
+     * @param fileId
+     * @return 
+     */
+	public int selectDownloadNumbyFileid(Long fileId) {
+		return dmsDownloadRecordsMapper.selectDownloadNumbyFileid(fileId);
+	}
     /**
      * 新增下载记录
      * 
@@ -102,4 +112,27 @@ public class DmsDownloadRecordsServiceImpl implements IDmsDownloadRecordsService
     {
         return dmsDownloadRecordsMapper.deleteDmsDownloadRecordsById(id);
     }
+
+    
+    /**
+     * 获取分类下的下载文件数
+     * 
+     * @param fileId 文件信息主键
+     * @return 结果
+     */
+	@Override
+	public List<DmsClassifiedfileNum> selectclassifieddownloadfilenum() {
+		return dmsDownloadRecordsMapper.selectclassifieddownloadfilenum();
+	}
+
+	/**
+     * 查询所有部门下载的文档数量
+     * 
+     * @param fileId 文件信息主键
+     * @return 文件信息
+     */
+	@Override
+	public List<DmsDeptfileNum> selectdetpdownloadfilenum() {
+		return dmsDownloadRecordsMapper.selectdeptdownloadfilenum();
+	}
 }

@@ -1,6 +1,7 @@
 package com.ruoyi.system.service.impl;
 
 import java.util.List;
+import com.ruoyi.common.utils.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.ruoyi.system.mapper.DmsFileReviewMapper;
@@ -8,10 +9,10 @@ import com.ruoyi.system.domain.DmsFileReview;
 import com.ruoyi.system.service.IDmsFileReviewService;
 
 /**
- * 文档评阅Service业务层处理
+ * 评阅Service业务层处理
  * 
- * @author HYZ
- * @date 2024-02-05
+ * @author hyz
+ * @date 2024-05-11
  */
 @Service
 public class DmsFileReviewServiceImpl implements IDmsFileReviewService 
@@ -20,56 +21,46 @@ public class DmsFileReviewServiceImpl implements IDmsFileReviewService
     private DmsFileReviewMapper dmsFileReviewMapper;
 
     /**
-     * 查询文档评阅
+     * 查询评阅
      * 
-     * @param fileId 文档评阅主键
-     * @return 文档评阅
+     * @param id 评阅主键
+     * @return 评阅
      */
     @Override
-    public DmsFileReview selectDmsFileReviewByFileIdAndReviewerId(DmsFileReview dmsFileReview)
+    public DmsFileReview selectDmsFileReviewById(Long id)
     {
-        return dmsFileReviewMapper.selectDmsFileReviewByFileIdAndReviewerId(dmsFileReview);
+        return dmsFileReviewMapper.selectDmsFileReviewById(id);
     }
 
     /**
-     * 查询文档评阅列表
+     * 查询评阅列表
      * 
-     * @param dmsFileReview 文档评阅
-     * @return 文档评阅
+     * @param dmsFileReview 评阅
+     * @return 评阅
      */
     @Override
     public List<DmsFileReview> selectDmsFileReviewList(DmsFileReview dmsFileReview)
     {
         return dmsFileReviewMapper.selectDmsFileReviewList(dmsFileReview);
     }
-    
+
     /**
-     * 查询文档所有的评阅结果
+     * 新增评阅
      * 
-     * @param dmsFileReview 文档评阅
-     * @return 文档评阅
-     */
-    public List<DmsFileReview> getAllReviewsResultByFileId(String fileId) 
-    {
-		return dmsFileReviewMapper.getAllReviewsResultByFileId(fileId);
-	}
-    
-	/**
-     * 新增文档评阅
-     * 
-     * @param dmsFileReview 文档评阅
+     * @param dmsFileReview 评阅
      * @return 结果
      */
     @Override
     public int insertDmsFileReview(DmsFileReview dmsFileReview)
     {
+        dmsFileReview.setCreateTime(DateUtils.getNowDate());
         return dmsFileReviewMapper.insertDmsFileReview(dmsFileReview);
     }
 
     /**
-     * 修改文档评阅
+     * 修改评阅
      * 
-     * @param dmsFileReview 文档评阅
+     * @param dmsFileReview 评阅
      * @return 结果
      */
     @Override
@@ -79,26 +70,26 @@ public class DmsFileReviewServiceImpl implements IDmsFileReviewService
     }
 
     /**
-     * 批量删除文档评阅
+     * 批量删除评阅
      * 
-     * @param fileIds 需要删除的文档评阅主键
+     * @param ids 需要删除的评阅主键
      * @return 结果
      */
     @Override
-    public int deleteDmsFileReviewByFileIds(String[] fileIds)
+    public int deleteDmsFileReviewByIds(Long[] ids)
     {
-        return dmsFileReviewMapper.deleteDmsFileReviewByFileIds(fileIds);
+        return dmsFileReviewMapper.deleteDmsFileReviewByIds(ids);
     }
 
     /**
-     * 删除文档评阅信息
+     * 删除评阅信息
      * 
-     * @param fileId 文档评阅主键
+     * @param id 评阅主键
      * @return 结果
      */
     @Override
-    public int deleteDmsFileReviewByFileId(String fileId)
+    public int deleteDmsFileReviewById(Long id)
     {
-        return dmsFileReviewMapper.deleteDmsFileReviewByFileId(fileId);
+        return dmsFileReviewMapper.deleteDmsFileReviewById(id);
     }
 }

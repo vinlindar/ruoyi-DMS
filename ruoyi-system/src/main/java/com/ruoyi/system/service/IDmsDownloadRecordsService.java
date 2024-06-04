@@ -1,6 +1,9 @@
 package com.ruoyi.system.service;
 
 import java.util.List;
+
+import com.ruoyi.system.domain.DmsClassifiedfileNum;
+import com.ruoyi.system.domain.DmsDeptfileNum;
 import com.ruoyi.system.domain.DmsDownloadRecords;
 
 /**
@@ -36,6 +39,14 @@ public interface IDmsDownloadRecordsService
     public List<DmsDownloadRecords> selectMostPopularFile();
     
     /**
+     * 查询文件下载次数
+     * 
+     * @param fileId
+     * @return 
+     */
+	public int selectDownloadNumbyFileid(Long fileId);
+    
+    /**
      * 新增下载记录
      * 
      * @param dmsDownloadRecords 下载记录
@@ -66,4 +77,20 @@ public interface IDmsDownloadRecordsService
      * @return 结果
      */
     public int deleteDmsDownloadRecordsById(Long id);
+    
+    /**
+     * 获取分类下的下载文件数
+     * 
+     * @param fileId 文件信息主键
+     * @return 结果
+     */
+	public List<DmsClassifiedfileNum> selectclassifieddownloadfilenum();
+    
+	/**
+     * 查询所有部门下载的文档数量
+     * 
+     * @param fileId 文件信息主键
+     * @return 文件信息
+     */
+	public List<DmsDeptfileNum> selectdetpdownloadfilenum();
 }

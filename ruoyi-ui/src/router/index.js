@@ -87,6 +87,21 @@ export const constantRoutes = [
         meta: { title: '个人中心', icon: 'user' }
       }
     ]
+  },
+  //文档详情路由
+  {
+    path: '/file',
+    component: Layout,
+    hidden: true,
+    redirect: 'noredirect',
+    children: [
+      {
+        path: 'filedetail/:fileId(\\d+)',
+        component: () => import('@/views/system/dmsfiledownload/filedetail'),
+        name: 'filedetail',
+        meta: { title: '文档详情' }
+      }
+    ]
   }
 ]
 

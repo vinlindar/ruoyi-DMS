@@ -10,9 +10,9 @@ export function listPublish(query) {
 }
 
 // 查询定稿详细
-export function getPublish(fileId) {
+export function getPublish(id) {
   return request({
-    url: '/system/publish/' + fileId,
+    url: '/system/publish/' + id,
     method: 'get'
   })
 }
@@ -36,9 +36,9 @@ export function updatePublish(data) {
 }
 
 // 删除定稿
-export function delPublish(fileId) {
+export function delPublish(id) {
   return request({
-    url: '/system/publish/' + fileId,
+    url: '/system/publish/' + id,
     method: 'delete'
   })
 }

@@ -63,12 +63,14 @@
             />
           </el-form-item>
           <el-form-item label="定稿人" prop="publishId" label-width="110px">
-            <el-input
-              v-model="queryParams.publishId"
-              placeholder="请输入定稿人"
-              clearable
-              @keyup.enter.native="handleQuery"
-            />
+            <el-select v-model="queryParams.publishId" placeholder="请选择定稿人" :multiple="false" clearable>
+              <el-option 
+                v-for="user in PublisherList" 
+                :key="user.userId" 
+                :label="user.userName" 
+                :value="user.userId"
+              />
+            </el-select>
           </el-form-item>
           <el-form-item label="文件分类" prop="fileType" label-width="110px">
             <el-select v-model="queryParams.fileType" placeholder="请选择文件类型" clearable>
@@ -128,9 +130,9 @@
         <el-col :span="1.5">
           <el-button
             type="primary"
+            size="small" 
             plain
             icon="el-icon-edit"
-            size="mini"
             :disabled="single"
             @click="handleaddfavorite"
           >置顶文档</el-button>
@@ -177,7 +179,6 @@
           <el-table-column label="操作" >
             <template slot-scope="scope">
               <el-button
-                size="mini"
                 type="text"
                 icon="el-icon-edit"
                 @click="handleDownload(scope.row)"
@@ -239,6 +240,8 @@ export default {
       single: true,
       // 非多个禁用
       multiple: true,
+      // 定稿人列表
+      PublisherList: undefined,
       // 显示搜索条件
       showSearch: true,
       // 总条数
@@ -300,7 +303,7 @@ export default {
   },
   created() {
     this.getDeptTree();
-    this.getPublishList();
+    this.getPublisherList();
     this.getList();
   },
   methods: {
@@ -332,7 +335,7 @@ export default {
       this.favorite.fileId=this.ids[0];
       this.favorite.collectTime=formattedDate;
       addFavorites(this.favorite).then(response => {
-              this.$modal.msgSuccess("收藏成功");});
+              this.$modal.msgSuccess("置顶成功");});
     },
     //新增用户自定义文件查询条件
     handlemyseachesQuery(){
@@ -342,18 +345,18 @@ export default {
       });
     },
     /**  查询定稿人下拉列表 */
-    getPublishList() {
+    getPublisherList() {
       this.loading = true;
       const postID = 1;
       listUserbypostId(postID).then(response => {
           // 提取用户ID和用户名信息
-          this.PublishList = response.data;
+          this.PublisherList = response.data;
           this.loading = false;
         }
       );
     },
     getPublishNameById(userId) {
-      const user = this.PublishList.find(user => user.userId === userId);
+      const user = this.PublisherList.find(user => user.userId == userId);
       return user ? user.userName : userId.toString();
     },
     // 取消按钮
@@ -373,6 +376,7 @@ export default {
         fileSize: null,
         fileStatus: null,
         belongteam: null,
+        publishId:null,
         description: null,
         updateBy: null,
         updateTime: null
