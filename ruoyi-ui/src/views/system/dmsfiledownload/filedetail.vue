@@ -174,39 +174,35 @@ export default {
   },
   methods: {
     /** 查询文件信息列表 */
-    getfiledetail(fileId){
-      //查询文档基本信息
-      getDmsfileupload(fileId).then(response => {
-        this.filedetail = response.data;
-        this.loading = false;
+  getfiledetail(fileId) {
+    this.loading = true; // 开始加载状态
+    const fileDetailPromise = getDmsfileupload(fileId);
+    const reviewPromise = listReview({ fileId: fileId });
+    const publishPromise = listPublish({ fileId: fileId });
+    const permissionsPromise = getPermissions(fileId);
+    const downloadNumPromise = getDownloadNumbyfileId(fileId);
+    Promise.all([fileDetailPromise, reviewPromise, publishPromise, permissionsPromise, downloadNumPromise])
+      .then(([fileDetailResponse, reviewResponse, publishResponse, permissionsResponse, downloadNumResponse]) => {
+        this.filedetail = fileDetailResponse.data;
+        // 处理评审意见
+        this.ReviewList = reviewResponse.rows;
+        this.reviewtotal = reviewResponse.total;
+        // 处理定稿意见
+        this.PublishList = publishResponse.rows;
+        this.Publishtotal = publishResponse.total;
+        if (publishResponse.rows.length > 0) {
+          this.filedetail.publishTime = publishResponse.rows[0].publishTime;
+        }
+        // 处理文档发布范围
+        this.Permissionlist = permissionsResponse.data;
+        // 处理下载次数
+        this.filedetail.downloadNum = downloadNumResponse.data;
+        this.loading = false; // 结束加载状态
+      })
+      .catch(error => {
+        this.loading = false; // 结束加载状态
+        console.error("Error fetching file details:", error);
       });
-      //查询评审意见
-      this.reviewquery.fileId = fileId;
-      listReview(this.reviewquery).then(response => {
-          // 提取用户ID和用户名信息
-          this.ReviewList = response.rows;
-          this.reviewtotal = response.total;
-          this.loading = false;
-        });
-      //查询定稿意见
-      this.publishquery.fileId = fileId;
-      listPublish(this.publishquery).then(response => {
-          // 提取用户ID和用户名信息
-          this.PublishList = response.rows;
-          this.Publishtotal = response.total;
-          this.loading = false;
-        });
-      //文档发布范围
-      getPermissions(fileId).then(response => {
-        this.Permissionlist = response.data;
-        this.loading = false;
-      });
-      getDownloadNumbyfileId(fileId).then(response => {
-        this.filedetail.downloadNum = response.data;
-        console.log(response.data);
-        this.loading = false;
-      });
-      console.log(this)
     },
         /**  查询评阅人下拉列表 */
     getReviewerList() {

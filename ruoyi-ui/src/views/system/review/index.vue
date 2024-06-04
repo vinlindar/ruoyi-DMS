@@ -44,7 +44,7 @@
     <!-- 文档信息展示-->
     <el-table v-loading="loading" :data="reviewList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="文件名" align="center" prop="fileName" width="600">
+      <el-table-column label="文件名" align="center" prop="fileName" width="600" :show-overflow-tooltip="true">
         <template slot-scope="scope">
           <router-link :to="'/file/filedetail/' + scope.row.fileId" class="link-type">
             <span>{{ scope.row.fileName }}</span>
@@ -200,7 +200,6 @@ export default {
       this.loading = true;
       listReview(this.queryParams).then(response => {
         this.reviewList = response.rows;
-        console.log(this.reviewList)
         this.total = response.total;
         this.loading = false;
       });
@@ -227,7 +226,6 @@ export default {
           // 提取用户ID和用户名信息
           this.ReviewerList = response.data;
           this.reviewertotal = response.length;
-          console.log( this)
           this.loading = false;
         }
       );
@@ -280,7 +278,6 @@ export default {
     /** 评阅按钮操作 */
     handleUpdate(row) {
       this.reset();
-      console.log(row);
       this.loading = true;
       this.currentid=row.id;
       this.currentfileid=row.fileId;
@@ -295,7 +292,6 @@ export default {
     },
     /** 提交按钮 */
     submitForm() {
-      console.log(this);
       this.$refs["form"].validate(valid => {
         if (valid) {
             const currentDate = new Date();

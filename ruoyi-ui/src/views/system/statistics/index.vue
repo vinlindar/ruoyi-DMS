@@ -28,7 +28,6 @@ export default {
   },
   created() {
     this.getallnum();
-    console.log(this)
   },
   mounted(){
     this.$nextTick(() => {

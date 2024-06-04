@@ -75,9 +75,9 @@
     <el-table v-loading="loading" :data="recordsList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
       <!-- <el-table-column label="文件ID" align="center" prop="fileId" /> -->
-      <el-table-column label="文件名" align="center" prop="fileName" width="200px" class-name="file-name-column">
+      <el-table-column label="文件名" align="center" prop="fileName" width="600px" class-name="file-name-column" :show-overflow-tooltip="true">
         <template slot-scope="scope">
-          <router-link :to="'/file/filedetai1/' + scope.row.fileId" class="link-type">
+          <router-link :to="'/file/filedetail/' + scope.row.fileId" class="link-type">
             <span class="file-name">{{ scope.row.fileName }}</span>
           </router-link>
         </template>
@@ -176,7 +176,6 @@ export default {
     /** 查询下载记录列表 */
     getList() {
       this.loading = true;
-      console.log(this);
       listRecords(this.queryParams).then(response => {
         this.recordsList = response.rows;
         this.total = response.total;

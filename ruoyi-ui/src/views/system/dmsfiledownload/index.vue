@@ -3,7 +3,7 @@
     <el-row :gutter="20">
       <!--部门数据-->
       <el-col :span="4" :xs="24">
-        <div class="head-container">
+<!--         <div class="head-container">
           <el-input
             v-model="deptName"
             placeholder="请输入部门名称"
@@ -12,7 +12,8 @@
             prefix-icon="el-icon-search"
             style="margin-bottom: 20px"
           />
-        </div>
+        </div> -->
+        <h3><strong>按团队查询</strong></h3>
         <div class="head-container">
           <el-tree
             :data="deptOptions"
@@ -26,7 +27,21 @@
             @node-click="handleNodeClick"
           />
         </div>
+        <h3><strong>按文档分类</strong></h3>
+        <div class="head-container">
+          <el-tree
+            :data="dict.type.dms_file_type"
+            :props="defaultProps"
+            :expand-on-click-node="false"
+            :filter-node-method="filterNode"
+            node-key="value"
+            default-expand-all
+            highlight-current
+            @node-click="handleNodeClick2"
+          />
+        </div>
       </el-col>
+
       <!--文件数据-->
       <el-col :span="20" :xs="24">
         <el-form :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch" label-width="68px">
@@ -38,7 +53,7 @@
               @keyup.enter.native="handleQuery"
             />
           </el-form-item> -->
-          <el-form-item label="文件名或关键词" prop="fileName" label-width="110px">
+          <el-form-item label="文件名或关键词" prop="fileName" label-width="150px !important">
             <el-input
               v-model="queryParams.fileName"
               placeholder="请输入文件名或关键词"
@@ -143,20 +158,11 @@
         <el-table v-loading="loading" :data="dmsfileuploadList" @selection-change="handleSelectionChange">
           <el-table-column type="selection" width="55" align="center" />
           <!-- <el-table-column label="文件ID" align="center" prop="fileId" /> -->
-          <el-table-column label="文件名" align="center" prop="fileName" width="200px" class-name="file-name-column">
+          <el-table-column label="文件名" align="center" prop="fileName" width="600px" :show-overflow-tooltip="true">
             <template slot-scope="scope">
-              <router-link :to="'/file/filedetai1/' + scope.row.fileId" class="link-type">
+              <router-link :to="'/file/filedetail/' + scope.row.fileId" class="link-type">
                 <span class="file-name">{{ scope.row.fileName }}</span>
               </router-link>
-            </template>
-          </el-table-column>
-
-          <!-- <el-table-column label="作者" align="center" prop="author" /> -->
-          <el-table-column label="上传人" align="center" prop="updateBy" />
-          <el-table-column label="评阅人" align="center" prop="reviewer" />
-          <el-table-column label="定稿人" align="center">
-            <template slot-scope="scope">
-              {{ getPublishNameById(scope.row.publishId) }}
             </template>
           </el-table-column>
           <el-table-column label="文件分类" align="center" prop="fileType">
@@ -164,8 +170,15 @@
               <dict-tag :options="dict.type.dms_file_type" :value="scope.row.fileType"/>
             </template>
           </el-table-column>
-          <el-table-column label="文件大小" align="center" prop="fileSize" />
           <el-table-column label="归属团队" align="center" prop="belongteam" />
+          <!-- <el-table-column label="作者" align="center" prop="author" /> -->
+          <el-table-column label="上传人" align="center" prop="updateBy" />
+          <el-table-column label="定稿人" align="center">
+            <template slot-scope="scope">
+              {{ getPublishNameById(scope.row.publishId) }}
+            </template>
+          </el-table-column>
+          <el-table-column label="文件大小" align="center" prop="fileSize" />
           <!-- <el-table-column label="文件状态" align="center" prop="fileStatus">
             <template slot-scope="scope">
               <dict-tag :options="dict.type.dms_file_status" :value="scope.row.fileStatus"/>
@@ -173,7 +186,7 @@
           </el-table-column> -->
           <el-table-column label="发布时间" align="center" prop="publishTime" width="95px">
             <template slot-scope="scope">
-              <span>{{ parseTime(scope.row.updateTime, '{y}-{m}-{d} {h}:{i}') }}</span>
+              <span>{{ parseTime(scope.row.updateTime, '{y}-{m}-{d}') }}</span>
             </template>
           </el-table-column>
           <el-table-column label="操作" >
@@ -201,18 +214,9 @@
           />
       </el-col>
     </el-row>
+    
   </div>
 </template>
-
-
-<style scoped>
-.file-name-column.cell {
-  max-width: 150px; /* 设置最大宽度 */
-  white-space: nowrap; /* 不换行 */
-  overflow: hidden; /* 超出部分隐藏 */
-  text-overflow: ellipsis; /* 显示省略号 */
-}
-</style>
 
 <script>
 import { listDmsfileupload} from "@/api/system/dmsfileupload";
@@ -401,6 +405,11 @@ export default {
     // 节点单击事件
     handleNodeClick(data) {
       this.queryParams.belongteam = data.label;
+      this.handleQuery();
+    },
+    // 节点单击事件2
+    handleNodeClick2(data) {
+      this.queryParams.fileType = data.value;
       this.handleQuery();
     },
     // 多选框选中数据

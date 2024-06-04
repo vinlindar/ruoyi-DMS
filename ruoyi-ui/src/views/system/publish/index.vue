@@ -47,27 +47,6 @@
     <el-row :gutter="10" class="mb8">
       <el-col :span="1.5">
         <el-button
-          type="success"
-          plain
-          icon="el-icon-search"
-          size="small"
-          :disabled="single"
-          @click="handlefiledetail"
-        >查看文档详情</el-button>
-      </el-col>
-      <el-col :span="1.5">
-        <el-button
-          type="primary"
-          plain
-          icon="el-icon-edit"
-          size="small"
-          :disabled="single"
-          @click="handleUpdate"
-          v-hasPermi="['system:publish:edit']"
-        >开始定稿发布</el-button>
-      </el-col>
-      <el-col :span="1.5">
-        <el-button
           type="warning"
           plain
           icon="el-icon-download"
@@ -82,40 +61,41 @@
     <el-table v-loading="loading" :data="publishList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
       <!-- <el-table-column label="文件ID" align="center" prop="fileId" /> -->
-      <el-table-column label="文件名" align="center" prop="fileName" width="200px" class-name="file-name-column">
+      <el-table-column label="文件名" align="center" prop="fileName" width="600px" class-name="file-name-column" :show-overflow-tooltip="true">
         <template slot-scope="scope">
-          <router-link :to="'/file/filedetai1/' + scope.row.fileId" class="link-type">
+          <router-link :to="'/file/filedetail/' + scope.row.fileId" class="link-type">
             <span class="file-name">{{ scope.row.fileName }}</span>
           </router-link>
         </template>
       </el-table-column>
 
-      <!-- <el-table-column label="作者" align="center" prop="author" />
+<!--      <el-table-column label="作者" align="center" prop="author" />
       <el-table-column label="定稿人" align="center">
         <template slot-scope="scope">
           {{ getPublishNameById(scope.row.publishId) }}
         </template>
-      </el-table-column>
-      <el-table-column label="文件类型" align="center" prop="fileType">
+      </el-table-column> -->
+      <el-table-column label="文件分类" align="center" prop="fileType">
         <template slot-scope="scope">
           <dict-tag :options="dict.type.dms_file_type" :value="scope.row.fileType"/>
         </template>
       </el-table-column>
-      <el-table-column label="文件大小" align="center" prop="fileSize" /> -->
+<!--       <el-table-column label="文件大小" align="center" prop="fileSize" />  -->
       <el-table-column label="文件状态" align="center" prop="fileStatus">
         <template slot-scope="scope">
           <dict-tag :options="dict.type.dms_file_status" :value="scope.row.fileStatus"/>
         </template>
       </el-table-column>
       <el-table-column label="归属团队" align="center" prop="belongteam" />
-      <el-table-column label="创建者" align="center" prop="updateBy" />
+      <el-table-column label="上传者" align="center" prop="updateBy" />
       <!-- <el-table-column label="评阅人" align="center" prop="reviewer" /> -->
+      <el-table-column label="提交时间" align="center" prop="updateTime" />
       <el-table-column label="定稿结果" align="center" prop="isPassed">
         <template slot-scope="scope">
           <dict-tag :options="dict.type.dms_publish_result" :value="scope.row.isPassed"/>
         </template>
       </el-table-column>
-      <el-table-column label="定稿日期" align="center" prop="publishTime" />
+<!--       <el-table-column label="定稿日期" align="center" prop="publishTime" /> -->
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button
@@ -135,38 +115,6 @@
       </el-table-column>
     </el-table>
 
-    <!-- 文档详情展示-->
-    <el-dialog title="文档详情" :visible.sync="openfiledetail" width="500px" append-to-body>
-      <el-card class="review-card">
-        <p class="custom-text">文件ID: {{ this.filedetail.fileId }}</p>
-        <p class="custom-text">文件名: {{ this.filedetail.fileName }}</p>
-        <p class="custom-text">作者: {{ this.filedetail.author }}</p>
-        <p class="custom-text">归属团队: {{ this.filedetail.belongteam }}</p>
-        <p class="custom-text">上传人: {{ this.filedetail.updateBy }}</p>
-        <p class="custom-text">上传时间: {{ this.filedetail.updateTime }}</p>
-        <p class="custom-text">文件类型:{{ getFileTypeLabel(this.filedetail.fileType) }} </p>
-        <p class="custom-text">文件大小: {{ this.filedetail.fileSize }}</p>
-        <p class="custom-text">文件描述: {{ this.filedetail.description }}</p>
-      </el-card>
-      <el-card v-for="(review, index) in ReviewList" :key="index" class="review-card">
-        <div class="review-info">
-          <p class="reviewer-text">评阅人:</p>
-          <p slot="header" class="reviewer">{{ review.reviewerName }}</p>
-          <p>评阅结果: </p>
-          <p><dict-tag :options="getReviewResultText()" :value="review.isPassed" /></p>
-        </div>
-        <p>评阅信息: {{ review.comment }}</p>
-        <el-divider></el-divider>
-      </el-card>
-      <el-card class="review-card">
-        <ul>
-          <li v-for="(item, index) in Permissionlist" :key="index">
-            <p class="custom-text">发布范围: {{ item.deptId }},{{ getLabelById(deptOptions, item.deptId) }}</p>
-          </li>
-        </ul>
-      </el-card>
-    </el-dialog>
-
     <pagination
       v-show="total>0"
       :total="total"
@@ -184,7 +132,7 @@
         <el-form-item label="定稿结果" prop="isPassed">
           <el-select v-model="form.isPassed" placeholder="请选择定稿结果">
             <el-option
-              v-for="dict in dict.type.dms_publish_result"
+              v-for="dict in modifiedDmsPublishResult"
               :key="dict.value"
               :label="dict.label"
               :value="parseInt(dict.value)"
@@ -220,11 +168,9 @@
 
 
 <script>
-import { listPublish, getPublish, delPublish, addPublish, updatePublish } from "@/api/system/publish";
+import { listPublish, getPublish, delPublish, updatePublish } from "@/api/system/publish";
 import { listUserbypostId } from "@/api/system/user";
-import { getPermissions } from "@/api/system/permissions";
 import {deptTreeSelect, getDmsfileupload } from "@/api/system/dmsfileupload";
-import {listReview}from "@/api/system/review";
 import Treeselect from "@riophae/vue-treeselect";
 import "@riophae/vue-treeselect/dist/vue-treeselect.css";
 
@@ -274,16 +220,8 @@ export default {
         publishId: this.$store.state.user.id,
         comment: null,
         isPassed: null,
-        publishTime: null
-      },
-      // 查询评阅
-      reviewquery: {
-        pageNum: 1,
-        pageSize: 10,
-        fileId: null,
-        reviewerId: null,
-        comment: null,
-        isPassed: null
+        publishTime: null,
+        isCurrent:1 //默认查询当前定稿信息
       },
       // 表单参数
       form: {},
@@ -294,6 +232,17 @@ export default {
         ],
       }
     };
+  },
+  computed: {
+    modifiedDmsPublishResult() {
+      // 复制原始数组
+      let result = [...this.dict.type.dms_publish_result];
+      // 修改第一个值的label为“取消发布”
+      if (result.length > 0) {
+        result[0] = { ...result[0], label: "取消发布" };
+      }
+      return result;
+    }
   },
   created() {
     this.getDeptTree();
@@ -317,7 +266,6 @@ export default {
       listUserbypostId(postID).then(response => {
           // 提取用户ID和用户名信息
           this.PublisherList = response.data;
-          console.log(this)
           this.loading = false;
         }
       );
@@ -335,37 +283,6 @@ export default {
         this.deptOptions = response.data;
       });
     },
-    /** 查看文档详情，包括评审意见 */
-    handlefiledetail(){
-      this.openfiledetail = true;
-      const fileId = this.ids
-      //查询文档详情
-      getDmsfileupload(fileId).then(response => {
-        this.filedetail = response.data;
-        this.loading = false;
-      });
-      //查询评审意见
-      this.reviewquery.fileId = fileId[0]
-      listReview(this.reviewquery).then(response => {
-          // 提取用户ID和用户名信息
-          this.ReviewList = response.rows;
-          this.reviewtotal = response.total;
-          this.loading = false;
-        });
-      //文档发布范围
-      getPermissions(fileId).then(response => {
-        this.Permissionlist = response.data;
-        this.loading = false;
-      });
-      console.log(this)
-    },
-    getReviewResultText() {
-      return this.dict.type.dms_review_status;
-    },
-    getFileTypeLabel(fileType){
-      const dictItem = this.dict.type.dms_file_type.find(item => item.value ===  String(fileType));
-      return dictItem ? dictItem.label : fileType;
-    },
     // 取消按钮
     cancel() {
       this.open = false;
@@ -378,7 +295,8 @@ export default {
         publishId: null,
         comment: null,
         isPassed: null,
-        publishTime: null
+        publishTime: null,
+        isCurrent:1
       };
       this.resetForm("form");
     },
@@ -407,8 +325,8 @@ export default {
     /** 修改按钮操作 */
     handleUpdate(row) {
       this.reset();
-      const id = row.id
-      getPublish(id).then(response => {
+      this.currentid=row.id;
+      getPublish(this.currentid).then(response => {
         this.form = response.data;
         this.open = true;
         this.title = "文档定稿";
@@ -418,9 +336,9 @@ export default {
     submitForm() {
       const currentDate = new Date();
       const formattedDate = `${currentDate.getFullYear()}-${(currentDate.getMonth() + 1).toString().padStart(2, '0')}-${currentDate.getDate().toString().padStart(2, '0')} ${currentDate.getHours().toString().padStart(2, '0')}:${currentDate.getMinutes().toString().padStart(2, '0')}:${currentDate.getSeconds().toString().padStart(2, '0')}`;
+      this.form.id = this.currentid;
       this.form.publishTime = formattedDate;
       this.form.deptIdsNum = this.form.deptIds.length;
-      console.log(this.form);
       this.$refs["form"].validate(valid => {
         if (valid) {
             updatePublish(this.form).then(response => {

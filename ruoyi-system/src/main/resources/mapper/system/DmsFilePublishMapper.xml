@@ -37,6 +37,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <select id="selectDmsFilePublishList" parameterType="DmsFilePublish" resultMap="DmsFilePublishResult">
         <include refid="selectDmsFilePublishVo"/>
         <where>
+        	<if test="id != null  and id != ''"> and fp.id = #{id}</if>
         	<if test="fileId != null  and fileId != ''"> and fp.file_id = #{fileId}</if>
             <if test="comment != null  and comment != ''"> and comment = #{comment}</if>
             <if test="isPassed != null "> and is_passed = #{isPassed}</if>
@@ -87,13 +88,14 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <update id="updateDmsFilePublish" parameterType="DmsFilePublish">
         update dms_file_publish
         <trim prefix="SET" suffixOverrides=",">
+        	<if test="id != null  and id != ''"> id = #{id},</if>
             <if test="publishId != null">publish_Id = #{publishId},</if>
             <if test="comment != null">comment = #{comment},</if>
             <if test="isPassed != null">is_passed = #{isPassed},</if>
             <if test="publishTime != null">publish_time = #{publishTime},</if>
             <if test="isCurrent != null "> is_current = #{isCurrent},</if>
         </trim>
-        where file_id = #{fileId}
+        where id = #{id}
     </update>
 
     <delete id="deleteDmsFilePublishByFileId" parameterType="String">

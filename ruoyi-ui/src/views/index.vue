@@ -235,7 +235,6 @@ export default {
     this.getfavoritefilelist();
     this.getmysearchfilelist();
     this.fetchImages();
-    console.log(this)
   },
   mounted(){
   },

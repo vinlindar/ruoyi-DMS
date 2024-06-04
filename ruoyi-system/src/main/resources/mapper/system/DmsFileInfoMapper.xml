@@ -79,7 +79,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     	from dms_file_info fi
     	inner join dms_file_permissions fp ON fi.file_id = fp.file_id
    		inner join sys_user su ON fp.dept_id = su.dept_id
-   		inner join dms_file_publish fpb ON fi.file_id = fpb.file_id
+   		INNER JOIN (SELECT file_id, publish_time FROM dms_file_publish WHERE is_current = 1) fpb ON fi.file_id = fpb.file_id
         <where>
         	<choose>
         	    <when test="queryuserRole == null">
