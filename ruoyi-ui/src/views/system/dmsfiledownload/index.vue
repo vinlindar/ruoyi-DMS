@@ -30,31 +30,31 @@
       <!--文件数据-->
       <el-col :span="20" :xs="24">
         <el-form :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch" label-width="68px">
-          <el-form-item label="文件ID" prop="fileId">
+          <!-- <el-form-item label="文件ID" prop="fileId">
             <el-input
               v-model="queryParams.fileId"
               placeholder="请输入文件ID"
               clearable
               @keyup.enter.native="handleQuery"
             />
-          </el-form-item>
-          <el-form-item label="文件名" prop="fileName">
+          </el-form-item> -->
+          <el-form-item label="文件名或关键词" prop="fileName" label-width="110px">
             <el-input
               v-model="queryParams.fileName"
-              placeholder="请输入文件名"
+              placeholder="请输入文件名或关键词"
               clearable
               @keyup.enter.native="handleQuery"
             />
           </el-form-item>
-          <el-form-item label="作者" prop="author">
+          <!-- <el-form-item label="作者" prop="author">
             <el-input
               v-model="queryParams.author"
               placeholder="请输入作者"
               clearable
               @keyup.enter.native="handleQuery"
             />
-          </el-form-item>
-          <el-form-item label="上传人" prop="updateBy">
+          </el-form-item> -->
+          <el-form-item label="上传人" prop="updateBy" label-width="110px">
             <el-input
               v-model="queryParams.updateBy"
               placeholder="请输入上传人"
@@ -62,7 +62,7 @@
               @keyup.enter.native="handleQuery"
             />
           </el-form-item>
-          <el-form-item label="定稿人" prop="publishId">
+          <el-form-item label="定稿人" prop="publishId" label-width="110px">
             <el-select v-model="queryParams.publishId" placeholder="请选择定稿人" :multiple="false" clearable>
               <el-option 
                 v-for="user in PublisherList" 
@@ -72,7 +72,7 @@
               />
             </el-select>
           </el-form-item>
-          <el-form-item label="文件类型" prop="fileType">
+          <el-form-item label="文件分类" prop="fileType" label-width="110px">
             <el-select v-model="queryParams.fileType" placeholder="请选择文件类型" clearable>
               <el-option
                 v-for="dict in dict.type.dms_file_type"
@@ -82,7 +82,7 @@
               />
             </el-select>
           </el-form-item>
-          <el-form-item label="文件状态" prop="fileStatus">
+          <el-form-item label="文件状态" prop="fileStatus" label-width="110px">
             <el-select v-model="queryParams.fileStatus" placeholder="仅管理员可操作" clearable:disabled="!isAdmin">
               <el-option
                 v-for="dict in dict.type.dms_file_status"
@@ -93,7 +93,7 @@
               />
             </el-select>
           </el-form-item>
-          <el-form-item label="归属团队" prop="belongteam">
+          <el-form-item label="归属团队" prop="belongteam" label-width="110px">
             <treeselect 
               v-model="form.deptId"
               :options="deptOptions"
@@ -102,7 +102,7 @@
               placeholder="请输入归属团队"
             />
           </el-form-item>
-          <el-form-item label="发布时间" prop="publishTime">
+          <el-form-item label="发布时间" prop="publishTime" label-width="110px">
             <el-date-picker clearable
               v-model="queryParams.publishTime"
               type="date"
@@ -111,13 +111,21 @@
             </el-date-picker>
           </el-form-item>
           <el-form-item>
-            <el-button type="primary" icon="el-icon-search" size="small"  @click="handleQuery">搜索</el-button>
-            <el-button icon="el-icon-refresh" size="small"  @click="resetQuery">重置</el-button>
-            <el-button icon="el-icon-edit" size="small" @click="handlemyseachesQuery">加入我的自定义</el-button>
+            <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
+            <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
+            <el-button icon="el-icon-edit" size="mini" @click="handlemyseachesQuery">加入我的自定义</el-button>
+            <el-button
+                  type="primary"
+                  plain
+                  icon="el-icon-edit"
+                  size="mini"
+                  :disabled="single"
+                  @click="handleaddfavorite"
+                >置顶文档</el-button>
           </el-form-item>
         </el-form>
 
-      <!-- 文档操作栏位-->
+      <!-- 文档操作栏位
       <el-row :gutter="10" class="mb8">
         <el-col :span="1.5">
           <el-button
@@ -130,33 +138,40 @@
           >置顶文档</el-button>
         </el-col>
         <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
-      </el-row>
+      </el-row> -->
 
         <el-table v-loading="loading" :data="dmsfileuploadList" @selection-change="handleSelectionChange">
           <el-table-column type="selection" width="55" align="center" />
-          <el-table-column label="文件ID" align="center" prop="fileId" />
-          <el-table-column label="文件名" align="center" prop="fileName" />
-          <el-table-column label="作者" align="center" prop="author" />
+          <!-- <el-table-column label="文件ID" align="center" prop="fileId" /> -->
+          <el-table-column label="文件名" align="center" prop="fileName" width="200px" class-name="file-name-column">
+            <template slot-scope="scope">
+              <router-link :to="'/file/filedetai1/' + scope.row.fileId" class="link-type">
+                <span class="file-name">{{ scope.row.fileName }}</span>
+              </router-link>
+            </template>
+          </el-table-column>
+
+          <!-- <el-table-column label="作者" align="center" prop="author" /> -->
           <el-table-column label="上传人" align="center" prop="updateBy" />
-          <el-table-column label="审稿人" align="center" prop="reviewer" />
+          <el-table-column label="评阅人" align="center" prop="reviewer" />
           <el-table-column label="定稿人" align="center">
             <template slot-scope="scope">
               {{ getPublishNameById(scope.row.publishId) }}
             </template>
           </el-table-column>
-          <el-table-column label="文件类型" align="center" prop="fileType">
+          <el-table-column label="文件分类" align="center" prop="fileType">
             <template slot-scope="scope">
               <dict-tag :options="dict.type.dms_file_type" :value="scope.row.fileType"/>
             </template>
           </el-table-column>
           <el-table-column label="文件大小" align="center" prop="fileSize" />
           <el-table-column label="归属团队" align="center" prop="belongteam" />
-          <el-table-column label="文件状态" align="center" prop="fileStatus">
+          <!-- <el-table-column label="文件状态" align="center" prop="fileStatus">
             <template slot-scope="scope">
               <dict-tag :options="dict.type.dms_file_status" :value="scope.row.fileStatus"/>
             </template>
-          </el-table-column>
-          <el-table-column label="发布时间" align="center" prop="publishTime" width="180">
+          </el-table-column> -->
+          <el-table-column label="发布时间" align="center" prop="publishTime" width="95px">
             <template slot-scope="scope">
               <span>{{ parseTime(scope.row.updateTime, '{y}-{m}-{d} {h}:{i}') }}</span>
             </template>
@@ -168,6 +183,12 @@
                 icon="el-icon-edit"
                 @click="handleDownload(scope.row)"
               >下载</el-button>
+              <!-- <el-button
+                size="mini"
+                type="text"
+                icon="el-icon-edit"
+                @click="handleaddfavorite(scope.row)"
+              >置顶</el-button> -->
             </template>
           </el-table-column>
         </el-table>
@@ -182,6 +203,16 @@
     </el-row>
   </div>
 </template>
+
+
+<style scoped>
+.file-name-column.cell {
+  max-width: 150px; /* 设置最大宽度 */
+  white-space: nowrap; /* 不换行 */
+  overflow: hidden; /* 超出部分隐藏 */
+  text-overflow: ellipsis; /* 显示省略号 */
+}
+</style>
 
 <script>
 import { listDmsfileupload} from "@/api/system/dmsfileupload";
