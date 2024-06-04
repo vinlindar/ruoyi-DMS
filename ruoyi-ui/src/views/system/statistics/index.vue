@@ -1,18 +1,29 @@
 <template>
-    <h3>文档统计</h3>
+  <div>
+    <div class="chart-container">
+      <div id="deptFileNumChart" class="chart"></div>
+      <div id="classifiedFileNumChart" class="chart"></div>
+      <div id="deptDownloadFileNumChart" class="chart"></div>
+      <div id="classifiedDownloadFileNumChart" class="chart"></div>
+      <div id="yearFileNumChart" class="chart"></div>
+      <div id="monthFileNumChart" class="chart"></div>
+    </div>
+  </div>
 </template>
 <script>
+import * as echarts from 'echarts';
 import { getdeptfilenum,getclassifiedfilenum,getyearfilenum,getmonthfilenum,getdetpdownloadfilenum,getclassifieddownloadfilenum } from "@/api/system/statistics"
 export default {
   name: "Index",
-  dicts: ['dms_file_type'],
   data() {
     return {
-      // 部门树选项
-      deptOptions: undefined,
-      // 显示搜索条件
-      showSearch: false,
-      query:{},
+      deptfilenum: [],
+      classifiedfilenum: [],
+      detpdownloadfilenum: [],
+      classifieddownloadfilenum: [],
+      yearfilenum: [],
+      monthfilenum: [],
+      loading: false
     };
   },
   created() {
@@ -20,9 +31,9 @@ export default {
     console.log(this)
   },
   mounted(){
-    setTimeout(() => {
-      this.renderPieChart()//饼图
-    }, 500)
+    this.$nextTick(() => {
+      this.renderCharts() // 初始化图表
+    });
   },
   methods: {
     // 获得各个分类下的文件数
@@ -44,11 +55,109 @@ export default {
         this.yearfilenum = responses[4].rows;
         this.monthfilenum = responses[5].rows;
         this.loading = false;
+        // 确保在 DOM 更新后再渲染图表
+        this.$nextTick(() => {
+          this.renderCharts();
+        });
       }).catch(error => {
         console.error("Error fetching data:", error);
         this.loading = false;
       });
     },
+    renderCharts() {
+      // 渲染各个图表
+      this.renderPieChart('deptFileNumChart', this.deptfilenum, '各部门文件数');
+      this.renderPieChart('classifiedFileNumChart', this.classifiedfilenum, '各分类文件数');
+      this.renderPieChart('deptDownloadFileNumChart', this.detpdownloadfilenum, '各部门下载文件数');
+      this.renderPieChart('classifiedDownloadFileNumChart', this.classifieddownloadfilenum, '各分类下载文件数');
+      this.renderBarChart('yearFileNumChart', this.yearfilenum, '按年统计文件数');
+      this.renderBarChart('monthFileNumChart', this.monthfilenum, '按月统计文件数');
+    },
+    renderPieChart(elementId, data, title) {
+      let chartDom = document.getElementById(elementId);
+      let myChart = echarts.init(chartDom);
+      let option = {
+        title: {
+          text: title,
+          left: 'center'
+        },
+        tooltip: {
+          trigger: 'item',
+          formatter: '{a} <br/>{b} : {c} ({d}%)'
+        },
+        legend:{
+          orient:'vertical',
+          x:'left',
+          y:'center',
+          formatter: function (name) {
+            let item = data.find(i => i.label === name);
+            return name + ' (' + item.fileNum + ')';
+          }
+        },
+        series: [
+          {
+            name: title,
+            type: 'pie',
+            radius: '50%',
+            data: data.map(item => ({ name: item.label, value: item.fileNum})),
+            emphasis: {
+              itemStyle: {
+                shadowBlur: 10,
+                shadowOffsetX: 0,
+                shadowColor: 'rgba(0, 0, 0, 0.5)'
+              }
+            }
+          }
+        ]
+      };
+      myChart.setOption(option);
+    },
+    renderBarChart(elementId, data, title) {
+      let chartDom = document.getElementById(elementId);
+      let myChart = echarts.init(chartDom);
+      let option = {
+        title: {
+          text: title,
+          left: 'center'
+        },
+        tooltip: {
+          trigger: 'axis',
+          axisPointer: {
+            type: 'shadow'
+          }
+        },
+        xAxis: {
+          type: 'category',
+          data: data.map(item => item.label)
+        },
+        yAxis: {
+          type: 'value'
+        },
+        series: [
+          {
+            name: title,
+            type: 'bar',
+            data: data.map(item => item.fileNum)
+          }
+        ]
+      };
+      myChart.setOption(option);
+    }
   }
 }
 </script>
+<style scoped>
+/* 添加必要的样式 */
+.chart-container {
+  padding-top: 100px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  max-width: 1260px;
+  margin: auto;
+}
+.chart {
+  width: 700px;
+  height: 400px;
+}
+</style>

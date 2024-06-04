@@ -20,13 +20,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	</resultMap>
 	
 	<resultMap type="DmsDeptfileNum" id="DmsDeptfileNumResult">
-    	<result property="teamname"    column="team_name"    />
+    	<result property="label"    column="label"    />
         <result property="teamid"    column="team_id"    />
-         <result property="filenum"    column="file_num"    />
+        <result property="filenum"    column="file_num"    />
     </resultMap>
     
     <resultMap type="DmsClassifiedfileNum" id="DmsClassifiedfileNumResult">
-    	 <result property="classifiedId"    column="classified_id"    />
+    	 <result property="label"    column="label"    />
          <result property="filenum"    column="file_num"    />
     </resultMap>
 
@@ -62,30 +62,21 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	</select>
     
     <select id="selectdeptdownloadfilenum" resultMap="DmsDeptfileNumResult">
-		SELECT 
-	        d.dept_id AS team_id,
-	        d.dept_name AS team_name,
-	        COUNT(*) AS file_num
-	    FROM 
-	        dms_download_records fdr
-	    JOIN 
-	        sys_user u ON fdr.download_userid = u.user_id
-	    JOIN 
-	        sys_dept d ON u.dept_id = d.dept_id
-	    GROUP BY 
-	        d.dept_id, d.dept_name
+		select sd.dept_name as label, coalesce(count(case when u.dept_id = sd.dept_id then 1 else null end), 0) as file_num
+     	from sys_dept sd
+	       left join (dms_download_records fdr join sys_user u ON fdr.download_userid = u.user_id)
+			on u.dept_id = sd.dept_id
+        group by sd.dept_name;
     </select>
     
     <select id="selectclassifieddownloadfilenum" resultMap="DmsClassifiedfileNumResult">
-		SELECT
-	        fi.file_type AS classified_id,
-	        COUNT(*) AS file_num
-	    FROM 
-	        dms_download_records fdr
-	    JOIN
-	    	dms_file_info fi ON fdr.file_id = fi.file_id
-	    GROUP BY
-	    	fi.file_type
+        select sdd.dict_label as label,sdd.dict_value as classified_id,
+        coalesce(count(case when fi.file_type = sdd.dict_value then 1 else null end), 0) as file_num
+        from sys_dict_data sdd
+        	left join (dms_download_records fdr join dms_file_info fi ON fdr.file_id = fi.file_id)
+        	on fi.file_type = sdd.dict_value
+        where sdd.dict_type = 'dms_file_type' 
+        group by sdd.dict_label,sdd.dict_value
     </select>
     
     <select id="selectDmsDownloadRecordsById" parameterType="Long" resultMap="DmsDownloadRecordsResult">

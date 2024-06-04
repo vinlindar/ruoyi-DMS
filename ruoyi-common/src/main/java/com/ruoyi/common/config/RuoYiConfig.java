@@ -132,4 +132,11 @@ public class RuoYiConfig
     {
         return getProfile() + "/upload";
     }
+    /**
+     * 获取上传路径
+     */
+    public static String getnewsimagePath()
+    {
+        return getProfile() + "/newsimage";
+    }
 }

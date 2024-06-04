@@ -72,7 +72,6 @@ public class DmsDownloadRecordsController extends BaseController
     /**
      * 获取文件下载次数
      */
-    @PreAuthorize("@ss.hasPermi('system:records:query')")
     @GetMapping(value = "/fileId/{fileId}")
     public AjaxResult getInfo1(@PathVariable("fileId") Long fileId)
     {
