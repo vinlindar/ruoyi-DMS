@@ -147,23 +147,51 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         group by sdd.dict_label,sdd.dict_value
     </select>
     
-    <select id="selectfilenumbyYear" resultMap="DmsfileNumbyYearResult">
-        select YEAR(f.update_time) as label ,count(*) as file_num
-        from dms_file_info f
-        where f.file_status = 3
-        group by YEAR(f.update_time)
-    </select>
-    
-    <select id="selectfilenumbyMonth" resultMap="DmsfileNumbyMonthResult">
-	    SELECT DATE_FORMAT(f.update_time, '%Y-%m') AS label,
-	        COUNT(*) AS file_num
-	    FROM dms_file_info f
-	    WHERE f.file_status = 3
-	        AND f.update_time >= DATE_SUB(CURDATE(), INTERVAL 12 MONTH)
-	    GROUP BY 
-	        DATE_FORMAT(f.update_time, '%Y-%m')
-	    ORDER BY label DESC
+	<select id="selectfilenumbyYear" resultMap="DmsfileNumbyYearResult">
+	    WITH RECURSIVE YearRange AS (
+	        SELECT YEAR(CURDATE()) AS year
+	        UNION ALL
+	        SELECT year - 1
+	        FROM YearRange
+	        WHERE year - 1 >= YEAR(CURDATE()) - 4
+	    )
+	    SELECT yr.year AS label, 
+	           IFNULL(f.file_num, 0) AS file_num
+	    FROM YearRange yr
+	    LEFT JOIN (
+	        SELECT YEAR(f.update_time) AS year, 
+	               COUNT(*) AS file_num
+	        FROM dms_file_info f
+	        WHERE f.file_status = 3
+	        GROUP BY YEAR(f.update_time)
+	    ) f ON yr.year = f.year
+	    ORDER BY yr.year ASC
 	</select>
+
+
+    
+	<select id="selectfilenumbyMonth" resultMap="DmsfileNumbyMonthResult">
+	    WITH RECURSIVE MonthRange AS (
+	        SELECT DATE_FORMAT(CURDATE(), '%Y-%m-01') AS month
+	        UNION ALL
+	        SELECT DATE_FORMAT(DATE_SUB(month, INTERVAL 1 MONTH), '%Y-%m-01')
+	        FROM MonthRange
+	        WHERE DATE_SUB(month, INTERVAL 1 MONTH) >= DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL 11 MONTH), '%Y-%m-01')
+	    )
+	    SELECT DATE_FORMAT(yr.month, '%Y-%m') AS label, 
+	           IFNULL(f.file_num, 0) AS file_num
+	    FROM MonthRange yr
+	    LEFT JOIN (
+	        SELECT DATE_FORMAT(f.update_time, '%Y-%m') AS month, 
+	               COUNT(*) AS file_num
+	        FROM dms_file_info f
+	        WHERE f.file_status = 3
+	        AND f.update_time >= DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL 12 MONTH), '%Y-%m-01')
+	        GROUP BY DATE_FORMAT(f.update_time, '%Y-%m')
+	    ) f ON DATE_FORMAT(yr.month, '%Y-%m') = f.month
+	    ORDER BY yr.month ASC
+	</select>
+
 	
     <insert id="insertDmsFileInfo" parameterType="DmsFileInfo">
         insert into dms_file_info

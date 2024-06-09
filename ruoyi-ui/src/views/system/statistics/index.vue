@@ -127,7 +127,11 @@ export default {
         },
         xAxis: {
           type: 'category',
-          data: data.map(item => item.label)
+          data: data.map(item => item.label),
+          axisLabel: {
+            interval: 0, // 强制显示所有标签
+            rotate: 45  // 旋转标签以避免重叠
+          }
         },
         yAxis: {
           type: 'value'

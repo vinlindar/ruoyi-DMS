@@ -44,14 +44,14 @@
     <!-- 文档信息展示-->
     <el-table v-loading="loading" :data="reviewList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="文件名" align="center" prop="fileName" width="600" :show-overflow-tooltip="true">
+      <el-table-column label="文件名" align="center" prop="fileName" width="300" :show-overflow-tooltip="true">
         <template slot-scope="scope">
           <router-link :to="'/file/filedetail/' + scope.row.fileId" class="link-type">
             <span>{{ scope.row.fileName }}</span>
           </router-link>
         </template>
       </el-table-column>/>
-      <el-table-column label="文件分类" align="center" prop="fileType">
+      <el-table-column label="文件分类" align="center" prop="fileType" show-overflow-tooltip>
         <template slot-scope="scope">
           <dict-tag :options="dict.type.dms_file_type" :value="scope.row.fileType"/>
         </template>
@@ -61,23 +61,29 @@
           <dict-tag :options="dict.type.dms_file_status" :value="scope.row.fileStatus"/>
         </template>
       </el-table-column>
-      <el-table-column label="归属团队" align="center" prop="belongteam" />
-      <el-table-column label="上传者" align="center" prop="updateBy" />
-      <el-table-column label="提交时间" align="center" prop="updateTime" />
+      <el-table-column label="归属团队" align="center" prop="belongteam" width="200"/>
+      <el-table-column label="上传人" align="center" prop="updateBy" />
+      <el-table-column label="提交时间" align="center" prop="updateTime" width="130">
+        <template slot-scope="scope">
+            <span>{{ parseTime(scope.row.updateTime, '{y}-{m}-{d}') }}</span>
+          </template>
+      </el-table-column>
       <el-table-column label="评阅状态" align="center" prop="status" >
         <template slot-scope="scope">
             <dict-tag :options="dict.type.dms_review_status" :value="scope.row.status"/>
           </template>
         </el-table-column>
-      <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
+      <el-table-column label="操作" align="center" class-name="small-padding fixed-width" width="200">
         <template slot-scope="scope">
           <el-button
+            size="small"
             type="text"
             icon="el-icon-edit"
             @click="handleUpdate(scope.row)"
             v-hasPermi="['system:review:edit']"
           >评阅</el-button>
           <el-button
+            size="small"
             type="text"
             icon="el-icon-edit"
             @click="handleDownload(scope.row)"

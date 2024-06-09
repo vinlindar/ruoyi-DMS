@@ -1,18 +1,8 @@
 <template>
-  <div class="app-container">
+  <div class="app-container2">
     <el-row :gutter="20">
       <!--部门数据-->
-      <el-col :span="4" :xs="24">
-<!--         <div class="head-container">
-          <el-input
-            v-model="deptName"
-            placeholder="请输入部门名称"
-            clearable
-            size="small"
-            prefix-icon="el-icon-search"
-            style="margin-bottom: 20px"
-          />
-        </div> -->
+      <el-col :span="4" :xs="24" class="search-side">
         <h3><strong>按团队查询</strong></h3>
         <div class="head-container">
           <el-tree
@@ -40,19 +30,13 @@
             @node-click="handleNodeClick2"
           />
         </div>
+        <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
       </el-col>
-
+    </el-row>
       <!--文件数据-->
-      <el-col :span="20" :xs="24">
+    <el-row  :gutter="20" >
+      <el-col class="custom-col">
         <el-form :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch" label-width="68px">
-          <!-- <el-form-item label="文件ID" prop="fileId">
-            <el-input
-              v-model="queryParams.fileId"
-              placeholder="请输入文件ID"
-              clearable
-              @keyup.enter.native="handleQuery"
-            />
-          </el-form-item> -->
           <el-form-item label="文件名或关键词" prop="fileName" label-width="150px !important">
             <el-input
               v-model="queryParams.fileName"
@@ -61,14 +45,6 @@
               @keyup.enter.native="handleQuery"
             />
           </el-form-item>
-          <!-- <el-form-item label="作者" prop="author">
-            <el-input
-              v-model="queryParams.author"
-              placeholder="请输入作者"
-              clearable
-              @keyup.enter.native="handleQuery"
-            />
-          </el-form-item> -->
           <el-form-item label="上传人" prop="updateBy" label-width="110px">
             <el-input
               v-model="queryParams.updateBy"
@@ -77,7 +53,7 @@
               @keyup.enter.native="handleQuery"
             />
           </el-form-item>
-          <el-form-item label="定稿人" prop="publishId" label-width="110px">
+<!--           <el-form-item label="定稿人" prop="publishId" label-width="110px">
             <el-select v-model="queryParams.publishId" placeholder="请选择定稿人" :multiple="false" clearable>
               <el-option 
                 v-for="user in PublisherList" 
@@ -86,7 +62,7 @@
                 :value="user.userId"
               />
             </el-select>
-          </el-form-item>
+          </el-form-item> -->
           <el-form-item label="文件分类" prop="fileType" label-width="110px">
             <el-select v-model="queryParams.fileType" placeholder="请选择文件类型" clearable>
               <el-option
@@ -128,7 +104,7 @@
           <el-form-item>
             <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
             <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
-            <el-button icon="el-icon-edit" size="mini" @click="handlemyseachesQuery">加入我的自定义</el-button>
+            <!-- <el-button icon="el-icon-edit" size="mini" @click="handlemyseachesQuery">加入我的自定义</el-button> -->
             <el-button
                   type="primary"
                   plain
@@ -136,29 +112,12 @@
                   size="mini"
                   :disabled="single"
                   @click="handleaddfavorite"
-                >置顶文档</el-button>
+                >收藏文档</el-button>
           </el-form-item>
         </el-form>
-
-      <!-- 文档操作栏位
-      <el-row :gutter="10" class="mb8">
-        <el-col :span="1.5">
-          <el-button
-            type="primary"
-            size="small" 
-            plain
-            icon="el-icon-edit"
-            :disabled="single"
-            @click="handleaddfavorite"
-          >置顶文档</el-button>
-        </el-col>
-        <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
-      </el-row> -->
-
         <el-table v-loading="loading" :data="dmsfileuploadList" @selection-change="handleSelectionChange">
           <el-table-column type="selection" width="55" align="center" />
-          <!-- <el-table-column label="文件ID" align="center" prop="fileId" /> -->
-          <el-table-column label="文件名" align="center" prop="fileName" width="600px" :show-overflow-tooltip="true">
+          <el-table-column label="文件名" align="center" prop="fileName" width="300px" show-overflow-tooltip>
             <template slot-scope="scope">
               <router-link :to="'/file/filedetail/' + scope.row.fileId" class="link-type">
                 <span class="file-name">{{ scope.row.fileName }}</span>
@@ -170,8 +129,7 @@
               <dict-tag :options="dict.type.dms_file_type" :value="scope.row.fileType"/>
             </template>
           </el-table-column>
-          <el-table-column label="归属团队" align="center" prop="belongteam" />
-          <!-- <el-table-column label="作者" align="center" prop="author" /> -->
+          <el-table-column label="归属团队" align="center" prop="belongteam" width="200"/>
           <el-table-column label="上传人" align="center" prop="updateBy" />
           <el-table-column label="定稿人" align="center">
             <template slot-scope="scope">
@@ -179,29 +137,19 @@
             </template>
           </el-table-column>
           <el-table-column label="文件大小" align="center" prop="fileSize" />
-          <!-- <el-table-column label="文件状态" align="center" prop="fileStatus">
-            <template slot-scope="scope">
-              <dict-tag :options="dict.type.dms_file_status" :value="scope.row.fileStatus"/>
-            </template>
-          </el-table-column> -->
-          <el-table-column label="发布时间" align="center" prop="publishTime" width="95px">
+          <el-table-column label="发布时间" align="center" prop="publishTime" width="130">
             <template slot-scope="scope">
               <span>{{ parseTime(scope.row.updateTime, '{y}-{m}-{d}') }}</span>
             </template>
           </el-table-column>
-          <el-table-column label="操作" >
+          <el-table-column label="操作" align="center">
             <template slot-scope="scope">
               <el-button
+                size="small"
                 type="text"
                 icon="el-icon-edit"
                 @click="handleDownload(scope.row)"
               >下载</el-button>
-              <!-- <el-button
-                size="mini"
-                type="text"
-                icon="el-icon-edit"
-                @click="handleaddfavorite(scope.row)"
-              >置顶</el-button> -->
             </template>
           </el-table-column>
         </el-table>
@@ -468,6 +416,30 @@ export default {
 <style>
 .vue-treeselect{
     height: 22px;
-    width: 220px;
+    width: 200px;
+}
+.el-col-4{
+width:250px;
+}
+.app-container2{
+  display: flex;
+}
+.search-side{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%; /* Ensure the col takes the full height of its parent */
+  text-align: center;
+}
+.head-container {
+  width: 100%; /* Ensure the content takes the full width of its container */
+  text-align: left; /* Reset text alignment for the content if needed */
+}
+.el-tree-node__label{
+  font-size: 16px; /* Adjust the size as needed */
+}
+.custom-col{
+  margin-top: 30px;
 }
 </style>

@@ -1,14 +1,6 @@
 <template>
   <div class="app-container">
     <el-form :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch" label-width="68px">
-      <!-- <el-form-item label="文件ID" prop="fileId">
-        <el-input
-          v-model="queryParams.fileId"
-          placeholder="请输入文件ID"
-          clearable
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item> -->
       <el-form-item label="定稿人" prop="publishId">
         <el-select v-model="queryParams.publishId" placeholder="仅管理员可操作" :clearable="isAdmin">
             <el-option 
@@ -60,53 +52,46 @@
     <!-- 文档信息列表展示-->
     <el-table v-loading="loading" :data="publishList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
-      <!-- <el-table-column label="文件ID" align="center" prop="fileId" /> -->
-      <el-table-column label="文件名" align="center" prop="fileName" width="600px" class-name="file-name-column" :show-overflow-tooltip="true">
+      <el-table-column label="文件名" align="center" prop="fileName" width="300px" class-name="file-name-column" show-overflow-tooltip>
         <template slot-scope="scope">
           <router-link :to="'/file/filedetail/' + scope.row.fileId" class="link-type">
             <span class="file-name">{{ scope.row.fileName }}</span>
           </router-link>
         </template>
       </el-table-column>
-
-<!--      <el-table-column label="作者" align="center" prop="author" />
-      <el-table-column label="定稿人" align="center">
-        <template slot-scope="scope">
-          {{ getPublishNameById(scope.row.publishId) }}
-        </template>
-      </el-table-column> -->
-      <el-table-column label="文件分类" align="center" prop="fileType">
+      <el-table-column label="文件分类" align="center" prop="fileType" show-overflow-tooltip>
         <template slot-scope="scope">
           <dict-tag :options="dict.type.dms_file_type" :value="scope.row.fileType"/>
         </template>
       </el-table-column>
-<!--       <el-table-column label="文件大小" align="center" prop="fileSize" />  -->
       <el-table-column label="文件状态" align="center" prop="fileStatus">
         <template slot-scope="scope">
           <dict-tag :options="dict.type.dms_file_status" :value="scope.row.fileStatus"/>
         </template>
       </el-table-column>
-      <el-table-column label="归属团队" align="center" prop="belongteam" />
+      <el-table-column label="归属团队" align="center" prop="belongteam" width="200"/>
       <el-table-column label="上传者" align="center" prop="updateBy" />
-      <!-- <el-table-column label="评阅人" align="center" prop="reviewer" /> -->
-      <el-table-column label="提交时间" align="center" prop="updateTime" />
+      <el-table-column label="提交时间" align="center" prop="updateTime" width="130">
+        <template slot-scope="scope">
+          <span>{{ parseTime(scope.row.updateTime, '{y}-{m}-{d}') }}</span>
+        </template>
+      </el-table-column>
       <el-table-column label="定稿结果" align="center" prop="isPassed">
         <template slot-scope="scope">
           <dict-tag :options="dict.type.dms_publish_result" :value="scope.row.isPassed"/>
         </template>
       </el-table-column>
-<!--       <el-table-column label="定稿日期" align="center" prop="publishTime" /> -->
-      <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
+      <el-table-column label="操作" align="center" class-name="small-padding fixed-width" width="200">
         <template slot-scope="scope">
           <el-button
-            size="mini"
+            size="small"
             type="text"
             icon="el-icon-edit"
             @click="handleUpdate(scope.row)"
             v-hasPermi="['system:publish:edit']"
           >定稿</el-button>
           <el-button
-            size="mini"
+            size="small"
             type="text"
             icon="el-icon-edit"
             @click="handleDownload(scope.row)"
@@ -170,7 +155,8 @@
 <script>
 import { listPublish, getPublish, delPublish, updatePublish } from "@/api/system/publish";
 import { listUserbypostId } from "@/api/system/user";
-import {deptTreeSelect, getDmsfileupload } from "@/api/system/dmsfileupload";
+import { getPermissions } from "@/api/system/permissions";
+import {deptTreeSelect } from "@/api/system/dmsfileupload";
 import Treeselect from "@riophae/vue-treeselect";
 import "@riophae/vue-treeselect/dist/vue-treeselect.css";
 
@@ -198,6 +184,7 @@ export default {
       total: 0,
       // 定稿表格数据
       publishList: [],
+      PublishdeptList:[],
       // 弹出层标题
       title: "",
       // 定稿人列表
@@ -330,6 +317,12 @@ export default {
         this.form = response.data;
         this.open = true;
         this.title = "文档定稿";
+        const fileId = this.form.fileId;
+        getPermissions(fileId).then(response =>{
+          this.PublishdeptList = response.data;
+          this.loading = false;
+          this.form.deptIds = this.PublishdeptList.map(dept => dept.deptId);
+        })
       });
     },
     /** 提交按钮 */

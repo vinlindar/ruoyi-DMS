@@ -1,10 +1,10 @@
 <template>
   <div class="app-container">
     <el-form :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch" label-width="68px">
-      <el-form-item label="照片标题" prop="title">
+      <el-form-item label="新闻标题" prop="title">
         <el-input
           v-model="queryParams.title"
-          placeholder="请输入照片标题"
+          placeholder="请输入新闻标题"
           clearable
           @keyup.enter.native="handleQuery"
         />
@@ -36,17 +36,6 @@
       </el-col>
       <el-col :span="1.5">
         <el-button
-          type="success"
-          plain
-          icon="el-icon-edit"
-          size="mini"
-          :disabled="single"
-          @click="handleUpdate"
-          v-hasPermi="['system:images:edit']"
-        >修改</el-button>
-      </el-col>
-      <el-col :span="1.5">
-        <el-button
           type="danger"
           plain
           icon="el-icon-delete"
@@ -71,13 +60,13 @@
 
     <el-table v-loading="loading" :data="imagesList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="照片标题" align="center" prop="title" width="400" />
+      <el-table-column label="新闻标题" align="center" prop="title" width="400" show-overflow-tooltip/>
+      <el-table-column label="详细描述" align="center" prop="description"  width="600" show-overflow-tooltip/>
       <el-table-column label="图片预览" align="center" prop="path" width="100">
         <template slot-scope="scope">
           <image-preview :src="scope.row.path" :width="50" :height="50"/>
         </template>
       </el-table-column>
-      <el-table-column label="详细描述" align="center" prop="description"  width="600"/>
       <el-table-column label="新闻时间" align="center" prop="creatTime" width="180">
         <template slot-scope="scope">
           <span>{{ parseTime(scope.row.creatTime, '{y}-{m}-{d}') }}</span>
@@ -87,14 +76,14 @@
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button
-            size="mini"
+            size="small"
             type="text"
             icon="el-icon-edit"
             @click="handleUpdate(scope.row)"
             v-hasPermi="['system:images:edit']"
           >修改</el-button>
           <el-button
-            size="mini"
+            size="small"
             type="text"
             icon="el-icon-delete"
             @click="handleDelete(scope.row)"
@@ -114,15 +103,18 @@
 
     <!-- 添加或修改新闻照片对话框 -->
     <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
-      <el-form ref="form" :model="form" :rules="rules" label-width="80px">
+      <el-form ref="form" :model="form" :rules="rules" label-width="110px">
         <el-form-item label="上传图片" prop="path">
           <image-upload v-model="form.path"/>
         </el-form-item>
-        <el-form-item label="照片标题" prop="title">
-          <el-input v-model="form.title" placeholder="请输入照片标题" />
+        <el-form-item label="新闻标题" prop="title">
+          <el-input v-model="form.title" placeholder="不超过100字" />
         </el-form-item>
         <el-form-item label="详细描述" prop="description">
-          <el-input v-model="form.description" type="textarea" placeholder="请输入内容" />
+          <el-input v-model="form.description"  
+              type="textarea"  
+              :autosize="{minRows: 4, maxRows: 4}" 
+              placeholder="不超过2000字" />
         </el-form-item>
         <el-form-item label="是否展示" prop="isShow">
           <el-switch v-model="form.isShow" active-value="1" inactive-value="0"></el-switch>
@@ -183,6 +175,19 @@ export default {
       form: {},
       // 表单校验
       rules: {
+        path:[
+          { required: true, message: "照片不能为空", trigger: "blur" },
+        ],
+        title: [
+          { required: true, message: "新闻标题不能为空", trigger: "blur" },
+          { max: 100, message: "新闻标题不能超过100字符", trigger: "blur" }
+        ],
+        description: [
+          { max: 2000, message: "详细描述不能超过2000字符", trigger: "blur" }
+        ],
+        creatTime:[
+          { required: true, message: "日期不能为空", trigger: "blur" },
+        ],
       }
     };
   },

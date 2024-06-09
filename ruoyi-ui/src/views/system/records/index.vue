@@ -74,19 +74,18 @@
 
     <el-table v-loading="loading" :data="recordsList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
-      <!-- <el-table-column label="文件ID" align="center" prop="fileId" /> -->
-      <el-table-column label="文件名" align="center" prop="fileName" width="600px" class-name="file-name-column" :show-overflow-tooltip="true">
+      <el-table-column label="文件名" align="center" prop="fileName" width="600px" show-overflow-tooltip>
         <template slot-scope="scope">
           <router-link :to="'/file/filedetail/' + scope.row.fileId" class="link-type">
             <span class="file-name">{{ scope.row.fileName }}</span>
           </router-link>
         </template>
       </el-table-column>
-      <el-table-column label="归属团队" align="center" prop="belongteam" />
+      <el-table-column label="归属团队" align="center" prop="belongteam" width="200"/>
       <el-table-column label="下载人" align="center" prop="downloadUser" />
-      <el-table-column label="下载时间" align="center" prop="downloadTime" width="180">
+      <el-table-column label="下载时间" align="center" prop="downloadTime" width="200">
         <template slot-scope="scope">
-          <span>{{ parseTime(scope.row.downloadTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
+          <span>{{ parseTime(scope.row.downloadTime, '{y}-{m}-{d} :{h}-{m}-{s}') }}</span>
         </template>
       </el-table-column>
     </el-table>

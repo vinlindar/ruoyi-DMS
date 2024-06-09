@@ -1,14 +1,14 @@
 <template>
   <div class="app-container">
     <el-table v-loading="loading" :data="imagesList" width="100%" >
-      <el-table-column label="照片标题" align="center" prop="title" width="500" />
-      <el-table-column label="图片预览" align="center" prop="path" width="200">
+      <el-table-column label="新闻标题" align="center" prop="title" width="400" show-overflow-tooltip/>
+      <el-table-column label="详细描述" align="center" prop="description"  width="600" show-overflow-tooltip/>
+      <el-table-column label="图片预览" align="center" prop="path" width="100">
         <template slot-scope="scope">
           <image-preview :src="scope.row.path" :width="50" :height="50"/>
         </template>
       </el-table-column>
-      <el-table-column label="详细描述" align="center" prop="description"  width="800"/>
-      <el-table-column label="新闻时间" align="center" prop="creatTime">
+      <el-table-column label="新闻时间" align="center" prop="creatTime" width="180">
         <template slot-scope="scope">
           <span>{{ parseTime(scope.row.creatTime, '{y}-{m}-{d}') }}</span>
         </template>

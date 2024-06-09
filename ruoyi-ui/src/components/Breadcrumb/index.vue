@@ -1,4 +1,9 @@
 <template>
+    <el-breadcrumb class="app-breadcrumb" separator="/">  
+    <span><b>电子文档管理系统 v2.0</b></span>  
+  </el-breadcrumb> 
+</template>
+<!-- <template>
   <el-breadcrumb class="app-breadcrumb" separator="/">
     <transition-group name="breadcrumb">
       <el-breadcrumb-item v-for="(item,index) in levelList" :key="item.path">
@@ -57,18 +62,21 @@ export default {
     }
   }
 }
-</script>
+</script> -->
 
 <style lang="scss" scoped>
 .app-breadcrumb.el-breadcrumb {
   display: inline-block;
-  font-size: 14px;
+  font-size: 30px;
   line-height: 50px;
-  margin-left: 8px;
-
+  margin-left: 40%;
   .no-redirect {
     color: #97a8be;
     cursor: text;
   }
+}
+.breadcrumb-container {
+  display: flex;
+  justify-content: center;
 }
 </style>

@@ -2,26 +2,10 @@
   <div class="app-container">
     <!-- 顶部搜索框-->
     <el-form :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch" label-width="68px">
-      <el-form-item label="文件ID" prop="fileId">
-        <el-input
-          v-model="queryParams.fileId"
-          placeholder="请输入文件ID"
-          clearable
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
       <el-form-item label="文件名" prop="fileName">
         <el-input
           v-model="queryParams.fileName"
           placeholder="请输入文件名"
-          clearable
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="作者" prop="author">
-        <el-input
-          v-model="queryParams.author"
-          placeholder="请输入作者"
           clearable
           @keyup.enter.native="handleQuery"
         />
@@ -54,7 +38,7 @@
           @select="handleSelect2"
           placeholder="请选择归属团队" />
       </el-form-item>
-      <el-form-item label="创建者" prop="updateBy":clearable="isAdmin">
+      <el-form-item label="上传人" prop="updateBy":clearable="isAdmin">
         <el-input
           v-model="queryParams.updateBy"
           placeholder="仅管理员可操作"
@@ -83,59 +67,39 @@
           type="primary"
           plain
           icon="el-icon-plus"
-          size="mini"
+          size="small"
           @click="handleAdd"
           v-hasPermi="['system:dmsfileupload:add']"
-        >新增</el-button>
+        >提交文档</el-button>
       </el-col>
       <el-col :span="1.5">
         <el-button
           type="success"
           plain
           icon="el-icon-edit"
-          size="mini"
+          size="small"
           :disabled="single"
           @click="handleUpdate"
           v-hasPermi="['system:dmsfileupload:edit']"
-        >修改</el-button>
+        >修改文档</el-button>
       </el-col>
       <el-col :span="1.5">
         <el-button
           type="danger"
           plain
           icon="el-icon-delete"
-          size="mini"
+          size="small"
           :disabled="single"
           @click="handleDelete"
           v-hasPermi="['system:dmsfileupload:remove']"
-        >删除</el-button>
-      </el-col>
-      <el-col :span="1.5">
-        <el-button
-          type="success"
-          plain
-          icon="el-icon-search"
-          size="mini"
-          :disabled="single"
-          @click="handlereviewlist"
-        >查看评阅意见</el-button>
-      </el-col>
-      <el-col :span="1.5">
-        <el-button
-          type="success"
-          plain
-          icon="el-icon-search"
-          size="mini"
-          :disabled="single"
-          @click="handlePublishlist"
-        >查看定稿意见</el-button>
+        >删除文档</el-button>
       </el-col>
       <el-col :span="1.5">
         <el-button
           type="warning"
           plain
           icon="el-icon-download"
-          size="mini"
+          size="small"
           @click="handleExport"
           v-hasPermi="['system:dmsfileupload:export']"
         >导出</el-button>
@@ -145,51 +109,52 @@
     <!-- 文档信息展示-->
     <el-table v-loading="loading" :data="dmsfileuploadList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="文件ID" align="center" prop="fileId" />
-      <el-table-column label="文件名" align="center" prop="fileName" />
-      <el-table-column label="作者" align="center" prop="author" />
-      <el-table-column label="评阅人" align="center" prop="reviewer" />
+      <el-table-column prop="fileName" label="文件名" align="center" width="300" show-overflow-tooltip> 
+        <template slot-scope="scope">
+          <router-link :to="'/file/filedetail/' + scope.row.fileId" class="link-type">
+            <span>{{  scope.row.fileName }}</span>
+          </router-link>
+        </template>
+      </el-table-column>
+      <el-table-column label="评阅人" align="center" prop="reviewer" show-overflow-tooltip/>
       <el-table-column label="定稿人" align="center">
         <template slot-scope="scope">
           {{ getPublishNameById(scope.row.publishId) }}
         </template>
       </el-table-column>
-      <el-table-column label="文件类型" align="center" prop="fileType">
+      <el-table-column label="文件分类" align="center" prop="fileType" show-overflow-tooltip>
         <template slot-scope="scope">
           <dict-tag :options="dict.type.dms_file_type" :value="scope.row.fileType"/>
         </template>
       </el-table-column>
-      <el-table-column label="文件大小" align="center" prop="fileSize" />
       <el-table-column label="文件状态" align="center" prop="fileStatus">
         <template slot-scope="scope">
           <dict-tag :options="dict.type.dms_file_status" :value="scope.row.fileStatus"/>
         </template>
       </el-table-column>
-      <el-table-column label="归属团队" align="center" prop="belongteam" />
-      <el-table-column label="文件描述" align="center" prop="description" />
-      <el-table-column label="创建者" align="center" prop="updateBy" />
-      <el-table-column label="创建时间" align="center" prop="updateTime" width="180">
+      <el-table-column label="归属团队" align="center" prop="belongteam"  width="200"/>
+      <el-table-column label="提交时间" align="center" prop="updateTime" width="130">
         <template slot-scope="scope">
-          <span>{{ parseTime(scope.row.updateTime, '{y}-{m}-{d} {h}:{i}') }}</span>
+          <span>{{ parseTime(scope.row.updateTime, '{y}-{m}-{d}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
+      <el-table-column label="操作" align="center" class-name="small-padding fixed-width" width="200">
         <template slot-scope="scope">
           <el-button
-            size="mini"
+            size="small"
             type="text"
             icon="el-icon-edit"
             @click="handleDownload(scope.row)"
           >下载</el-button>
           <el-button
-            size="mini"
+            size="small"
             type="text"
             icon="el-icon-edit"
             @click="handleUpdate(scope.row)"
             v-hasPermi="['system:dmsfileupload:edit']"
           >修改</el-button>
           <el-button
-            size="mini"
+            size="small"
             type="text"
             icon="el-icon-delete"
             @click="handleDelete(scope.row)"
@@ -228,9 +193,6 @@
               <div slot="tip" class="el-upload__tip">只能上传单文件，且不超过50M</div>
             </el-upload>
           </el-form-item>
-        <el-form-item label="作者" prop="author">
-          <el-input v-model="form.author" placeholder="请输入作者" />
-        </el-form-item>
         <el-form-item label="评阅人" prop="reviewerIds">
           <el-select v-model="form.reviewerIds" placeholder="请选择评阅人" multiple>
             <el-option 
@@ -269,7 +231,7 @@
           placeholder="请选择归属团队" />
         </el-form-item>
         <el-form-item label="文件描述" prop="description">
-          <el-input v-model="form.description" type="textarea" placeholder="请输入内容，最多500字，包括建议发布范围" />
+          <el-input v-model="form.description" type="textarea" :autosize="{minRows: 4, maxRows: 4}"  placeholder="不超过500字符,包括建议发布范围" />
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -279,7 +241,7 @@
     </el-dialog>
 
     <!-- 评阅信息展示-->
-    <el-dialog title="评阅意见" :visible.sync="openreview" width="500px" append-to-body>
+<!--     <el-dialog title="评阅意见" :visible.sync="openreview" width="500px" append-to-body>
       <el-card v-for="(review, index) in ReviewList" :key="index" class="review-card">
         <div class="review-info">
           <p class="reviewer-text">评阅人:</p>
@@ -290,10 +252,10 @@
         <p>评阅信息: {{ review.comment }}</p>
         <el-divider></el-divider>
       </el-card>
-    </el-dialog>
+    </el-dialog> -->
 
     <!-- 定稿信息展示-->
-    <el-dialog title="定稿意见" :visible.sync="openpublish" width="500px" append-to-body>
+<!--     <el-dialog title="定稿意见" :visible.sync="openpublish" width="500px" append-to-body>
       <el-card class="review-card">  
         <div class="review-info">
           <p class="reviewer-text">定稿人:</p>
@@ -304,7 +266,7 @@
           <p>评阅信息: {{ this.PublishList.comment }}</p>
         <el-divider></el-divider>
       </el-card>
-    </el-dialog>
+    </el-dialog> -->
     
   </div>
 </template>
@@ -312,11 +274,11 @@
 <script>
 import { listDmsfileupload, getDmsfileupload, delDmsfileupload, addDmsfileupload, updateDmsfileupload,deptTreeSelect  } from "@/api/system/dmsfileupload";
 import { listUserbypostId } from "@/api/system/user";
-import { addReview, delReview,listReview}from "@/api/system/review";
+import { listReview}from "@/api/system/review";
 import { getToken } from "@/utils/auth";
 import Treeselect from "@riophae/vue-treeselect";
 import "@riophae/vue-treeselect/dist/vue-treeselect.css";
-import {delPublish,getPublish} from "@/api/system/publish";
+import {getPublish} from "@/api/system/publish";
 
 export default {
   name: "Dmsfileupload",
@@ -353,7 +315,7 @@ export default {
       // 定稿人列表
       PublisherList: undefined,
       // 评审意见列表
-      ReviewList: undefined,
+      ReviewList: {},
       // 定稿意见列表
       PublishList: {},
       // 是否显示新增修改弹出层
@@ -404,7 +366,8 @@ export default {
       // 表单校验
       rules: {
         fileName: [
-          { required: true, message: "文件名不能为空", trigger: "blur" }
+          { required: true, message: "文件名不能为空", trigger: "blur" },
+          { max:100, message: "文件名不能超过100字符", trigger: "blur" }
         ],
         reviewerIds: [
           { required: true, message: "评阅人不能为空", trigger: "blur" }
@@ -417,6 +380,9 @@ export default {
         ],
         deptId: [
           { required: true, message: "归属团队不能为空", trigger: "blur" }
+        ],
+        description:[
+        { max:500, message: "详细描述不能超过500字符", trigger: "blur" }
         ],
       },
       upload: {
@@ -561,10 +527,19 @@ export default {
       }
       getDmsfileupload(fileId).then(response => {
         this.form = response.data;
+        this.form.deptId = this.getIdByLabel(this.deptOptions, this.form.belongteam);
         this.open = true;
         this.title = "修改文件信息";
         this.upload.fileList = [{ name: this.form.fileName, url: this.form.filePath }];
       });
+      this.reviewquery.fileId=fileId;
+      this.reviewquery.isCurrent=1;
+      listReview(this.reviewquery).then(response => {
+          // 提取用户ID和用户名信息
+          this.ReviewList = response.rows;
+          this.loading = false;
+          this.form.reviewerIds = this.ReviewList.map(user => user.reviewerId);
+        });
     },
     /** 查看评审意见 */
     handlereviewlist(){
@@ -743,6 +718,23 @@ export default {
         return null;
       }
       return findLabel(deptOptions, targetId);
+    },
+    getIdByLabel(deptOptions, targetLabel){
+      function findId(options, label) {
+        for (const option of options) {
+          if (option.label === label) {
+            return option.id;
+          }
+          if (option.children) {
+            const foundId = findId(option.children, label);
+            if (foundId) {
+              return foundId;
+            }
+          }
+        }
+        return null;
+      }
+      return findId(deptOptions, targetLabel);
     },
   },
 };
