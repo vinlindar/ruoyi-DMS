@@ -9,8 +9,8 @@
             <img :src=getImageUrl(image.path) width="100%" >
             <div class="image-title">
               <div class="text-container">
-                <p show-overflow-tooltip>{{ image.title }}</p>
-                <p show-overflow-tooltip>{{ image.description }}</p>
+                <p class="single-line">{{ image.title }}</p>
+                <p class="single-line">{{ image.description }}</p>
               </div>
               <div class="link-container">
                 <p>{{ parseTime(image.creatTime, '{y}-{m}-{d}') }}</p>
@@ -138,6 +138,28 @@ export default {
     this.fetchImages();
   },
   methods: {
+    // 提示代办事项
+    notification(userbasicnum){
+      const h = this.$createElement;
+      if (userbasicnum.waitModifyNum > 0) {
+        this.$notify({
+          title: '代办事项',
+          message: h('a', {attrs: { href: 'system/dmsfileupload' }, style: 'color: teal;font-size: 16px'}, `您有${userbasicnum.waitModifyNum}个文档待修改`)
+        });
+      }
+      if (userbasicnum.waitReviewNum > 0) {
+        this.$notify({
+          title: '代办事项',
+          message: h('a', {attrs: { href: 'system/review' }, style: 'color: teal;font-size: 16px' }, `您有${userbasicnum.waitReviewNum }个文档待评阅`)
+        });
+      }
+      if (userbasicnum.waitPublishNum > 0) {
+        this.$notify({
+          title: '代办事项',
+          message: h('a', {attrs: { href: 'system/publish' }, style: 'color: teal;font-size: 16px' }, `您有${userbasicnum.waitPublishNum}个文件待定稿`)
+        });
+      }
+    },
     // 获得新闻照片
     fetchImages() {
       this.loading = true;
@@ -155,7 +177,9 @@ export default {
       this.loading = true;
       userhomepagebasicinfo(this.$store.state.user.id).then(response => {
           this.userbasicnum = response.data;
+          console.log(this.userbasicnum)
           this.loading = false;
+          this.notification(this.userbasicnum);
         }
       );
     },
@@ -536,6 +560,12 @@ export default {
 .icon {
     margin-left: 10px;
     margin-right: 10px; /* 图标与文本间距 */
+  }
+  .single-line{
+    width:300px;
+    overflow:hidden;
+    white-space:nowrap;
+    text-overflow:ellipsis;
   }
 </style>
  
