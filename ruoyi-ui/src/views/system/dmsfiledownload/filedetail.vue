@@ -66,6 +66,7 @@
 </template>
 
 <script>
+import { listDmsfileupload} from "@/api/system/dmsfileupload";
 import { listPublish} from "@/api/system/publish";
 import {listReview}from "@/api/system/review";
 import { getPermissions } from "@/api/system/permissions";
@@ -132,7 +133,7 @@ export default {
         //区分文档上传的查询
         querykind: 1,
         // 用户权限控制需要
-        queryuserId:null,
+        queryuserId:this.$store.state.user.id,
         queryuserDept:null,
       },
       ReviewList:{},
@@ -289,32 +290,56 @@ export default {
       this.multiple = !selection.length
     },
     handleDownload() {
-      // 判断文件状态，若为已发布， 新增下载记录，反之则无
+      // 判断文件状态，若为已发布，则校验用户下载权限，新增下载记录，反之则直接下载
       if(this.filedetail.fileStatus == 3){
-        const currentDate = new Date();
-        const formattedDate = `${currentDate.getFullYear()}-${(currentDate.getMonth() + 1).toString().padStart(2, '0')}-${currentDate.getDate().toString().padStart(2, '0')} ${currentDate.getHours().toString().padStart(2, '0')}:${currentDate.getMinutes().toString().padStart(2, '0')}:${currentDate.getSeconds().toString().padStart(2, '0')}`;
-        // 查找belongteam对应的deptId
-        const deptId = this.getIdByLabel(this.deptOptions, this.filedetail.belongteam)
-        this.downloadrecord_form = {
-          fileId: this.filedetail.fileId,
-          fileName: this.filedetail.fileName,
-          deptId:deptId,
-          belongteam: this.filedetail.belongteam,
-          downloadUserid: this.$store.state.user.id,
-          downloadUser: this.$store.state.user.name,
-          downloadTime: formattedDate
-        };
-        addRecords(this.downloadrecord_form);
-      }
-
-      var name = this.filedetail.fileName;
-      var url = this.filedetail.filePath;
-      var suffix = url.substring(url.lastIndexOf("."), url.length);
-      const a = document.createElement('a')
-      a.setAttribute('download', name + suffix)
-      a.setAttribute('target', '_blank')
-      a.setAttribute('href', url)
-      a.click()
+        // 判断用户是否有下载权限
+        this.queryParams.fileId = this.$route.params && this.$route.params.fileId;
+        this.loading = true;
+        listDmsfileupload(this.queryParams).then(response => {
+          this.dmsfileuploadList = response.rows;
+          this.loading = false;
+          // 如果返回结果为 null，则提示用户无下载权限
+          if (!response.rows || response.rows.length === 0) {
+            this.$message.error('无下载权限');
+            return;
+          }
+          const currentDate = new Date();
+          const formattedDate = `${currentDate.getFullYear()}-${(currentDate.getMonth() + 1).toString().padStart(2, '0')}-${currentDate.getDate().toString().padStart(2, '0')} ${currentDate.getHours().toString().padStart(2, '0')}:${currentDate.getMinutes().toString().padStart(2, '0')}:${currentDate.getSeconds().toString().padStart(2, '0')}`;
+          // 查找belongteam对应的deptId
+          const deptId = this.getIdByLabel(this.deptOptions, this.filedetail.belongteam)
+          this.downloadrecord_form = {
+            fileId: this.filedetail.fileId,
+            fileName: this.filedetail.fileName,
+            deptId:deptId,
+            belongteam: this.filedetail.belongteam,
+            downloadUserid: this.$store.state.user.id,
+            downloadUser: this.$store.state.user.name,
+            downloadTime: formattedDate
+          };
+          addRecords(this.downloadrecord_form);
+          var name = this.filedetail.fileName;
+          var url = this.filedetail.filePath;
+          var suffix = url.substring(url.lastIndexOf("."), url.length);
+          const a = document.createElement('a')
+          a.setAttribute('download', name + suffix)
+          a.setAttribute('target', '_blank')
+          a.setAttribute('href', url)
+          a.click()
+      }).catch(() => {
+        this.loading = false;
+        this.$message.error('下载文件出错，请稍后重试');
+      });
+    }else{
+          // 文件状态不是已发布，直接下载
+          var name = this.filedetail.fileName;
+          var url = this.filedetail.filePath;
+          var suffix = url.substring(url.lastIndexOf("."), url.length);
+          const a = document.createElement('a');
+          a.setAttribute('download', name + suffix);
+          a.setAttribute('target', '_blank');
+          a.setAttribute('href', url);
+          a.click();
+        }
     },
     getFileTypeLabel(fileType){
       const dictItem = this.dict.type.dms_file_type.find(item => item.value ===  String(fileType));

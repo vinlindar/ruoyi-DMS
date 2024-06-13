@@ -8,7 +8,7 @@
           <image-preview :src="scope.row.path" :width="50" :height="50"/>
         </template>
       </el-table-column>
-      <el-table-column label="新闻时间" align="center" prop="creatTime" width="180">
+      <el-table-column label="新闻时间" align="center" prop="creatTime">
         <template slot-scope="scope">
           <span>{{ parseTime(scope.row.creatTime, '{y}-{m}-{d}') }}</span>
         </template>
