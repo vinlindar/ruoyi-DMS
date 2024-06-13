@@ -153,16 +153,15 @@
             </template>
           </el-table-column>
         </el-table>
-          <pagination
-            v-show="total>0"
-            :total="total"
-            :page.sync="queryParams.pageNum"
-            :limit.sync="queryParams.pageSize"
-            @pagination="getList"
-          />
+        <pagination
+          v-show="total>0"
+          :total="total"
+          :page.sync="queryParams.pageNum"
+          :limit.sync="queryParams.pageSize"
+          @pagination="getList"
+        />
       </el-col>
     </el-row>
-    
   </div>
 </template>
 
@@ -427,7 +426,7 @@ width:250px;
 .search-side{
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content:flex-start;
   align-items: center;
   height: 100%; /* Ensure the col takes the full height of its parent */
   text-align: center;

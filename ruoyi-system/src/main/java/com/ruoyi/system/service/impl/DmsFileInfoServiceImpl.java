@@ -54,6 +54,7 @@ public class DmsFileInfoServiceImpl implements IDmsFileInfoService
      * @param fileId 文件信息主键
      * @return 文件信息
      */
+    @Override
     public DmsBasicNum selectBacisnumByuserId(Long userid)
     {
     	return dmsFileInfoMapper.selectBacisnumByuserId(userid);
@@ -77,6 +78,7 @@ public class DmsFileInfoServiceImpl implements IDmsFileInfoService
      * @param dmsFileInfo 文件信息
      * @return 文件信息集合
      */
+    @Override
     public List<DmsFileInfo> selectDmsFileInfoListByPremission(DmsFileInfo dmsFileInfo)
     {
         return dmsFileInfoMapper.selectDmsFileInfoListByPremission(dmsFileInfo);

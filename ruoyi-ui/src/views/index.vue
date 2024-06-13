@@ -141,23 +141,39 @@ export default {
     // 提示代办事项
     notification(userbasicnum){
       const h = this.$createElement;
+      let delay = 0;
       if (userbasicnum.waitModifyNum > 0) {
+        setTimeout(()=>{
         this.$notify({
           title: '代办事项',
-          message: h('a', {attrs: { href: 'system/dmsfileupload' }, style: 'color: teal;font-size: 16px'}, `您有${userbasicnum.waitModifyNum}个文档待修改`)
+          message: h('a', {attrs: { href: 'system/dmsfileupload' }, style: 'color: teal;font-size: 16px'}, `您有${userbasicnum.waitModifyNum}个文档待修改`),
+          position: 'top-right',
+          duration: 0, 
         });
+      },delay);
+      delay+=500;
       }
       if (userbasicnum.waitReviewNum > 0) {
+        setTimeout(()=>{
         this.$notify({
           title: '代办事项',
-          message: h('a', {attrs: { href: 'system/review' }, style: 'color: teal;font-size: 16px' }, `您有${userbasicnum.waitReviewNum }个文档待评阅`)
+          message: h('a', {attrs: { href: 'system/review' }, style: 'color: teal;font-size: 16px' }, `您有${userbasicnum.waitReviewNum }个文档待评阅`),
+          position: 'top-right',
+          duration: 0, 
         });
+        },delay);
+        delay+=500;
       }
       if (userbasicnum.waitPublishNum > 0) {
+        setTimeout(()=>{
         this.$notify({
           title: '代办事项',
-          message: h('a', {attrs: { href: 'system/publish' }, style: 'color: teal;font-size: 16px' }, `您有${userbasicnum.waitPublishNum}个文件待定稿`)
+          message: h('a', {attrs: { href: 'system/publish' }, style: 'color: teal;font-size: 16px' }, `您有${userbasicnum.waitPublishNum}个文件待定稿`),
+          position: 'top-right',
+          duration: 0, 
         });
+        },delay);
+        delay+=500;
       }
     },
     // 获得新闻照片

@@ -5,7 +5,7 @@
       <el-form-item label="文件名" prop="fileName">
         <el-input
           v-model="queryParams.fileName"
-          placeholder="请输入文件名"
+          placeholder="请输入文件名或关键字"
           clearable
           @keyup.enter.native="handleQuery"
         />

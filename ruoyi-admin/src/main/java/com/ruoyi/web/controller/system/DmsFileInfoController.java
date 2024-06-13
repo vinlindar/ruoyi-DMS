@@ -58,7 +58,6 @@ public class DmsFileInfoController extends BaseController
     @GetMapping("/list")
     public TableDataInfo list(DmsFileInfo dmsFileInfo)
     {
-    	startPage();
     	Long querykind = dmsFileInfo.getQuerykind();
         // 判断querykind是否为1，若是则为文档浏览的查询
         if(querykind == 1L) {
@@ -73,9 +72,11 @@ public class DmsFileInfoController extends BaseController
         	}
         	dmsFileInfo.setQueryuserDept(userDept);
         	dmsFileInfo.setQueryuserRole(userRole);
+        	startPage();
         	List<DmsFileInfo> list = dmsFileInfoService.selectDmsFileInfoListByPremission(dmsFileInfo);
         	return getDataTable(list);
         }else {
+        	startPage();
 	        List<DmsFileInfo> list = dmsFileInfoService.selectDmsFileInfoList(dmsFileInfo);
 	        return getDataTable(list);
         }
