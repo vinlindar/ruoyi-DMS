@@ -31,6 +31,10 @@ public class DmsNewsImages extends BaseEntity
     /** 详细描述 */
     @Excel(name = "详细描述")
     private String description;
+    
+    /** 上传人 */
+    @Excel(name = "上传人")
+    private String creatby;
 
     /** 创建时间 */
     @JsonFormat(pattern = "yyyy-MM-dd")
@@ -77,6 +81,17 @@ public class DmsNewsImages extends BaseEntity
     {
         return description;
     }
+    
+    public void setCreatBy(String creatby) 
+    {
+        this.creatby = creatby;
+    }
+
+    public String getCreatBy() 
+    {
+        return creatby;
+    }
+    
     public void setCreatTime(Date creatTime) 
     {
         this.creatTime = creatTime;
@@ -103,6 +118,7 @@ public class DmsNewsImages extends BaseEntity
             .append("path", getPath())
             .append("title", getTitle())
             .append("description", getDescription())
+            .append("creatby",getCreatBy())
             .append("creatTime", getCreatTime())
             .append("isShow", getIsShow())
             .toString();

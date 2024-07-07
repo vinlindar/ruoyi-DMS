@@ -9,12 +9,12 @@
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="创建时间" prop="creatTime">
+      <el-form-item label="发布时间" prop="creatTime">
         <el-date-picker clearable
           v-model="queryParams.creatTime"
           type="date"
           value-format="yyyy-MM-dd"
-          placeholder="请选择创建时间">
+          placeholder="请选择发布时间">
         </el-date-picker>
       </el-form-item>
       <el-form-item>
@@ -67,12 +67,13 @@
           <image-preview :src="scope.row.path" :width="50" :height="50"/>
         </template>
       </el-table-column>
-      <el-table-column label="新闻时间" align="center" prop="creatTime" width="180">
+      <el-table-column label="发布人" align="center" prop="creatBy"/>
+      <el-table-column label="发布时间" align="center" prop="creatTime" width="150">
         <template slot-scope="scope">
           <span>{{ parseTime(scope.row.creatTime, '{y}-{m}-{d}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="是否展示" align="center" prop="isShow" :formatter="formatIsShow"/>
+      <el-table-column label="是否展示" align="center" prop="isShow" :formatter="formatIsShow" width="100"/>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button
@@ -119,12 +120,12 @@
         <el-form-item label="是否展示" prop="isShow">
           <el-switch v-model="form.isShow" active-value="1" inactive-value="0"></el-switch>
         </el-form-item>
-        <el-form-item label="创建时间" prop="creatTime">
+        <el-form-item label="发布时间" prop="creatTime">
           <el-date-picker clearable
             v-model="form.creatTime"
             type="date"
             value-format="yyyy-MM-dd"
-            placeholder="请选择创建时间">
+            placeholder="请选择发布时间">
           </el-date-picker>
         </el-form-item>
       </el-form>
@@ -183,6 +184,7 @@ export default {
           { max: 100, message: "新闻标题不能超过100字符", trigger: "blur" }
         ],
         description: [
+          { required: true, message: "新闻详情不能为空", trigger: "blur" },
           { max: 2000, message: "详细描述不能超过2000字符", trigger: "blur" }
         ],
         creatTime:[
@@ -255,6 +257,7 @@ export default {
     },
     /** 提交按钮 */
     submitForm() {
+      this.form.creatby = this.$store.state.user.name;
       this.$refs["form"].validate(valid => {
         if (valid) {
           if (this.form.id != null) {

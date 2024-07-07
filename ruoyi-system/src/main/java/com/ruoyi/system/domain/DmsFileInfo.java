@@ -27,6 +27,10 @@ public class DmsFileInfo extends BaseEntity
     /** 文件名 */
     @Excel(name = "文件名")
     private String fileName;
+    
+    /** 关键字 */
+    @Excel(name = "文件名")
+    private String keywords;
 
     /** 文件路径 */
     @Excel(name = "文件路径")
@@ -107,6 +111,17 @@ public class DmsFileInfo extends BaseEntity
     {
         return fileName;
     }
+    
+    public void setKeywords(String keywords) 
+    {
+        this.keywords = keywords;
+    }
+
+    public String getKeywords() 
+    {
+        return keywords;
+    }
+    
     public void setFilePath(String filePath) 
     {
         this.filePath = filePath;
@@ -245,6 +260,7 @@ public class DmsFileInfo extends BaseEntity
         return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
             .append("fileId", getFileId())
             .append("fileName", getFileName())
+            .append("keywords",getKeywords())
             .append("filePath", getFilePath())
             .append("author", getAuthor())
             .append("reviewer", getReviewer())

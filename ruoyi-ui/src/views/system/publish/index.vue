@@ -52,7 +52,7 @@
     <!-- 文档信息列表展示-->
     <el-table v-loading="loading" :data="publishList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="文件名" align="center" prop="fileName" width="300px" class-name="file-name-column" show-overflow-tooltip>
+      <el-table-column label="文件名" align="center" prop="fileName" width="600px" class-name="file-name-column" show-overflow-tooltip>
         <template slot-scope="scope">
           <router-link :to="'/file/filedetail/' + scope.row.fileId" class="link-type">
             <span class="file-name">{{ scope.row.fileName }}</span>
@@ -69,8 +69,8 @@
           <dict-tag :options="dict.type.dms_file_status" :value="scope.row.fileStatus"/>
         </template>
       </el-table-column>
-      <el-table-column label="归属团队" align="center" prop="belongteam" width="200"/>
-      <el-table-column label="上传者" align="center" prop="updateBy" />
+<!--       <el-table-column label="归属团队" align="center" prop="belongteam" width="200"/> -->
+      <el-table-column label="提交人" align="center" prop="updateBy" />
       <el-table-column label="提交时间" align="center" prop="updateTime" width="130">
         <template slot-scope="scope">
           <span>{{ parseTime(scope.row.updateTime, '{y}-{m}-{d}') }}</span>

@@ -45,6 +45,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="downloadUser != null  and downloadUser != ''"> and download_user = #{downloadUser}</if>
             <if test="downloadTime != null "> and DATE(download_time) = #{downloadTime}</if>
         </where>
+        ORDER BY download_time DESC
     </select>
     
     <select id="selectMostPopularFile" resultMap="DmsDownloadRecordsResult">

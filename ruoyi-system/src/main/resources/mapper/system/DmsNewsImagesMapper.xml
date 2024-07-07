@@ -9,12 +9,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="path"    column="path"    />
         <result property="title"    column="title"    />
         <result property="description"    column="description"    />
+        <result property="creatby"    column="creat_by"    />
         <result property="creatTime"    column="creat_time"    />
         <result property="isShow"    column="is_show"    />
     </resultMap>
 
     <sql id="selectDmsNewsImagesVo">
-        select id, path, title, description, creat_time, is_show from dms_news_images
+        select id, path, title, description, creat_time, is_show, creat_by from dms_news_images
     </sql>
 
     <select id="selectDmsNewsImagesList" parameterType="DmsNewsImages" resultMap="DmsNewsImagesResult">
@@ -23,6 +24,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="path != null  and path != ''"> and path = #{path}</if>
             <if test="title != null  and title != ''"> and title = #{title}</if>
             <if test="description != null  and description != ''"> and description = #{description}</if>
+            <if test="creatby != null "> and creat_by = #{creatby}</if>
             <if test="creatTime != null "> and creat_time = #{creatTime}</if>
             <if test="isShow != null "> and is_show = #{isShow}</if>
         </where>
@@ -40,6 +42,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="path != null">path,</if>
             <if test="title != null">title,</if>
             <if test="description != null">description,</if>
+            <if test="creatby != null">creat_by,</if>
             <if test="creatTime != null">creat_time,</if>
             <if test="isShow != null">is_show,</if>
          </trim>
@@ -47,6 +50,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="path != null">#{path},</if>
             <if test="title != null">#{title},</if>
             <if test="description != null">#{description},</if>
+            <if test="creatby != null">#{creatby},</if>
             <if test="creatTime != null">#{creatTime},</if>
             <if test="isShow != null">#{isShow},</if>
          </trim>
@@ -58,6 +62,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="path != null">path = #{path},</if>
             <if test="title != null">title = #{title},</if>
             <if test="description != null">description = #{description},</if>
+            <if test="creatby != null">creat_by = #{creatby},</if>
             <if test="creatTime != null">creat_time = #{creatTime},</if>
             <if test="isShow != null">is_show = #{isShow},</if>
         </trim>

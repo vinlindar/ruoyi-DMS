@@ -42,7 +42,6 @@ public class DmsNewsImagesController extends BaseController
     {
         startPage();
         List<DmsNewsImages> list = dmsNewsImagesService.selectDmsNewsImagesList(dmsNewsImages);
-        System.out.println("返回的新闻照片列表: " + list);
         return getDataTable(list);
     }
 

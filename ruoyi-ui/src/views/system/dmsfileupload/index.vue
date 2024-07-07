@@ -2,16 +2,16 @@
   <div class="app-container">
     <!-- 顶部搜索框-->
     <el-form :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch" label-width="68px">
-      <el-form-item label="文件名" prop="fileName">
+      <el-form-item label="文件名或关键词" prop="fileName" label-width="150px !important">
         <el-input
           v-model="queryParams.fileName"
-          placeholder="请输入文件名或关键字"
+          placeholder="请输入文件名或关键词"
           clearable
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="文件类型" prop="fileType">
-        <el-select v-model="queryParams.fileType" placeholder="请选择文件类型" clearable>
+      <el-form-item label="文件分类" prop="fileType">
+        <el-select v-model="queryParams.fileType" placeholder="请选择文件分类" clearable>
           <el-option
             v-for="dict in dict.type.dms_file_type"
             :key="dict.value"
@@ -38,7 +38,7 @@
           @select="handleSelect2"
           placeholder="请选择归属团队" />
       </el-form-item>
-      <el-form-item label="上传人" prop="updateBy":clearable="isAdmin">
+      <el-form-item label="提交人" prop="updateBy":clearable="isAdmin">
         <el-input
           v-model="queryParams.updateBy"
           placeholder="仅管理员可操作"
@@ -47,7 +47,7 @@
           :disabled="!isAdmin"
         />
       </el-form-item>
-      <el-form-item label="创建时间" prop="updateTime">
+      <el-form-item label="提交时间" prop="updateTime">
         <el-date-picker clearable
           v-model="queryParams.updateTime"
           type="date"
@@ -109,7 +109,7 @@
     <!-- 文档信息展示-->
     <el-table v-loading="loading" :data="dmsfileuploadList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
-      <el-table-column prop="fileName" label="文件名" align="center" width="300" show-overflow-tooltip> 
+      <el-table-column prop="fileName" label="文件名" align="center" width="600" show-overflow-tooltip> 
         <template slot-scope="scope">
           <router-link :to="'/file/filedetail/' + scope.row.fileId" class="link-type">
             <span>{{  scope.row.fileName }}</span>
@@ -172,68 +172,81 @@
       @pagination="getList"
     />
     <!-- 新增或修改文件信息对话框 -->
-    <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
-      <el-form ref="form" :model="form" :rules="rules" label-width="110px">
-        <el-form-item label="文件名" prop="fileName">
-          <el-input v-model="form.fileName" placeholder="请输入文件名" />
-        </el-form-item>
-        <el-form-item label="文件上传">
-          <el-upload
-              ref="upload"
-              :limit="1"
-              :action="upload.url"
-              :headers="upload.headers"
-              :file-list="upload.fileList"
-              :on-progress="handleFileUploadProgress"
-              :on-success="handleFileSuccess"
-              :auto-upload="false"
-              :before-upload="beforeUpload">
-              <el-button slot="trigger" size="small" type="primary">选取文件</el-button>
-              <el-button style="margin-left: 10px;" size="small" type="success" :loading="upload.isUploading" @click="submitUpload">上传到服务器</el-button>
-              <div slot="tip" class="el-upload__tip">只能上传单文件，且不超过50M</div>
-            </el-upload>
-          </el-form-item>
-        <el-form-item label="评阅人" prop="reviewerIds">
-          <el-select v-model="form.reviewerIds" placeholder="请选择评阅人" multiple>
-            <el-option 
-              v-for="user in ReviewerList" 
-              :key="user.userId" 
-              :label="user.userName" 
-              :value="user.userId"
-            />
-          </el-select>
-        </el-form-item>
-        <el-form-item label="定稿人" prop="publishId">
-          <el-select v-model="form.publishId" placeholder="请选择定稿人" :multiple="false">
-            <el-option 
-              v-for="user in PublisherList" 
-              :key="user.userId" 
-              :label="user.userName" 
-              :value="user.userId"
-            />
-          </el-select>
-        </el-form-item>
-        <el-form-item label="文件类型" prop="fileType">
-          <el-select v-model="form.fileType" placeholder="请选择文件类型">
-            <el-option
-              v-for="dict in dict.type.dms_file_type"
-              :key="dict.value"
-              :label="dict.label"
-              :value="parseInt(dict.value)"
-            ></el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="归属团队" prop="deptId">
-          <treeselect 
-          v-model="form.deptId" 
-          :options="deptOptions" 
-          :show-count="true" 
-          placeholder="请选择归属团队" />
-        </el-form-item>
-        <el-form-item label="文件描述" prop="description">
-          <el-input v-model="form.description" type="textarea" :autosize="{minRows: 4, maxRows: 4}"  placeholder="不超过500字符,包括建议发布范围" />
-        </el-form-item>
-      </el-form>
+    <el-dialog :title="title" :visible.sync="open" width="800px" append-to-body>
+      <el-row>
+        <!-- 左侧表单 -->
+        <el-col :span="12">
+          <el-form ref="form" :model="form" :rules="rules" label-width="110px">
+            <el-form-item label="文件名" prop="fileName">
+              <el-input v-model="form.fileName" placeholder="请输入文件名" />
+            </el-form-item>
+            <el-form-item label="关键词" prop="keywords">
+              <el-input v-model="form.keywords" placeholder="请输入关键词"/>
+            </el-form-item>
+            <el-form-item label="文件上传">
+              <el-upload
+                  ref="upload"
+                  :limit="1"
+                  :action="upload.url"
+                  :headers="upload.headers"
+                  :file-list="upload.fileList"
+                  :on-progress="handleFileUploadProgress"
+                  :on-success="handleFileSuccess"
+                  :auto-upload="false"
+                  :before-upload="beforeUpload">
+                  <el-button slot="trigger" size="small" type="primary">选取文件</el-button>
+                  <el-button style="margin-left: 10px;" size="small" type="success" :loading="upload.isUploading" @click="submitUpload">上传到服务器</el-button>
+                  <div slot="tip" class="el-upload__tip">只能上传单文件，且不超过50M</div>
+                </el-upload>
+              </el-form-item>
+            <el-form-item label="评阅人" prop="reviewerIds">
+              <el-select v-model="form.reviewerIds" placeholder="请选择评阅人" multiple>
+                <el-option 
+                  v-for="user in ReviewerList" 
+                  :key="user.userId" 
+                  :label="user.userName" 
+                  :value="user.userId"
+                />
+              </el-select>
+            </el-form-item>
+            <el-form-item label="定稿人" prop="publishId">
+              <el-select v-model="form.publishId" placeholder="请选择定稿人" :multiple="false">
+                <el-option 
+                  v-for="user in PublisherList" 
+                  :key="user.userId" 
+                  :label="user.userName" 
+                  :value="user.userId"
+                />
+              </el-select>
+            </el-form-item>
+            <el-form-item label="文件分类" prop="fileType">
+              <el-select v-model="form.fileType" placeholder="请选择文件分类">
+                <el-option
+                  v-for="dict in dict.type.dms_file_type"
+                  :key="dict.value"
+                  :label="dict.label"
+                  :value="parseInt(dict.value)"
+                ></el-option>
+              </el-select>
+            </el-form-item>
+            <el-form-item label="归属团队" prop="deptId">
+              <treeselect 
+              v-model="form.deptId" 
+              :options="deptOptions" 
+              :show-count="true" 
+              placeholder="请选择归属团队" />
+            </el-form-item>
+            <el-form-item label="文件描述" prop="description">
+              <el-input v-model="form.description" type="textarea" :autosize="{minRows: 4, maxRows: 4}"  placeholder="不超过500字符,包括建议发布范围" />
+            </el-form-item>
+          </el-form> 
+        </el-col>
+        <el-col :span="12">
+          <div style="text-align: center; height: 100%; display: flex; align-items: center; justify-content: center; margin-left: 20px;">
+            <el-image :src="imageurl" alt="展示图片" style="max-width: 100%; max-height: 100%;"/>
+          </div>
+        </el-col>
+      </el-row>
       <div slot="footer" class="dialog-footer">
         <el-button type="primary" @click="submitForm">确 定</el-button>
         <el-button @click="cancel">取 消</el-button>
@@ -330,6 +343,7 @@ export default {
         pageSize: 10,
         fileId: null,
         fileName: null,
+        keywords:null,
         filePath: null,
         author: null,
         reviewer: null,
@@ -394,7 +408,8 @@ export default {
       url: process.env.VUE_APP_BASE_API + "/common/upload",
       // 上传的文件列表
       fileList: []
-    }
+    },
+    imageurl: '/filetype.png'
     };
   },
   created() {
@@ -471,6 +486,7 @@ export default {
       this.form = {
         fileId: null,
         fileName: null,
+        keywords:null,
         filePath: null,
         author: null,
         reviewer: null,

@@ -9,7 +9,7 @@
           @keyup.enter.native="handleQuery"
         />
       </el-form-item> -->
-      <el-form-item label="文件名" prop="fileName">
+      <el-form-item label="文件名" prop="fileName" width="600px" show-overflow-tooltip>
         <el-input
           v-model="queryParams.fileName"
           placeholder="请输入文件名"

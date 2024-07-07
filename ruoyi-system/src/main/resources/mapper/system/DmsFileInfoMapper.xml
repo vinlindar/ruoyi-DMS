@@ -7,6 +7,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <resultMap type="DmsFileInfo" id="DmsFileInfoResult">
         <result property="fileId"    column="file_id"    />
         <result property="fileName"    column="file_name"    />
+        <result property="keywords"    column="keywords"    />
         <result property="filePath"    column="file_path"    />
         <result property="author"    column="author"    />
         <result property="reviewer"    column="reviewer"    />
@@ -50,14 +51,16 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectDmsFileInfoVo">
-        select file_id, file_name, file_path, author, reviewer, file_type, file_size, file_status, belongteam, description, update_by, update_time, publish_id from dms_file_info
+        select file_id, file_name, file_path, author, reviewer, file_type, file_size, file_status, belongteam, description, update_by, update_time, publish_id,keywords from dms_file_info
     </sql>
 
     <select id="selectDmsFileInfoList" parameterType="DmsFileInfo" resultMap="DmsFileInfoResult">
         <include refid="selectDmsFileInfoVo"/>
         <where>  
             <if test="fileId != null  and fileId != ''"> and file_id = #{fileId}</if>
-            <if test="fileName != null  and fileName != ''"> and file_name like concat('%', #{fileName}, '%')</if>
+            <if test="fileName != null and fileName != ''">
+    			and (file_name like concat('%', #{fileName}, '%') or keywords like concat('%', #{fileName}, '%'))
+			</if>
             <if test="filePath != null  and filePath != ''"> and file_path = #{filePath}</if>
             <if test="author != null  and author != ''"> and author = #{author}</if>
             <if test="reviewer != null  and reviewer != ''"> and reviewer = #{reviewer}</if>
@@ -101,7 +104,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             	</when>
             </choose>
             <if test="fileId != null  and fileId != ''"> and fi.file_id = #{fileId}</if>
-            <if test="fileName != null  and fileName != ''"> and file_name like concat('%', #{fileName}, '%')</if>
+            <if test="fileName != null and fileName != ''">
+    			and (file_name like concat('%', #{fileName}, '%') or keywords like concat('%', #{fileName}, '%'))
+			</if>
             <if test="filePath != null  and filePath != ''"> and file_path = #{filePath}</if>
             <if test="author != null  and author != ''"> and author = #{author}</if>
             <if test="reviewer != null  and reviewer != ''"> and reviewer = #{reviewer}</if>
@@ -199,6 +204,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="fileId != null">file_id,</if>
             <if test="fileName != null">file_name,</if>
+            <if test="keywords!= null">keywords,</if>
             <if test="filePath != null">file_path,</if>
             <if test="author != null">author,</if>
             <if test="reviewer != null">reviewer,</if>
@@ -214,6 +220,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="fileId != null">#{fileId},</if>
             <if test="fileName != null">#{fileName},</if>
+            <if test="keywords!= null">keywords,</if>
             <if test="filePath != null">#{filePath},</if>
             <if test="author != null">#{author},</if>
             <if test="reviewer != null">#{reviewer},</if>
@@ -232,6 +239,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         update dms_file_info
         <trim prefix="SET" suffixOverrides=",">
             <if test="fileName != null">file_name = #{fileName},</if>
+            <if test="keywords!= null">keywords = #{keywords},</if>
             <if test="filePath != null">file_path = #{filePath},</if>
             <if test="author != null">author = #{author},</if>
             <if test="reviewer != null">reviewer = #{reviewer},</if>

@@ -5,6 +5,7 @@
         <div class="file-info">
           <table class="info-table">
             <tr><td class="label">文档ID:</td><td class="value">{{ this.filedetail.fileId }}</td></tr>
+            <tr><td class="label">关键字:</td><td class="value">{{ this.filedetail.keywords }}</td></tr>
             <tr><td class="label">文档状态:</td><td  class="value">
               <dict-tag :options="getFileStatusText()" :value="this.filedetail.fileStatus" />
             </td></tr>
@@ -394,7 +395,7 @@ export default {
       const user = this.PublisherList.find(item => item.userId === userId);
       return user ? user.userName : userId.toString();
     },
-    /** 根据定稿人ID查姓名 */
+    /** 根据评阅人ID查姓名 */
     getReviewNameById(userId) {
       if (userId === undefined || userId === null) {
         return "Unknown User";

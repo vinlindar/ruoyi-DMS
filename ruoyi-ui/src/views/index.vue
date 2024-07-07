@@ -1,7 +1,17 @@
 <template>
   <div class="app-container home">
+    <!-- 通知栏 -->
+    <div class="announcement" v-if="noticeList.length > 0">
+      <el-carousel height="40px" direction="vertical">
+        <el-carousel-item v-for="(notice, index) in noticeList" :key="index">
+          <div class="announcement">
+            <strong>{{ notice.noticeTitle }}</strong>:{{ notice.noticeContent }}
+          </div>
+        </el-carousel-item>
+      </el-carousel>
+    </div>
     <!-- 图片走马灯 -->
-    <el-row  type="flex" justify="space-around">
+    <el-row  type="flex" justify="space-around" class="row-bg1" >
       <el-card class="box-card cardDiv2" style="margin-right: 5px">
         <!-- 图片走马灯 -->
         <el-carousel class="image_carousel" height="400px">
@@ -25,15 +35,15 @@
               <span style="margin-right: 30px"><b>近期发布</b></span>
             </div>
             <el-table :data="latestfilelist" height=350 style="width: 100%">
-              <el-table-column prop="fileName" label="文件名" align="center" width="300" show-overflow-tooltip> 
+              <el-table-column prop="fileName" label="文件名" align="center" width="400" show-overflow-tooltip> 
                 <template slot-scope="scope">
                    <router-link :to="'/file/filedetail/' + scope.row.fileId" class="link-type">
                     <span>{{  scope.row.fileName }}</span>
                   </router-link>
                 </template>
               </el-table-column>
-              <el-table-column prop= "belongteam" label="归属团队" align="center"> </el-table-column>
-              <el-table-column prop="publishTime" label="发布时间" align="center"> 
+              <el-table-column prop= "belongteam" label="归属团队" align="center"  show-overflow-tooltip> </el-table-column>
+              <el-table-column prop="publishTime" label="发布时间" align="center"  show-overflow-tooltip> 
                 <template slot-scope="scope">
                   <span>{{ parseTime(scope.row.publishTime, '{y}-{m}-{d}') }}</span>
                 </template>
@@ -48,14 +58,14 @@
             <span><b>下载排行</b></span>
           </div>
           <el-table :data="popularfilelist" height="300" >
-            <el-table-column prop="fileName" label="文件名" align="center" width="300" show-overflow-tooltip> 
+            <el-table-column prop="fileName" label="文件名" align="center" width="400" show-overflow-tooltip> 
                 <template slot-scope="scope">
                    <router-link :to="'/file/filedetail/' + scope.row.fileId" class="link-type">
                     <span>{{  scope.row.fileName }}</span>
                   </router-link>
                 </template>
             </el-table-column>
-            <el-table-column prop= "belongteam" label="归属团队" align="center"> </el-table-column>
+            <el-table-column prop= "belongteam" label="归属团队" align="center" show-overflow-tooltip> </el-table-column>
             <el-table-column prop= "downloadCount" label="下载次数" align="center"> </el-table-column>
           </el-table>
         </el-card>
@@ -64,14 +74,14 @@
               <span style="margin-right: 30px"><b>我的收藏</b></span>
             </div>
             <el-table v-loading="loading" :data="favoritefilelist" height="300" style="width: 100%">
-              <el-table-column prop="fileName" label="文件名" align="center" width="300" show-overflow-tooltip> 
+              <el-table-column prop="fileName" label="文件名" align="center" width="400" show-overflow-tooltip> 
                 <template slot-scope="scope">
                    <router-link :to="'/file/filedetail/' + scope.row.fileId" class="link-type">
                     <span>{{  scope.row.fileName }}</span>
                   </router-link>
                 </template>
               </el-table-column>
-              <el-table-column prop="collectTime" label="收藏时间" align="center"> 
+              <el-table-column prop="collectTime" label="收藏时间" align="center" show-overflow-tooltip> 
                 <template slot-scope="scope">
                   <span>{{ parseTime(scope.row.collectTime, '{y}-{m}-{d}') }}</span>
                 </template>
@@ -94,6 +104,7 @@
  
 <script>
 import {userhomepagebasicinfo,listlatestfileinfo,getdeptfilenum,getmostpopularfileinfo,getlistimages} from "@/api/system/homepage";
+import { listNotice} from "@/api/system/notice";
 import { listImages } from "@/api/system/images";
 import {listFavorites,delFavorites} from "@/api/system/favorites";
 import { listDmsfileupload} from "@/api/system/dmsfileupload";
@@ -119,8 +130,16 @@ export default {
       deptfilenum:[],
       favoritefilelist:[],
       mysearchfilelist:[],
+      noticeList:[],
       searchquery:[],
       myseachform:{},
+      NoticeParams:{
+        pageNum: 1,
+        pageSize: 10,
+        noticeTitle: undefined,
+        createBy: undefined,
+        status: 0
+      },
       images:[],
       newsquery:{
         isShow:1,
@@ -135,6 +154,7 @@ export default {
     this.getdeptpublishfilenum();
     this.getfavoritefilelist();
     this.getmysearchfilelist();
+    this.getnoticelist();
     this.fetchImages();
   },
   methods: {
@@ -207,6 +227,15 @@ export default {
           this.loading = false;
         }
       );
+    },
+    // 获得通知信息
+    getnoticelist(){
+      this.loading = true;
+      listNotice(this.NoticeParams).then(response => {
+        this.noticeList = response.rows;
+        this.total = response.total;
+        this.loading = false;
+      });
     },
     // 获得最多下载的文档
     getpopularfilelist(){
@@ -354,30 +383,6 @@ export default {
     display: flex;
     justify-content: center;
   }
-  //第一行五个小框大小
-  // height: 120px;: 设置盒子的高度为 120 像素。
-  // padding: 35px;: 设置盒子的内边距为 35 像素，意味着盒子内容与盒子边缘之间的间距为 35 像素。
-  // margin: 15px;: 设置盒子的外边距为 15 像素，意味着盒子与其周围元素之间的间距为 15 像素。
-  .box-div{
-    width: 90%;
-    height: 120px;
-    padding: 35px;
-    // margin: 25px 25px 15px 15px; /* 上右下左 */
-    margin: 20px;
-    // margin-bottom: 25px; /* 增加盒子之间的垂直间距 */
-    // margin-top: 25px;
-    margin-left: 20px;
-    // margin-right: 25px;
-  }
-  //第一行背景框宽度，与第二行框的间距
-  .cardDiv1{
-    width: 100%;
-    margin-bottom: 10px;
-  }
-  .cardDiv3{
-    width: 1847px;
-    margin-bottom: 10px;
-  }
   //第三行背景框宽度，与第二行框的间距
   .cardDiv2{
     width: 100%;
@@ -386,8 +391,8 @@ export default {
   // 页面整体边距
   .app-container {
     padding: 20px;
+    padding-top: 0px;
     background: #eeeeee50;
-    //background: #eb040450;
   }
 .home {
   blockquote {
@@ -447,69 +452,9 @@ export default {
       padding-inline-start: 40px;
     }
   }
-  .box-div {
-    display: flex;
-    justify-content: center; /* 水平居中 */
-    align-items: center; /* 垂直居中 */
-    height: 100%; /* 确保父容器的高度 */
-  }
-  .webBox{
-    display: -webkit-box;
-    -webkit-box-orient: horizontal;
-  }
-  .webO{
-    display: -webkit-box;
-    -webkit-box-pack: start;
-    -webkit-box-align: center;
-    font-size: 30px;
-    font-weight: 700;
-    padding-right: 30px;
-    padding-top: 0px;
-    color: #fff;
-  }
-  .webT{
-    display: -webkit-box;
-    -webkit-box-pack: end;
-    -webkit-box-align:center;
-    font-size: 45px;
-    font-weight: 700;
-    padding-right: 1px;
-    padding-top: 0px;
-    color: #fff;
-  }
-  .card1{
-    background: linear-gradient(90deg, rgba(113, 162, 241, 1) 100%, rgba(0, 130, 200, 1) 100%, rgba(0, 130, 200, 1) 100%, rgba(102, 125, 182, 1) 100%);
-    border: none;
-    border-radius: 10px;
-    box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.349019607843137);
-    font-family: 'Arial Negreta', 'Arial Normal', 'Arial';
-    height: 50px;
-  }
-  .card2{
-    background: linear-gradient(90deg, rgba(99, 170, 160, 1) 100%, rgba(244, 174, 149, 1) 0%, rgba(226, 113, 140, 1) 100%, rgba(226, 113, 140, 1) 100%);
-    border: none;
-    border-radius: 10px;
-    box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.349019607843137);
-    font-family: 'Arial Negreta', 'Arial Normal', 'Arial';
-    height: 50px;
-  }
-  .card3{
-    // background: linear-gradient(180deg, rgba(255, 153, 51, 1) 0%, rgba(255, 153, 51, 1) 0%, rgba(239, 203, 45, 1) 100%, rgba(239, 203, 45, 1) 100%);
-    background: linear-gradient(90deg, rgba(99, 112, 170, 1) 100%, rgba(170, 137, 254, 1) 0%, rgba(204, 153, 204, 1) 100%, rgba(204, 153, 204, 1) 100%);
-    border: none;
-    border-radius: 10px;
-    box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.349019607843137);
-    font-family: 'Arial Negreta', 'Arial Normal', 'Arial';
-    height: 50px;
-  }
-  .card4{
-    background: linear-gradient(90deg, rgba(99, 157, 170, 1) 100%, rgba(45, 169, 250, 1) 0%, rgba(102, 204, 255, 1) 100%, rgba(102, 204, 255, 1) 100%);
-    border: none;
-    border-radius: 10px;
-    box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.349019607843137);
-    font-family: 'Arial Negreta', 'Arial Normal', 'Arial';
-    height: 50px;
-  }
+}
+.row-bg1{
+  padding-top:5px
 }
 .image_carousel{
   width: 100%;
@@ -528,15 +473,26 @@ export default {
   white-space: nowrap;
 }
 .text-container{
-  flex:0 0 80%;
+  flex-grow: 1;
+  margin-right: 10px;
+  overflow: hidden;
 }
 .text-container p{
   margin-top: 0;
   margin-bottom: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.link-container{
+  flex-shrink: 0;
 }
 .link-container p{
   margin-top: 0;
   margin-bottom: 0;
+}
+.single-line{
+  width:100%;
 }
 .news_detail{
   width: 50%;
@@ -577,11 +533,20 @@ export default {
     margin-left: 10px;
     margin-right: 10px; /* 图标与文本间距 */
   }
-  .single-line{
-    width:300px;
-    overflow:hidden;
-    white-space:nowrap;
-    text-overflow:ellipsis;
-  }
+.announcement{
+  background-color: #ff9800; 
+  color: white; 
+  text-align: center; 
+  font-size: 18px;
+  padding: 5px; 
+  top: 0; 
+  width: 100%; 
+  margin-top: 5px;
+}
+.one-line {
+  white-space: nowrap; /* 禁止换行 */
+  overflow: hidden; /* 超出部分隐藏 */
+  text-overflow: ellipsis; /* 超出部分显示省略号 */
+}
 </style>
  

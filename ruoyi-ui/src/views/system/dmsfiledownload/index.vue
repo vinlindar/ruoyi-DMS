@@ -3,7 +3,7 @@
     <el-row :gutter="20">
       <!--部门数据-->
       <el-col :span="4" :xs="24" class="search-side">
-        <h3><strong>按团队查询</strong></h3>
+        <h3><strong>按归属团队浏览</strong></h3>
         <div class="head-container">
           <el-tree
             :data="deptOptions"
@@ -17,7 +17,7 @@
             @node-click="handleNodeClick"
           />
         </div>
-        <h3><strong>按文档分类</strong></h3>
+        <h3><strong>按文档分类浏览</strong></h3>
         <div class="head-container">
           <el-tree
             :data="dict.type.dms_file_type"
@@ -45,10 +45,10 @@
               @keyup.enter.native="handleQuery"
             />
           </el-form-item>
-          <el-form-item label="上传人" prop="updateBy" label-width="110px">
+          <el-form-item label="提交人" prop="updateBy" label-width="110px">
             <el-input
               v-model="queryParams.updateBy"
-              placeholder="请输入上传人"
+              placeholder="请输入提交人"
               clearable
               @keyup.enter.native="handleQuery"
             />
@@ -64,7 +64,7 @@
             </el-select>
           </el-form-item> -->
           <el-form-item label="文件分类" prop="fileType" label-width="110px">
-            <el-select v-model="queryParams.fileType" placeholder="请选择文件类型" clearable>
+            <el-select v-model="queryParams.fileType" placeholder="请选择文件分类" clearable>
               <el-option
                 v-for="dict in dict.type.dms_file_type"
                 :key="dict.value"
@@ -117,7 +117,7 @@
         </el-form>
         <el-table v-loading="loading" :data="dmsfileuploadList" @selection-change="handleSelectionChange">
           <el-table-column type="selection" width="55" align="center" />
-          <el-table-column label="文件名" align="center" prop="fileName" width="300px" show-overflow-tooltip>
+          <el-table-column label="文件名" align="center" prop="fileName" width="600px" show-overflow-tooltip>
             <template slot-scope="scope">
               <router-link :to="'/file/filedetail/' + scope.row.fileId" class="link-type">
                 <span class="file-name">{{ scope.row.fileName }}</span>
@@ -130,13 +130,13 @@
             </template>
           </el-table-column>
           <el-table-column label="归属团队" align="center" prop="belongteam" width="200"/>
-          <el-table-column label="上传人" align="center" prop="updateBy" />
+          <el-table-column label="提交人" align="center" prop="updateBy" />
           <el-table-column label="定稿人" align="center">
             <template slot-scope="scope">
               {{ getPublishNameById(scope.row.publishId) }}
             </template>
           </el-table-column>
-          <el-table-column label="文件大小" align="center" prop="fileSize" />
+<!--           <el-table-column label="文件大小" align="center" prop="fileSize" /> -->
           <el-table-column label="发布时间" align="center" prop="publishTime" width="130">
             <template slot-scope="scope">
               <span>{{ parseTime(scope.row.updateTime, '{y}-{m}-{d}') }}</span>
@@ -199,6 +199,8 @@ export default {
       total: 0,
       // 文件信息表格数据
       dmsfileuploadList: [],
+      //判断是否可以下载数据
+      accesslist :[],
       //文件收藏表格
       favorite:{},
       // 弹出层标题
@@ -211,6 +213,29 @@ export default {
       open: false,
       // 查询参数
       queryParams: {
+        pageNum: 1,
+        pageSize: 10,
+        fileId: null,
+        fileName: null,
+        filePath: null,
+        author: null,
+        reviewer: null,
+        fileType: null,
+        fileSize: null,
+        // 固定为已发布文档
+        fileStatus: 3,
+        belongteam: null,
+        description: null,
+        updateBy: null,
+        updateTime: null,
+        publishId: null,
+        //区分文档上传的查询
+        querykind: 0,
+        // 用户权限控制需要
+        queryuserId:this.$store.state.user.id,
+        queryuserDept:null,
+      },
+      queryParams2: {
         pageNum: 1,
         pageSize: 10,
         fileId: null,
@@ -351,11 +376,14 @@ export default {
     },
     // 节点单击事件
     handleNodeClick(data) {
+      this.resetForm("queryForm");
       this.queryParams.belongteam = data.label;
+      console.log(this.queryParams)
       this.handleQuery();
     },
     // 节点单击事件2
     handleNodeClick2(data) {
+      this.resetForm("queryForm");
       this.queryParams.fileType = data.value;
       this.handleQuery();
     },
@@ -366,30 +394,45 @@ export default {
       this.multiple = !selection.length
     },
     handleDownload(row) {
-      // 新增下载记录
-      const currentDate = new Date();
-      const formattedDate = `${currentDate.getFullYear()}-${(currentDate.getMonth() + 1).toString().padStart(2, '0')}-${currentDate.getDate().toString().padStart(2, '0')} ${currentDate.getHours().toString().padStart(2, '0')}:${currentDate.getMinutes().toString().padStart(2, '0')}:${currentDate.getSeconds().toString().padStart(2, '0')}`;
-      // 查找belongteam对应的deptId
-      const deptId = this.getIdByLabel(this.deptOptions, row.belongteam)
-      this.downloadrecord_form = {
-        fileId: row.fileId,
-        fileName: row.fileName,
-        deptId:deptId,
-        belongteam: row.belongteam,
-        downloadUserid: this.$store.state.user.id,
-        downloadUser: this.$store.state.user.name,
-        downloadTime: formattedDate 
-      };
-      addRecords(this.downloadrecord_form);
-
-      var name = row.fileName;
-      var url = row.filePath;
-      var suffix = url.substring(url.lastIndexOf("."), url.length);
-      const a = document.createElement('a')
-      a.setAttribute('download', name + suffix)
-      a.setAttribute('target', '_blank')
-      a.setAttribute('href', url)
-      a.click()
+      // 判断用户是否有下载权限
+      this.queryParams2.fileId = row.fileId;
+      this.loading = true;
+      console.log(this.queryParams2);
+      listDmsfileupload(this.queryParams2).then(response => {
+          this.accesslist = response.rows;
+          this.loading = false;
+          // 如果返回结果为 null，则提示用户无下载权限
+          if (!response.rows || response.rows.length === 0) {
+            this.$message.error('无下载权限');
+            return;
+          }
+        // 新增下载记录
+        const currentDate = new Date();
+        const formattedDate = `${currentDate.getFullYear()}-${(currentDate.getMonth() + 1).toString().padStart(2, '0')}-${currentDate.getDate().toString().padStart(2, '0')} ${currentDate.getHours().toString().padStart(2, '0')}:${currentDate.getMinutes().toString().padStart(2, '0')}:${currentDate.getSeconds().toString().padStart(2, '0')}`;
+        // 查找belongteam对应的deptId
+        const deptId = this.getIdByLabel(this.deptOptions, row.belongteam)
+        this.downloadrecord_form = {
+          fileId: row.fileId,
+          fileName: row.fileName,
+          deptId:deptId,
+          belongteam: row.belongteam,
+          downloadUserid: this.$store.state.user.id,
+          downloadUser: this.$store.state.user.name,
+          downloadTime: formattedDate 
+        };
+        addRecords(this.downloadrecord_form);
+        var name = row.fileName;
+        var url = row.filePath;
+        var suffix = url.substring(url.lastIndexOf("."), url.length);
+        const a = document.createElement('a')
+        a.setAttribute('download', name + suffix)
+        a.setAttribute('target', '_blank')
+        a.setAttribute('href', url)
+        a.click()
+    }).catch(() => {
+        this.loading = false;
+        this.$message.error('下载文件出错，请稍后重试');
+      });
     },
     // 根据belongteam文本查deptId
     getIdByLabel(deptOptions, targetLabel){
@@ -424,6 +467,7 @@ width:250px;
   display: flex;
 }
 .search-side{
+  margin-top: 20px;
   display: flex;
   flex-direction: column;
   justify-content:flex-start;
