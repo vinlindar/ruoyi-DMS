@@ -20,8 +20,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         select uf.user_id, uf.file_id, uf.collect_time,
         	fi.file_name,fi.file_type,fi.belongteam,fi.update_by,fp.publish_time,fi.file_path
         from dms_user_favorites uf
-        left join dms_file_info fi on uf.file_id = fi.file_id
-        left join dms_file_publish fp on uf.file_id = fp.file_id
+        inner join dms_file_info fi on uf.file_id = fi.file_id and fi.file_status = 3
+        inner join dms_file_publish fp on uf.file_id = fp.file_id and fp.is_current = 1
     </sql>
 
     <select id="selectDmsUserFavoritesList" parameterType="DmsUserFavorites" resultMap="DmsUserFavoritesResult">

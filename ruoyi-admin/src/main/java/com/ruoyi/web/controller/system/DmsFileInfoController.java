@@ -152,7 +152,7 @@ public class DmsFileInfoController extends BaseController
     	DmsFilePublish dmsFilePublish = new DmsFilePublish();
     	dmsFilePublish.setFileId(dmsFileInfo.getFileId());
     	dmsFilePublish.setIsCurrent(0);
-    	dmsFilePublishService.updateDmsFilePublish(dmsFilePublish);
+    	dmsFilePublishService.updateDmsFilePublishByFileId(dmsFilePublish);
     	
     	//提取reviewID,构建dmsFileReview2,循环新建评审信息，新建定稿信息
     	List<Long> reviewerIds = dmsFileInfo.getReviewerIds();

@@ -186,13 +186,12 @@
             <el-form-item label="文件上传">
               <el-upload
                   ref="upload"
-                  
+                  :limit="1"
                   :action="upload.url"
                   :headers="upload.headers"
                   :file-list="upload.fileList"
                   :on-progress="handleFileUploadProgress"
                   :on-success="handleFileSuccess"
-                  :on-change="handleChange"
                   :auto-upload="true"
                   :before-upload="beforeUpload">
                   <el-button slot="trigger" size="small" type="primary">选取文件</el-button>
@@ -420,13 +419,6 @@ export default {
     this.getList();
   },
   methods: {
-    handleChange(file, fileList) {
-      // 如果 fileList 中文件数量大于 1，删除多余的文件
-      console.log(fileList)
-      if (fileList.length > 1) {
-        fileList.splice(0, 1); // 移除第一个文件，即保留最新上传的文件
-      }
-    },
     /** 查询文件信息列表 */
     getList() {
       this.loading = true;
@@ -563,7 +555,6 @@ export default {
           this.loading = false;
           this.form.reviewerIds = this.ReviewList.map(user => user.reviewerId);
         });
-      this.upload.fileList = [{ name: this.form.fileName, url: this.form.filePath }];
     },
     /** 查看评审意见 */
     handlereviewlist(){
@@ -586,6 +577,9 @@ export default {
           this.loading = false;
         })
         .catch(error => {
+            // 处理错误，例如打印错误消息或采取其他适当的措施
+
+            // 清除 loading 状态或执行其他处理逻辑
             this.loading = false;
         });
     },
@@ -595,11 +589,6 @@ export default {
       this.$refs["form"].validate(async valid => {
         if (!valid) {
           return;
-        }
-        const uploadFile = this.$refs.upload.uploadFiles[0];
-        if (!uploadFile) {
-            this.$message.error('请选择文件');
-            return;
         }
         if (this.upload.isUploading) {
           this.$message.error('文件上传中')
@@ -618,24 +607,22 @@ export default {
         this.form.belongteam = this.getLabelById(this.deptOptions, this.form.deptId);
         try{
             if (this.form.fileId != null) {
-              updateDmsfileupload(this.form).then(response => {
+              updateDmsfileupload(this.form);
               this.$modal.msgSuccess("修改成功");
               this.open = false;
               this.getList();
-              });
             } else {
-              //生成随机fileID,并赋值
-              this.form.fileId = this.generateFileId();
-              //仅在新建文件时候获取用户名，修改不操作
-              var currentusername = this.$store.state.user.name;
-              this.form.updateBy = currentusername;
-              addDmsfileupload(this.form).then(response => {
-              this.$modal.msgSuccess("新增成功");
-              this.open = false;
-              this.getList();
-              });
-            }
-          }catch (error) {
+            //生成随机fileID,并赋值
+            this.form.fileId = this.generateFileId();
+            //仅在新建文件时候获取用户名，修改不操作
+            var currentusername = this.$store.state.user.name;
+            this.form.updateBy = currentusername;
+            addDmsfileupload(this.form);
+            this.$modal.msgSuccess("新增成功");
+            this.open = false;
+            this.getList();
+            } 
+        } catch (error) {
             if (this.form.fileId != null) {
                 this.$modal.msgError("修改失败：" + error.message);
             } else {
@@ -690,15 +677,8 @@ export default {
     // 文件上传成功处理
     handleFileSuccess(response, file, fileList) {
       this.upload.isUploading = false;
-      console.log(file)
-      if (response && response.code === 200) {
-        console.log(response)
-        this.form.filePath = response.url; // 假设成功响应中包含文件路径信息
-        this.msgSuccess(response.msg); // 显示成功消息
-      } else {
-        this.$message.error('文件上传失败'+response.msg);
-        this.form.filePath = ''; 
-      }
+      this.form.filePath = response.url;
+      this.msgSuccess(response.msg);
     },
     // 文件上传前的大小判断逻辑
     beforeUpload(file){

@@ -75,4 +75,11 @@ public interface IDmsFilePublishService
      * @return 结果
      */
     public int deleteDmsFilePublishByFileId(String fileId);
+    /**
+     * 修改定稿
+     * 
+     * @param dmsFilePublish 定稿
+     * @return 结果
+     */
+	public int updateDmsFilePublishByFileId(DmsFilePublish dmsFilePublish);
 }

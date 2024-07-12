@@ -52,7 +52,7 @@
     <!-- 文档信息列表展示-->
     <el-table v-loading="loading" :data="publishList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="文件名" align="center" prop="fileName" width="600px" class-name="file-name-column" show-overflow-tooltip>
+      <el-table-column label="文件名" align="center" prop="fileName" width="600px" show-overflow-tooltip>
         <template slot-scope="scope">
           <router-link :to="'/file/filedetail/' + scope.row.fileId" class="link-type">
             <span class="file-name">{{ scope.row.fileName }}</span>
@@ -109,8 +109,17 @@
     />
 
     <!-- 添加或修改定稿对话框 -->
-    <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
-      <el-form ref="form" :model="form" :rules="rules" label-width="110px">
+    <el-dialog :title="title" :visible.sync="open" width="800px" append-to-body>
+      <el-table v-loading="loading" :data="filteredReviewRecords" @selection-change="handleSelectionChange" :row-class-name="rowClassName">
+        <el-table-column label="评阅人" align="center">
+            <template slot-scope="scope">
+                {{ getReviewerById(scope.row.reviewerId) }}
+            </template>
+        </el-table-column>
+        <el-table-column label="评阅意见" align="center" prop="comment"  width="400" />
+        <el-table-column label="评阅时间" align="center" prop="reviewTime" />
+      </el-table>
+      <el-form ref="form" :model="form" :rules="rules" label-width="110px" class="publishtable">
         <el-form-item label="定稿意见" prop="comment">
           <el-input v-model="form.comment" type="textarea" placeholder="请输入内容" />
         </el-form-item>
@@ -130,6 +139,7 @@
             :options="deptOptions" 
             :show-count="true" 
             :multiple="true" 
+            style="width: 400px;"
             placeholder="请选择发布范围" />
         </el-form-item>
       </el-form>
@@ -141,19 +151,9 @@
   </div>
 </template>
 
-<style scoped>
-.file-name-column .file-name {
-  max-width: 200px; /* 设置最大宽度 */
-  white-space: nowrap; /* 不换行 */
-  overflow: hidden; /* 超出部分隐藏 */
-  text-overflow: ellipsis; /* 显示省略号 */
-  display: inline-block; /* 确保 ellipsis 生效 */
-}
-</style>
-
-
 <script>
 import { listPublish, getPublish, delPublish, updatePublish } from "@/api/system/publish";
+import { listReview } from "@/api/system/review";
 import { listUserbypostId } from "@/api/system/user";
 import { getPermissions } from "@/api/system/permissions";
 import {deptTreeSelect } from "@/api/system/dmsfileupload";
@@ -189,17 +189,15 @@ export default {
       title: "",
       // 定稿人列表
       PublisherList: undefined,
-      // 评审意见列表
-      ReviewList: undefined,
-      // 发布范围数组
-      Permissionlist: undefined,
-      // 文档详情
-      filedetail:{},
+      // 文档评阅信息（当前和历史）
+      reviewrecords:[],
       // 是否显示弹出层
       open: false,
-      // 是否显示文档详情层
-      openfiledetail: false,
-      // 查询参数
+      // 评阅查询参数
+      reviewquery:{
+        fileId:null,
+      },
+      // 定稿查询参数
       queryParams: {
         pageNum: 1,
         pageSize: 10,
@@ -229,10 +227,16 @@ export default {
         result[0] = { ...result[0], label: "取消发布" };
       }
       return result;
+    },
+    filteredReviewRecords() {
+      return this.reviewrecords.filter(record => 
+        record.isCurrent === 1 || (record.comment)
+      );
     }
   },
   created() {
     this.getDeptTree();
+    this.getReviewerList();
     this.getPublisherList();
     this.getList();
   },
@@ -257,11 +261,30 @@ export default {
         }
       );
     },
+    /**  查询评阅人下拉列表 */
+    getReviewerList() {
+      this.loading = true;
+      const postID = 2;
+      listUserbypostId(postID).then(response => {
+          // 提取用户ID和用户名信息
+          this.ReviewerList = response.data;
+          this.reviewertotal = response.length;
+          this.loading = false;
+        }
+      );
+    },
     getPublishNameById(userId) {
       if (userId === undefined || userId === null) {
         return "Unknown User";
     }
       const user = this.PublisherList.find(user => user.userId === userId);
+      return user ? user.userName : userId.toString();
+    },
+    getReviewerById(userId) {
+      if (userId === undefined || userId === null) {
+        return "Unknown User";
+      }
+      const user = this.ReviewerList.find(user => user.userId === userId);
       return user ? user.userName : userId.toString();
     },
     /** 查询部门下拉树结构 */
@@ -309,10 +332,17 @@ export default {
       this.open = true;
       this.title = "添加定稿";
     },
-    /** 修改按钮操作 */
+    /** 定稿按钮操作 */
     handleUpdate(row) {
       this.reset();
       this.currentid=row.id;
+      this.reviewquery.fileId=row.fileId;
+      listReview(this.reviewquery).then(response =>{
+        this.reviewrecords = response.rows;
+        this.loading = false;
+        this.open = true;
+      });
+      console.log(this)
       getPublish(this.currentid).then(response => {
         this.form = response.data;
         this.open = true;
@@ -358,6 +388,10 @@ export default {
         ...this.queryParams
       }, `publish_${new Date().getTime()}.xlsx`)
     },
+    /**  当前评阅记录变色 */
+    rowClassName({ row }) {
+      return row.isCurrent === 1 ? 'current-row' : '';
+    },
     getLabelById(deptOptions, targetId){
       function findLabel(options, id) {
         for (const option of options) {
@@ -388,5 +422,7 @@ export default {
 .custom-text {
   font-size: 16px;
 }
-
+.publishtable{
+  margin-top: 20px;
+}
 </style>

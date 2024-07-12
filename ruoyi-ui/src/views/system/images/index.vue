@@ -118,7 +118,7 @@
               placeholder="不超过2000字" />
         </el-form-item>
         <el-form-item label="是否展示" prop="isShow">
-          <el-switch v-model="form.isShow" active-value="1" inactive-value="0"></el-switch>
+          <el-switch v-model="form.isShow" :active-value="1" :inactive-value="0"></el-switch>
         </el-form-item>
         <el-form-item label="发布时间" prop="creatTime">
           <el-date-picker clearable
@@ -173,7 +173,7 @@ export default {
         isShow: null
       },
       // 表单参数
-      form: {},
+      form: { },
       // 表单校验
       rules: {
         path:[
@@ -190,7 +190,7 @@ export default {
         creatTime:[
           { required: true, message: "日期不能为空", trigger: "blur" },
         ],
-      }
+      },
     };
   },
   created() {
@@ -219,7 +219,7 @@ export default {
         title: null,
         description: null,
         creatTime: null,
-        isShow: null
+        isShow: 1
       };
       this.resetForm("form");
     },
@@ -257,7 +257,7 @@ export default {
     },
     /** 提交按钮 */
     submitForm() {
-      this.form.creatby = this.$store.state.user.name;
+      this.form.creatBy = this.$store.state.user.name;
       this.$refs["form"].validate(valid => {
         if (valid) {
           if (this.form.id != null) {

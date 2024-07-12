@@ -1,11 +1,11 @@
 <template>
   <div class="file-detail-container">
     <div class="file-detail-left">
-      <h2 class="custom-text file-name">文档名: {{ filedetail.fileName }}</h2>
+      <h2 class="file-name">文档名: {{ filedetail.fileName }}</h2>
         <div class="file-info">
           <table class="info-table">
             <tr><td class="label">文档ID:</td><td class="value">{{ this.filedetail.fileId }}</td></tr>
-            <tr><td class="label">关键字:</td><td class="value">{{ this.filedetail.keywords }}</td></tr>
+            <tr><td class="label">关键词:</td><td class="value">{{ this.filedetail.keywords }}</td></tr>
             <tr><td class="label">文档状态:</td><td  class="value">
               <dict-tag :options="getFileStatusText()" :value="this.filedetail.fileStatus" />
             </td></tr>
@@ -29,7 +29,8 @@
       <div class="review-comments">
         <h3>评阅记录</h3>
         <ul>
-          <el-card v-for="(review, index) in ReviewList" :key="index" :class="{ 'current-review': review.isCurrent === 1 }">
+          <el-card v-for="(review, index) in ReviewList" :key="index" style="margin-bottom: 10px;" :class="{ 'current-review': review.isCurrent === 1 }" 
+          v-if="review.isCurrent === 1 || (review.comment)">
             <div class="review-info">
               <p class="reviewer-text">评阅人:{{ getReviewNameById(review.reviewerId) }}</p>
               <p class="reviewer-text">评阅状态: <dict-tag :options="getReviewStatusText()" :value="review.status" /></p>
@@ -42,7 +43,8 @@
       <div class="publish-comments">
         <h3>定稿记录</h3>
         <ul>
-          <el-card v-for="(publish, index) in PublishList" :key="index" :class="{ 'current-review': publish.isCurrent === 1 }">
+          <el-card v-for="(publish, index) in PublishList" :key="index" style="margin-bottom: 10px;" :class="{ 'current-review': publish.isCurrent === 1 }" 
+          v-if="publish.isCurrent === 1 || (publish.comment)">
             <div class="review-info">
               <p class="reviewer-text">定稿人:{{ getPublishNameById(publish.publishId) }}</p>
               <p class="reviewer-text">定稿结果: <dict-tag :options="getPublishResultText()" :value="publish.isPassed" /></p>
@@ -418,6 +420,10 @@ export default {
   width: 40%;
   padding: 20px;
   border-right: 1px solid #ddd;
+}
+.file-name {
+    word-wrap: break-word; /* 在单词内部换行 */
+    white-space: normal; /* 在空白处换行 */
 }
 .file-detail-right {
   width: 60%;

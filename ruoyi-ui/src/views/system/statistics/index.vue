@@ -62,7 +62,6 @@ export default {
         console.error("Error fetching data:", error);
         this.loading = false;
       });
-      console.log(this)
     },
     renderCharts() {
       // 渲染各个图表

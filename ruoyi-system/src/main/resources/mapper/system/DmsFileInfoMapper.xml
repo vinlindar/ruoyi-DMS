@@ -220,7 +220,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="fileId != null">#{fileId},</if>
             <if test="fileName != null">#{fileName},</if>
-            <if test="keywords!= null">keywords,</if>
+            <if test="keywords!= null">#{keywords},</if>
             <if test="filePath != null">#{filePath},</if>
             <if test="author != null">#{author},</if>
             <if test="reviewer != null">#{reviewer},</if>

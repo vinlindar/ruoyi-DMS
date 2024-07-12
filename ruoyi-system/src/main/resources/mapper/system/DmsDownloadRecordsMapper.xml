@@ -49,9 +49,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </select>
     
     <select id="selectMostPopularFile" resultMap="DmsDownloadRecordsResult">
-			SELECT file_id, file_name, belongteam, COUNT(*) as download_count
-		    from dms_download_records
-		    GROUP BY file_id, file_name, belongteam
+			SELECT ddr.file_id, ddr.file_name, ddr.belongteam, COUNT(*) as download_count
+		    from dms_download_records ddr
+		    inner join dms_file_info dfi
+		    on ddr.file_id =dfi.file_id
+		    where dfi.file_status =3
+		    GROUP BY ddr.file_id, ddr.file_name, ddr.belongteam
 		    ORDER BY download_count DESC
 		    LIMIT 10
 	</select>

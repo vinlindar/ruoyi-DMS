@@ -58,6 +58,13 @@ public interface DmsFilePublishMapper
     public int updateDmsFilePublish(DmsFilePublish dmsFilePublish);
 
     /**
+     * 修改定稿
+     * 
+     * @param dmsFilePublish 定稿
+     * @return 结果
+     */
+    public int updateDmsFilePublishByFileId(DmsFilePublish dmsFilePublish);
+    /**
      * 删除定稿
      * 
      * @param fileId 定稿主键

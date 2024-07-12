@@ -222,7 +222,6 @@ export default {
   },
   created() {
     this.getList();
-    console.log(this)
   },
   methods: {
     /** 查询公告列表 */

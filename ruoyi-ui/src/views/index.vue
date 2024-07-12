@@ -166,7 +166,8 @@ export default {
         setTimeout(()=>{
         this.$notify({
           title: '代办事项',
-          message: h('a', {attrs: { href: 'system/dmsfileupload' }, style: 'color: teal;font-size: 16px'}, `您有${userbasicnum.waitModifyNum}个文档待修改`),
+          message: h('a', {attrs: { href: 'system/dmsfileupload' }, style: 'color: teal;font-size: 16px'},
+           ['您有',h('span',{style:'color:red; font-size: 18px'},userbasicnum.waitModifyNum),'个文档待修改']),
           position: 'top-right',
           duration: 0, 
         });
@@ -176,8 +177,9 @@ export default {
       if (userbasicnum.waitReviewNum > 0) {
         setTimeout(()=>{
         this.$notify({
-          title: '代办事项',
-          message: h('a', {attrs: { href: 'system/review' }, style: 'color: teal;font-size: 16px' }, `您有${userbasicnum.waitReviewNum }个文档待评阅`),
+          title: '待办事项',
+          message: h('a', {attrs: { href: 'system/review' }, style: 'color: teal;font-size: 16px' }, 
+          ['您有',h('span',{style:'color:red; font-size: 18px'},userbasicnum.waitReviewNum),'个文档待评阅']),
           position: 'top-right',
           duration: 0, 
         });
@@ -188,7 +190,8 @@ export default {
         setTimeout(()=>{
         this.$notify({
           title: '代办事项',
-          message: h('a', {attrs: { href: 'system/publish' }, style: 'color: teal;font-size: 16px' }, `您有${userbasicnum.waitPublishNum}个文件待定稿`),
+          message: h('a', {attrs: { href: 'system/publish' }, style: 'color: teal;font-size: 16px' }, 
+          ['您有',h('span',{style:'color:red; font-size: 18px'},userbasicnum.waitPublishNum),'个文档待定稿']),
           position: 'top-right',
           duration: 0, 
         });
@@ -213,7 +216,6 @@ export default {
       this.loading = true;
       userhomepagebasicinfo(this.$store.state.user.id).then(response => {
           this.userbasicnum = response.data;
-          console.log(this.userbasicnum)
           this.loading = false;
           this.notification(this.userbasicnum);
         }

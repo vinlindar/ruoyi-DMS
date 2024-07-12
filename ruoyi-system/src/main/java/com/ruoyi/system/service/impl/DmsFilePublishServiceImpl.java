@@ -91,6 +91,17 @@ public class DmsFilePublishServiceImpl implements IDmsFilePublishService
     }
 
     /**
+     * 修改定稿
+     * 
+     * @param dmsFilePublish 定稿
+     * @return 结果
+     */
+    @Override
+    public int updateDmsFilePublishByFileId(DmsFilePublish dmsFilePublish)
+    {
+        return dmsFilePublishMapper.updateDmsFilePublishByFileId(dmsFilePublish);
+    }
+    /**
      * 批量删除定稿
      * 
      * @param fileIds 需要删除的定稿主键

@@ -53,7 +53,7 @@
               @keyup.enter.native="handleQuery"
             />
           </el-form-item>
-<!--           <el-form-item label="定稿人" prop="publishId" label-width="110px">
+<!--      <el-form-item label="定稿人" prop="publishId" label-width="110px">
             <el-select v-model="queryParams.publishId" placeholder="请选择定稿人" :multiple="false" clearable>
               <el-option 
                 v-for="user in PublisherList" 
@@ -311,7 +311,7 @@ export default {
       this.favorite.fileId=this.ids[0];
       this.favorite.collectTime=formattedDate;
       addFavorites(this.favorite).then(response => {
-              this.$modal.msgSuccess("置顶成功");});
+              this.$modal.msgSuccess("收藏成功");});
     },
     //新增用户自定义文件查询条件
     handlemyseachesQuery(){
@@ -378,7 +378,6 @@ export default {
     handleNodeClick(data) {
       this.resetForm("queryForm");
       this.queryParams.belongteam = data.label;
-      console.log(this.queryParams)
       this.handleQuery();
     },
     // 节点单击事件2
@@ -397,7 +396,6 @@ export default {
       // 判断用户是否有下载权限
       this.queryParams2.fileId = row.fileId;
       this.loading = true;
-      console.log(this.queryParams2);
       listDmsfileupload(this.queryParams2).then(response => {
           this.accesslist = response.rows;
           this.loading = false;

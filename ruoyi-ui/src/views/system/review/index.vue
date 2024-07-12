@@ -108,7 +108,7 @@
             <h3>评阅记录</h3>
           </div>
           <div class="right">
-            <el-table v-loading="loading" :data="reviewrecords" @selection-change="handleSelectionChange" :row-class-name="rowClassName">
+            <el-table v-loading="loading" :data="filteredReviewRecords" @selection-change="handleSelectionChange" :row-class-name="rowClassName">
               <el-table-column label="评阅人" align="center">
                 <template slot-scope="scope">
                   {{ getReviewerById(scope.row.reviewerId) }}
@@ -168,7 +168,7 @@ export default {
       // 当前文档评阅表格数据
       reviewList: undefined,
       // 文档评阅信息（当前和历史）
-      reviewrecords:undefined,
+      reviewrecords:[],
       //
       queryrecords:{
         fileId:null,
@@ -193,8 +193,19 @@ export default {
       form: {},
       // 表单校验
       rules: {
+        comment:[
+        { required: true, message: "评阅意见不能为空", trigger: "blur" },
+        { max:500, message: "评阅意见不能超过500字符", trigger: "blur" }
+        ]
       }
     };
+  },
+  computed: {
+    filteredReviewRecords() {
+      return this.reviewrecords.filter(record => 
+        record.isCurrent === 1 || (record.comment)
+      );
+    }
   },
   created() {
     this.getReviewerList();
@@ -224,7 +235,7 @@ export default {
     rowClassName({ row }) {
       return row.isCurrent === 1 ? 'current-row' : '';
     },
-        /**  查询评阅人下拉列表 */
+    /**  查询评阅人下拉列表 */
     getReviewerList() {
       this.loading = true;
       const postID = 2;
@@ -236,10 +247,11 @@ export default {
         }
       );
     },
+
     getReviewerById(userId) {
       if (userId === undefined || userId === null) {
         return "Unknown User";
-    }
+      }
       const user = this.ReviewerList.find(user => user.userId === userId);
       return user ? user.userName : userId.toString();
     },
@@ -327,7 +339,6 @@ export default {
     /** 导出按钮操作 */
     handleExport(row) {
       const fileIds = row.fileId || this.ids;
-      console.log(this);
       this.download('system/review/export', {
         ...this.queryParams
       }, `review_${new Date().getTime()}.xlsx`)
