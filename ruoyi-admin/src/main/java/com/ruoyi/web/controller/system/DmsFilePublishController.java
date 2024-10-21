@@ -107,10 +107,22 @@ public class DmsFilePublishController extends BaseController
         	// 创建文档权限表新增信息
         	DmsFilePermissions dmsFilePermissions = new DmsFilePermissions ();
         	dmsFilePermissions.setFileId(dmsFilePublish.getFileId());
-        	Long[] deptIds = dmsFilePublish.getDeptIds();
-        	for (Long deptId : deptIds) {
-	        	dmsFilePermissions.setDeptId(deptId);
-		        dmsFilePermissionsService.insertDmsFilePermissions(dmsFilePermissions);
+        	String shareType =dmsFilePublish.getShareType();
+        	dmsFilePermissions.setShareType(shareType);
+        	if ("DEPT".equals(shareType)) {
+	        	Long[] deptIds = dmsFilePublish.getDeptIds();
+	        	for (Long deptId : deptIds) {
+		        	dmsFilePermissions.setDeptId(deptId);
+			        dmsFilePermissionsService.insertDmsFilePermissions(dmsFilePermissions);
+	        	}
+	        }else if ("USER".equals(shareType)) {
+	        	Long[] userIds = dmsFilePublish.getUserIds();
+	        	for (Long userId : userIds) {
+		        	dmsFilePermissions.setUserId(userId);
+			        dmsFilePermissionsService.insertDmsFilePermissions(dmsFilePermissions);
+	        	}	
+        	}else {
+        		return AjaxResult.error("未知的权限类型");
         	}
         	return AjaxResult.success("定稿成功");
         }else if (IsPassed == 3L) {

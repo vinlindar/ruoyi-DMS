@@ -79,9 +79,17 @@ public class DmsFilePublish extends BaseEntity
     @Excel(name = "文件描述")
     private String description;
     
-    /** 文件权限 */
+    /** 文件分类 */
+    @Excel(name = "文件权限分类")
+    private String shareType;
+    
+    /** 文件部门权限 */
     @Excel(name = "文件部门权限")
     private Long[] deptIds;
+    
+    /** 文件用户权限 */
+    @Excel(name = "文件部门权限")
+    private Long[] userIds;
     
     public void setId(Long id) 
     {
@@ -218,9 +226,18 @@ public class DmsFilePublish extends BaseEntity
     {
         return description;
     }
+
+    public String getShareType() 
+    {
+        return shareType;
+    }
     public Long[] getDeptIds() 
     {
         return deptIds;
+    }
+    public Long[] getUserIds() 
+    {
+        return userIds;
     }
     
     @Override

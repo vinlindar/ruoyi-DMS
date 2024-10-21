@@ -25,7 +25,7 @@ import com.ruoyi.common.core.page.TableDataInfo;
  * 文档权限Controller
  * 
  * @author hyz
- * @date 2024-03-08
+ * @date 2024-07-14
  */
 @RestController
 @RequestMapping("/system/permissions")
@@ -60,7 +60,7 @@ public class DmsFilePermissionsController extends BaseController
     }
 
     /**
-     * 获取文档权限详细信息
+     * 根据fileId获取文档权限详细信息
      */
     @GetMapping(value = "/{fileId}")
     public AjaxResult getInfo(@PathVariable("fileId") String fileId)
@@ -92,7 +92,7 @@ public class DmsFilePermissionsController extends BaseController
     }
 
     /**
-     * 删除文档权限
+     * 根据fileId删除文档权限
      */
     @PreAuthorize("@ss.hasPermi('system:permissions:remove')")
     @Log(title = "文档权限", businessType = BusinessType.DELETE)

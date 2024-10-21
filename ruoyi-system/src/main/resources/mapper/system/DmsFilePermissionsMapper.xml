@@ -5,45 +5,62 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 <mapper namespace="com.ruoyi.system.mapper.DmsFilePermissionsMapper">
     
     <resultMap type="DmsFilePermissions" id="DmsFilePermissionsResult">
+        <result property="id"    column="id"    />
         <result property="fileId"    column="file_id"    />
         <result property="deptId"    column="dept_id"    />
+        <result property="userId"    column="user_id"    />
+        <result property="shareType"    column="share_type"    />
+        <result property="userName"    column="user_name"    />
+        <result property="deptName"    column="dept_name"    />
     </resultMap>
 
     <sql id="selectDmsFilePermissionsVo">
-        select file_id, dept_id from dms_file_permissions
+        select fp.id, fp.file_id, fp.dept_id, fp.user_id, fp.share_type, su.user_name, sd.dept_name
+        from dms_file_permissions fp
+        left join sys_user su on su.user_id = fp.user_id
+        left join sys_dept sd on sd.dept_id=fp.dept_id
     </sql>
 
     <select id="selectDmsFilePermissionsList" parameterType="DmsFilePermissions" resultMap="DmsFilePermissionsResult">
         <include refid="selectDmsFilePermissionsVo"/>
         <where>  
-            <if test="fileId != null  and fileId != ''"> and file_id = #{fileId}</if>
-            <if test="deptId != null "> and dept_id = #{deptId}</if>
+            <if test="fileId != null  and fileId != ''"> and fp.file_id = #{fileId}</if>
+            <if test="deptId != null "> and fp.dept_id = #{deptId}</if>
+            <if test="userId != null "> and fp.user_id = #{userId}</if>
+            <if test="shareType != null  and shareType != ''"> and fp.share_type = #{shareType}</if>
         </where>
     </select>
     
     <select id="selectDmsFilePermissionsByFileId" parameterType="String" resultMap="DmsFilePermissionsResult">
         <include refid="selectDmsFilePermissionsVo"/>
-        where file_id = #{fileId}
+        where fp.file_id = #{fileId}
     </select>
         
     <insert id="insertDmsFilePermissions" parameterType="DmsFilePermissions">
         insert into dms_file_permissions
         <trim prefix="(" suffix=")" suffixOverrides=",">
-            <if test="fileId != null">file_id,</if>
+            <if test="fileId != null and fileId != ''">file_id,</if>
             <if test="deptId != null">dept_id,</if>
+            <if test="userId != null">user_id,</if>
+            <if test="shareType != null and shareType != ''">share_type,</if>
          </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
-            <if test="fileId != null">#{fileId},</if>
+            <if test="fileId != null and fileId != ''">#{fileId},</if>
             <if test="deptId != null">#{deptId},</if>
+            <if test="userId != null">#{userId},</if>
+            <if test="shareType != null and shareType != ''">#{shareType},</if>
          </trim>
     </insert>
 
     <update id="updateDmsFilePermissions" parameterType="DmsFilePermissions">
         update dms_file_permissions
         <trim prefix="SET" suffixOverrides=",">
+            <if test="fileId != null and fileId != ''">file_id = #{fileId},</if>
             <if test="deptId != null">dept_id = #{deptId},</if>
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="shareType != null and shareType != ''">share_type = #{shareType},</if>
         </trim>
-        where file_id = #{fileId}
+        where id = #{id}
     </update>
 
     <delete id="deleteDmsFilePermissionsByFileId" parameterType="String">

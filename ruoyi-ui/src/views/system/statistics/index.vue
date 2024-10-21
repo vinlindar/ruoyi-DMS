@@ -65,9 +65,9 @@ export default {
     },
     renderCharts() {
       // 渲染各个图表
-      this.renderPieChart('deptFileNumChart', this.deptfilenum, '各部门文件数');
+      this.renderPieChart('deptFileNumChart', this.deptfilenum, '各团队文件数');
       this.renderPieChart('classifiedFileNumChart', this.classifiedfilenum, '各分类文件数');
-      this.renderPieChart('deptDownloadFileNumChart', this.detpdownloadfilenum, '各部门下载文件数');
+      this.renderPieChart('deptDownloadFileNumChart', this.detpdownloadfilenum, '各团队下载文件数');
       this.renderPieChart('classifiedDownloadFileNumChart', this.classifieddownloadfilenum, '各分类下载文件数');
       this.renderBarChart('yearFileNumChart', this.yearfilenum, '按年统计文件数');
       this.renderBarChart('monthFileNumChart', this.monthfilenum, '按月统计文件数');

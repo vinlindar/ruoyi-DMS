@@ -137,6 +137,15 @@ public class SysUserServiceImpl implements ISysUserService
     }
     
     /**
+     * 通过部门ID查询用户列表
+     * 新增 by hyz
+     * @return 用户对象信息
+     */
+	public List<SysUser> selectUsersByDeptId(Long deptId){
+		return userMapper.selectUsersByDeptId(deptId);
+	}
+    
+    /**
      * 查询用户所属角色组
      * 
      * @param userName 用户名

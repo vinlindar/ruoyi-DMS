@@ -109,7 +109,7 @@
     <!-- 文档信息展示-->
     <el-table v-loading="loading" :data="dmsfileuploadList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
-      <el-table-column prop="fileName" label="文件名" align="center" width="600" show-overflow-tooltip> 
+      <el-table-column prop="fileName" label="文件名" header-align="center" align="left" width="600" show-overflow-tooltip> 
         <template slot-scope="scope">
           <router-link :to="'/file/filedetail/' + scope.row.fileId" class="link-type">
             <span>{{  scope.row.fileName }}</span>
@@ -186,7 +186,6 @@
             <el-form-item label="文件上传">
               <el-upload
                   ref="upload"
-                  
                   :action="upload.url"
                   :headers="upload.headers"
                   :file-list="upload.fileList"
@@ -229,13 +228,13 @@
                 ></el-option>
               </el-select>
             </el-form-item>
-            <el-form-item label="归属团队" prop="deptId">
+            <!-- <el-form-item label="归属团队" prop="deptId">
               <treeselect 
               v-model="form.deptId" 
               :options="deptOptions" 
               :show-count="true" 
               placeholder="请选择归属团队" />
-            </el-form-item>
+            </el-form-item> -->
             <el-form-item label="文件描述" prop="description">
               <el-input v-model="form.description" type="textarea" :autosize="{minRows: 4, maxRows: 4}"  placeholder="不超过500字符,包括建议发布范围" />
             </el-form-item>
@@ -292,6 +291,7 @@ import { getToken } from "@/utils/auth";
 import Treeselect from "@riophae/vue-treeselect";
 import "@riophae/vue-treeselect/dist/vue-treeselect.css";
 import {getPublish} from "@/api/system/publish";
+import { getUserProfile } from "@/api/system/user";
 
 export default {
   name: "Dmsfileupload",
@@ -299,6 +299,7 @@ export default {
   components: { Treeselect },
   data() {
     return {
+      user: {},
       //是否为管理员
       isAdmin: this.$store.state.user.name == 'admin',
       // 遮罩层
@@ -392,9 +393,9 @@ export default {
         publishId: [
           { required: true, message: "定稿人不能为空", trigger: "blur" }
         ],
-        deptId: [
-          { required: true, message: "归属团队不能为空", trigger: "blur" }
-        ],
+        // deptId: [
+        //   { required: true, message: "归属团队不能为空", trigger: "blur" }
+        // ],
         description:[
         { max:500, message: "详细描述不能超过500字符", trigger: "blur" }
         ],
@@ -418,11 +419,11 @@ export default {
     this.getReviewerList(); //获得评阅人名单
     this.getPublisherList();//获得定稿人名单
     this.getList();
+    this.getUser();
   },
   methods: {
     handleChange(file, fileList) {
       // 如果 fileList 中文件数量大于 1，删除多余的文件
-      console.log(fileList)
       if (fileList.length > 1) {
         fileList.splice(0, 1); // 移除第一个文件，即保留最新上传的文件
       }
@@ -434,6 +435,11 @@ export default {
         this.dmsfileuploadList = response.rows;
         this.total = response.total;
         this.loading = false;
+      });
+    },
+    getUser() {
+      getUserProfile().then(response => {
+        this.user = response.data;
       });
     },
     /** 查询部门下拉树结构 */
@@ -605,6 +611,7 @@ export default {
           this.$message.error('文件上传中')
           return;
         }
+        this.form.deptId=this.user.deptId;
         const currentDate = new Date();
         const formattedDate = `${currentDate.getFullYear()}-${(currentDate.getMonth() + 1).toString().padStart(2, '0')}-${currentDate.getDate().toString().padStart(2, '0')} ${currentDate.getHours().toString().padStart(2, '0')}:${currentDate.getMinutes().toString().padStart(2, '0')}:${currentDate.getSeconds().toString().padStart(2, '0')}`;
         this.form.updateTime = formattedDate;
@@ -690,9 +697,7 @@ export default {
     // 文件上传成功处理
     handleFileSuccess(response, file, fileList) {
       this.upload.isUploading = false;
-      console.log(file)
       if (response && response.code === 200) {
-        console.log(response)
         this.form.filePath = response.url; // 假设成功响应中包含文件路径信息
         this.msgSuccess(response.msg); // 显示成功消息
       } else {
@@ -704,9 +709,9 @@ export default {
     beforeUpload(file){
       this.upload.isUploading = true;
       const fileSize = file.size; // 文件大小，单位为字节
-      // 判断文件大小是否超过50M
-      if (fileSize > 50 * 1024 * 1024) {
-        this.$message.error('文件大小不能超过50M');
+      // 判断文件大小是否超过100M
+      if (fileSize > 100 * 1024 * 1024) {
+        this.$message.error('文件大小不能超过100M');
         // 返回 false 阻止上传
         return false;
       }

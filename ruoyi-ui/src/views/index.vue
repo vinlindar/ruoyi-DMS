@@ -14,9 +14,11 @@
     <el-row  type="flex" justify="space-around" class="row-bg1" >
       <el-card class="box-card cardDiv2" style="margin-right: 5px">
         <!-- 图片走马灯 -->
-        <el-carousel class="image_carousel" height="400px">
-          <el-carousel-item v-for="(image, index) in images"  :key="index" class="carousel-item">
-            <img :src=getImageUrl(image.path) width="100%" >
+        <el-carousel class="image_carousel" height="400px" >
+          <el-carousel-item v-for="(image, index) in images"  :key="index">
+            <div class="image-container">
+              <img :src=getImageUrl(image.path) class="carousel-image">
+            </div>
             <div class="image-title">
               <div class="text-container">
                 <p class="single-line">{{ image.title }}</p>
@@ -35,14 +37,14 @@
               <span style="margin-right: 30px"><b>近期发布</b></span>
             </div>
             <el-table :data="latestfilelist" height=350 style="width: 100%">
-              <el-table-column prop="fileName" label="文件名" align="center" width="400" show-overflow-tooltip> 
+              <el-table-column prop="fileName" label="文件名" header-align="center" align="left" width="400" show-overflow-tooltip> 
                 <template slot-scope="scope">
                    <router-link :to="'/file/filedetail/' + scope.row.fileId" class="link-type">
                     <span>{{  scope.row.fileName }}</span>
                   </router-link>
                 </template>
               </el-table-column>
-              <el-table-column prop= "belongteam" label="归属团队" align="center"  show-overflow-tooltip> </el-table-column>
+              <el-table-column prop= "updateBy" label="提交人" align="center"  show-overflow-tooltip> </el-table-column>
               <el-table-column prop="publishTime" label="发布时间" align="center"  show-overflow-tooltip> 
                 <template slot-scope="scope">
                   <span>{{ parseTime(scope.row.publishTime, '{y}-{m}-{d}') }}</span>
@@ -58,14 +60,14 @@
             <span><b>下载排行</b></span>
           </div>
           <el-table :data="popularfilelist" height="300" >
-            <el-table-column prop="fileName" label="文件名" align="center" width="400" show-overflow-tooltip> 
+            <el-table-column prop="fileName" label="文件名" header-align="center" align="left" width="400" show-overflow-tooltip> 
                 <template slot-scope="scope">
                    <router-link :to="'/file/filedetail/' + scope.row.fileId" class="link-type">
                     <span>{{  scope.row.fileName }}</span>
                   </router-link>
                 </template>
             </el-table-column>
-            <el-table-column prop= "belongteam" label="归属团队" align="center" show-overflow-tooltip> </el-table-column>
+            <el-table-column prop= "updateBy" label="提交人" align="center" show-overflow-tooltip> </el-table-column>
             <el-table-column prop= "downloadCount" label="下载次数" align="center"> </el-table-column>
           </el-table>
         </el-card>
@@ -74,7 +76,7 @@
               <span style="margin-right: 30px"><b>我的收藏</b></span>
             </div>
             <el-table v-loading="loading" :data="favoritefilelist" height="300" style="width: 100%">
-              <el-table-column prop="fileName" label="文件名" align="center" width="400" show-overflow-tooltip> 
+              <el-table-column prop="fileName" label="文件名" header-align="center" align="left"  width="400" show-overflow-tooltip> 
                 <template slot-scope="scope">
                    <router-link :to="'/file/filedetail/' + scope.row.fileId" class="link-type">
                     <span>{{  scope.row.fileName }}</span>
@@ -91,7 +93,6 @@
                   <el-button
                     size="mini"
                     type="text"
-                    icon="el-icon-delete"
                     @click="deletefavorite(scope.row)"
                   >取消收藏</el-button>
                 </template>
@@ -412,31 +413,25 @@ export default {
   .clearfix{
     font-size:18px;
   }
- 
   ul {
     padding: 0;
     margin: 0;
   }
- 
   font-family: "open sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-size: 13px;
   color: #676a6c;
   overflow-x: hidden;
- 
   ul {
     list-style-type: none;
   }
- 
   h4 {
     margin-top: 0px;
   }
- 
   h2 {
     margin-top: 10px;
     font-size: 26px;
     font-weight: 100;
   }
- 
   p {
     margin-top: 10px;
     b {
@@ -461,16 +456,24 @@ export default {
 .image_carousel{
   width: 100%;
   margin-right:10px;
+  position: relative;
+}
+.image-container{
+  position: relative;
+  width: 100%;
+}
+.carousel-image {
+  width: 100%;
+  height: 350px;
+  object-fit: cover; /* 确保图片按照比例填充容器 */
 }
 .image-title {
   display: flex;
   align-items: center;
-  position: absolute;
-  bottom: 0px;
   width: 100%;
-  padding: 5px 10px;
-  color: white;
-  background-color: rgba(0, 0, 0, 0.7);
+  padding: 0px 10px;
+  color: black;
+  background-color: rgba(0, 0, 0, 0.2);
   font-size: 16px;
   white-space: nowrap;
 }
@@ -496,26 +499,9 @@ export default {
 .single-line{
   width:100%;
 }
-.news_detail{
-  width: 50%;
-  margin-left: 10px;
-}
-.news_header {
-  display: flex;
-  align-items: center; /* 垂直居中 */
-  height: 50px; /* 固定高度 */
-  background-color: rgba(0, 0, 128);
-}
-.news_header h2{
-  margin-top: 0;
-  margin-bottom: 0;
-  color: white;
-  align-items: center;
-  margin-right: auto
-}
 .more-link{
   font-size: 14px;
-  color: white; /* 蓝色链接的颜色 */
+  color: black; /* 蓝色链接的颜色 */
   text-decoration: none; /* 去掉下划线 */
   flex:0 0 20%;
   text-align: right;
@@ -544,11 +530,6 @@ export default {
   top: 0; 
   width: 100%; 
   margin-top: 5px;
-}
-.one-line {
-  white-space: nowrap; /* 禁止换行 */
-  overflow: hidden; /* 超出部分隐藏 */
-  text-overflow: ellipsis; /* 超出部分显示省略号 */
 }
 </style>
  

@@ -44,7 +44,7 @@
     <!-- 文档信息展示-->
     <el-table v-loading="loading" :data="reviewList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="文件名" align="center" prop="fileName" width="600" :show-overflow-tooltip="true">
+      <el-table-column label="文件名" header-align="center" align="left" prop="fileName" width="600" :show-overflow-tooltip="true">
         <template slot-scope="scope">
           <router-link :to="'/file/filedetail/' + scope.row.fileId" class="link-type">
             <span>{{ scope.row.fileName }}</span>
@@ -179,6 +179,7 @@ export default {
       open: false,
       // 评审人列表
       ReviewerList: undefined,
+      currentreview:null,
       // 查询参数
       queryParams: {
         pageNum: 1,
@@ -306,6 +307,15 @@ export default {
         this.loading = false;
         this.open = true;
         this.title = "文档评阅";
+      });
+      getReview(this.currentid).then(response => {
+        this.currentreview = response.data;
+        this.loading = false;
+        if (response.data.comment) {
+          this.form.comment = this.currentreview.comment;
+        } else {
+          this.form.comment = '同意';
+        }
       });
     },
     /** 提交按钮 */

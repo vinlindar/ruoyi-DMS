@@ -74,7 +74,7 @@
 
     <el-table v-loading="loading" :data="recordsList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="文件名" align="center" prop="fileName" width="600px" show-overflow-tooltip>
+      <el-table-column label="文件名" header-align="center" align="left" prop="fileName" width="600px" show-overflow-tooltip>
         <template slot-scope="scope">
           <router-link :to="'/file/filedetail/' + scope.row.fileId" class="link-type">
             <span class="file-name">{{ scope.row.fileName }}</span>

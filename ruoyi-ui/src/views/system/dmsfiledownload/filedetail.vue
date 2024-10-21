@@ -57,9 +57,14 @@
       <div >
         <h3>发布范围</h3>
         <ul>
-          <el-card v-for="(item, index) in Permissionlist" :key="index" class="review-card">
+          <el-card v-for="(item, index) in Permissionlist" :key="index" style="margin-bottom: 10px;" class="review-card">
             <div class="review-info"> 
-              <p class="reviewer-text"> {{ item.deptId }},{{ getLabelById(deptOptions, item.deptId) }}</p>
+              <template v-if="item.shareType==='DEPT'">
+                <p class="reviewer-text"> {{ item.deptId }},{{item.deptName }}</p>
+              </template>
+              <template v-else-if="item.shareType==='USER'">
+                <p class="reviewer-text"> {{ item.userId }},{{ item.userName }}</p>
+              </template>
             </div> 
           </el-card>
         </ul>
@@ -175,6 +180,7 @@ export default {
     this.getReviewerList(); //获得评阅人名单
     const fileId = this.$route.params && this.$route.params.fileId;
     this.getfiledetail(fileId);
+    console.log(this)
   },
   methods: {
     /** 查询文件信息列表 */
@@ -319,6 +325,7 @@ export default {
             downloadUser: this.$store.state.user.name,
             downloadTime: formattedDate
           };
+          console.log(this.downloadrecord_form)
           addRecords(this.downloadrecord_form);
           var name = this.filedetail.fileName;
           var url = this.filedetail.filePath;

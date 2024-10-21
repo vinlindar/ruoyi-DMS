@@ -14,6 +14,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="downloadUser"    column="download_user"    />
         <result property="downloadTime"    column="download_time"    />
         <result property="downloadCount" column="download_count"/>
+        <result property="updateBy" column="update_by"/>
     </resultMap>
     <resultMap id="DmsDownloadNumbyfileId" type="int">
 	    <id property="downloadCount" column="download_count"/>
@@ -49,12 +50,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </select>
     
     <select id="selectMostPopularFile" resultMap="DmsDownloadRecordsResult">
-			SELECT ddr.file_id, ddr.file_name, ddr.belongteam, COUNT(*) as download_count
+			SELECT ddr.file_id, ddr.file_name, ddr.belongteam, dfi.update_by, COUNT(*) as download_count
 		    from dms_download_records ddr
 		    inner join dms_file_info dfi
 		    on ddr.file_id =dfi.file_id
 		    where dfi.file_status =3
-		    GROUP BY ddr.file_id, ddr.file_name, ddr.belongteam
+		    GROUP BY ddr.file_id, ddr.file_name, ddr.belongteam, dfi.update_by
 		    ORDER BY download_count DESC
 		    LIMIT 10
 	</select>

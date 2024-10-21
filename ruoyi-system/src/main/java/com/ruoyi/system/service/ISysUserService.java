@@ -212,4 +212,10 @@ public interface ISysUserService
      */
     public String importUser(List<SysUser> userList, Boolean isUpdateSupport, String operName);
 
+    /**
+     * 通过部门ID查询用户列表
+     * 新增 by hyz
+     * @return 用户对象信息
+     */
+	public List<SysUser> selectUsersByDeptId(Long deptId);
 }

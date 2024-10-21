@@ -73,6 +73,7 @@ public class DmsFileInfoController extends BaseController
         	dmsFileInfo.setQueryuserDept(userDept);
         	dmsFileInfo.setQueryuserRole(userRole);
         	startPage();
+        	
         	List<DmsFileInfo> list = dmsFileInfoService.selectDmsFileInfoListByPremission(dmsFileInfo);
         	return getDataTable(list);
         }else {

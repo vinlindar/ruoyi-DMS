@@ -52,7 +52,7 @@
     <!-- 文档信息列表展示-->
     <el-table v-loading="loading" :data="publishList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="文件名" align="center" prop="fileName" width="600px" show-overflow-tooltip>
+      <el-table-column label="文件名" header-align="center" align="left" prop="fileName" width="600px" show-overflow-tooltip>
         <template slot-scope="scope">
           <router-link :to="'/file/filedetail/' + scope.row.fileId" class="link-type">
             <span class="file-name">{{ scope.row.fileName }}</span>
@@ -133,14 +133,29 @@
             ></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="发布范围" prop="deptIds">
+        <el-form-item label="发布类型" prop="shareType">
+          <el-radio-group v-model="form.shareType" @change="handleShareTypeChange">
+            <el-radio label="DEPT">团队</el-radio>
+            <el-radio label="USER">个人</el-radio>
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item v-if="form.shareType === 'DEPT'" label="团队范围" prop="deptIds">
           <treeselect 
             v-model="form.deptIds" 
             :options="deptOptions" 
             :show-count="true" 
             :multiple="true" 
             style="width: 400px;"
-            placeholder="请选择发布范围" />
+            placeholder="请选择团队范围" />
+        </el-form-item>
+        <el-form-item v-if="form.shareType === 'USER'" label="个人范围" prop="userIds">
+          <treeselect 
+            v-model="form.userIds" 
+            :options="userdeptOptions" 
+            :show-count="true" 
+            :multiple="true" 
+            style="width: 400px;"
+            placeholder="请选择个人范围" />
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -154,9 +169,9 @@
 <script>
 import { listPublish, getPublish, delPublish, updatePublish } from "@/api/system/publish";
 import { listReview } from "@/api/system/review";
-import { listUserbypostId } from "@/api/system/user";
+import { listUserbypostId,getUsersByDeptId } from "@/api/system/user";
 import { getPermissions } from "@/api/system/permissions";
-import {deptTreeSelect } from "@/api/system/dmsfileupload";
+import { deptTreeSelect} from "@/api/system/dmsfileupload";
 import Treeselect from "@riophae/vue-treeselect";
 import "@riophae/vue-treeselect/dist/vue-treeselect.css";
 
@@ -178,13 +193,16 @@ export default {
       multiple: true,
       // 部门树选项
       deptOptions: undefined,
+      // 用户树选择
+      userdeptOptions: undefined,
       // 显示搜索条件
       showSearch: true,
       // 总条数
       total: 0,
       // 定稿表格数据
       publishList: [],
-      PublishdeptList:[],
+      //发布范围数据
+      permissionList:[],
       // 弹出层标题
       title: "",
       // 定稿人列表
@@ -209,11 +227,13 @@ export default {
         isCurrent:1 //默认查询当前定稿信息
       },
       // 表单参数
-      form: {},
+      form: {
+        shareType:null
+      },
       // 表单校验
       rules: {
-        deptIds: [
-          { required: true, message: "发布范围不能为空", trigger: "blur" }
+        shareType:[
+          { required: true, message: "请选择发布类型", trigger: "blur" }
         ],
       }
     };
@@ -222,10 +242,10 @@ export default {
     modifiedDmsPublishResult() {
       // 复制原始数组
       let result = [...this.dict.type.dms_publish_result];
-      // 修改第一个值的label为“取消发布”
-      if (result.length > 0) {
-        result[0] = { ...result[0], label: "取消发布" };
-      }
+      // 修改待定稿的label为“取消发布”
+      result = result.map(item => 
+        item.label === "待定稿" ? { ...item, label: "取消发布" } : item
+      );
       return result;
     },
     filteredReviewRecords() {
@@ -291,7 +311,101 @@ export default {
     getDeptTree() {
       deptTreeSelect().then(response => {
         this.deptOptions = response.data;
+        this.loadUsersForDepartments(this.deptOptions);
       });
+    },
+    /** 查询部门用户下拉树结构 */
+    loadUsersForDepartments(departments) {
+      const departmentPromises = departments.map(dept => {
+        return this.loadUsersForDepartment(dept);
+      });
+
+      Promise.all(departmentPromises).then(results => {
+        this.userdeptOptions = results;
+      });
+    },
+    loadUsersForDepartment(department) {
+      return getUsersByDeptId(department.id).then(userResponse => {
+        const userOptions = userResponse.data
+        .filter(user => user.userId !== 1&& user.userId !== 101) //过滤admin和无用户
+        .map(user => ({
+          label: user.userName,
+          id: user.userId,
+          type:'user'
+        }));
+
+        if (department.children && department.children.length) {
+          const childrenPromises = department.children.map(childDept => this.loadUsersForDepartment(childDept));
+          return Promise.all(childrenPromises).then(childrenResults => {
+            return {
+              label: department.label,
+              id: department.id,
+              type:'dept',
+              children: userOptions.concat(childrenResults)
+            };
+          });
+        } else {
+          return {
+            label: department.label,
+            id: department.id,
+            type:'dept',
+            children: userOptions
+          };
+        }
+      });
+    },
+    //改变发布类型
+    handleShareTypeChange() {
+      // 清空相应的范围数据
+      if (this.form.shareType === 'DEPT') {
+        this.$set(this.form, 'userIds', []);
+      } else if (this.form.shareType === 'USER') {
+        this.$set(this.form, 'deptIds', []);
+      }
+    },
+    /** 展开 userIds 中的团队ID为用户ID */
+    expandUserIds() {
+      const userIds = new Set();
+      // 递归遍历 userdeptOptions，找到所有用户ID
+      const traverse = (nodes) => {
+        nodes.forEach(node => {
+          if (node.type === 'dept' && node.children) {
+            traverse(node.children);
+          } else if (node.type === 'user') {
+            userIds.add(node.id);
+          }
+        });
+      };
+      // 将 form.userIds 中的所有 ID 进行处理
+      this.form.userIds.forEach(id => {
+        const node = this.findNodeById(this.userdeptOptions, id);
+        if (node) {
+          if (node.type === 'dept' && node.children) {
+            // 如果是团队ID，展开其内所有用户ID
+            traverse([node]);
+          } else if (node.type === 'user') {
+            // 如果是用户ID，直接添加
+            userIds.add(id);
+          }
+        }
+      });
+      // 更新 form.userIds 仅包含用户ID
+      this.form.userIds = Array.from(userIds);
+    },
+    /** 根据ID在树结构中找到对应的节点 */
+    findNodeById(nodes, id) {
+      for (let node of nodes) {
+        if (node.id === id) {
+          return node;
+        }
+        if (node.children) {
+          const found = this.findNodeById(node.children, id);
+          if (found) {
+            return found;
+          }
+        }
+      }
+      return null;
     },
     // 取消按钮
     cancel() {
@@ -342,26 +456,30 @@ export default {
         this.loading = false;
         this.open = true;
       });
-      console.log(this)
       getPublish(this.currentid).then(response => {
         this.form = response.data;
+        if(this.form.isPassed==1){
+          this.form.isPassed = 2;
+        }
         this.open = true;
         this.title = "文档定稿";
         const fileId = this.form.fileId;
         getPermissions(fileId).then(response =>{
-          this.PublishdeptList = response.data;
+          this.permissionList = response.data;
           this.loading = false;
-          this.form.deptIds = this.PublishdeptList.map(dept => dept.deptId);
+          this.form.shareType=this.permissionList[0].shareType;
+          this.form.deptIds = this.permissionList.map(dept => dept.deptId);
+          this.form.userIds = this.permissionList.map(user => user.userId);
         })
       });
     },
     /** 提交按钮 */
     submitForm() {
+      this.expandUserIds();
       const currentDate = new Date();
       const formattedDate = `${currentDate.getFullYear()}-${(currentDate.getMonth() + 1).toString().padStart(2, '0')}-${currentDate.getDate().toString().padStart(2, '0')} ${currentDate.getHours().toString().padStart(2, '0')}:${currentDate.getMinutes().toString().padStart(2, '0')}:${currentDate.getSeconds().toString().padStart(2, '0')}`;
       this.form.id = this.currentid;
       this.form.publishTime = formattedDate;
-      this.form.deptIdsNum = this.form.deptIds.length;
       this.$refs["form"].validate(valid => {
         if (valid) {
             updatePublish(this.form).then(response => {

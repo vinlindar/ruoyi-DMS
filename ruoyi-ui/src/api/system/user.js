@@ -141,3 +141,10 @@ export function deptTreeSelect() {
     method: 'get'
   })
 }
+// 获取指定部门下的用户列表
+export function getUsersByDeptId(departmentId) {
+  return request({
+    url: `/system/user/deptId/${departmentId}`,
+    method: 'get'
+  });
+}

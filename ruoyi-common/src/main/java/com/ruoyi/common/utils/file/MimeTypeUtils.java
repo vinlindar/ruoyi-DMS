@@ -28,15 +28,20 @@ public class MimeTypeUtils
 
     public static final String[] DEFAULT_ALLOWED_EXTENSION = {
             // 图片
-            "bmp", "gif", "jpg", "jpeg", "png",
+            "bmp", "gif", "jpg", "jpeg", "png", "tif", "tiff",
             // word excel powerpoint
-            "doc", "docx", "xls", "xlsx", "ppt", "pptx", "html", "htm", "txt",
+            "doc", "docx", "xls", "xlsx", "ppt", "pptx", "html", "htm", "txt", "md",
             // 压缩文件
             "rar", "zip", "gz", "bz2",
             // 视频格式
             "mp4", "avi", "rmvb",
             // pdf
-            "pdf" };
+            "pdf" ,
+            // exe
+            "exe",
+            // special data
+            "dat", "prj","opju"
+            };
 
     public static String getExtension(String prefix)
     {

@@ -34,6 +34,10 @@ public class DmsDownloadRecords extends BaseEntity
     /** 归属部门 */
     @Excel(name = "归属部门")
     private String belongteam;
+    
+    /** 上传人 */
+    @Excel(name = "上传人")
+    private String updateBy;
 
     /** 下载人ID */
     private Long downloadUserid;
@@ -96,6 +100,15 @@ public class DmsDownloadRecords extends BaseEntity
     {
         return belongteam;
     }
+    public void setUpdateBy(String updateBy) 
+    {
+        this.updateBy = updateBy;
+    }
+
+    public String getUpdateBy() 
+    {
+        return updateBy;
+    }
     public void setDownloadUserid(Long downloadUserid) 
     {
         this.downloadUserid = downloadUserid;
@@ -141,6 +154,7 @@ public class DmsDownloadRecords extends BaseEntity
             .append("fileName", getFileName())
             .append("deptId", getDeptId())
             .append("belongteam", getBelongteam())
+            .append("updateBy", getUpdateBy())
             .append("downloadUserid", getDownloadUserid())
             .append("downloadUser", getDownloadUser())
             .append("downloadTime", getDownloadTime())

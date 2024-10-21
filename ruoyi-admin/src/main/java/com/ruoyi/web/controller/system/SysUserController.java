@@ -124,6 +124,14 @@ public class SysUserController extends BaseController
         List <SysUser> list = userService.selectUsersByPostName(postId);
         return success(list);
     }
+    /**
+     * 根据部门ID获取用户信息
+     */
+    @GetMapping("/deptId/{deptId}")
+    public AjaxResult getUsersByDeptId(@PathVariable("deptId") Long deptId) {
+        List <SysUser> list = userService.selectUsersByDeptId(deptId);
+        return success(list);
+    }
     
     /**
      * 新增用户

@@ -55,25 +55,29 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </sql>
 
     <select id="selectDmsFileInfoList" parameterType="DmsFileInfo" resultMap="DmsFileInfoResult">
-        <include refid="selectDmsFileInfoVo"/>
+         select fi.file_id, fi.file_name, fi.file_path, fi.author, 
+         	fi.reviewer, fi.file_type, fi.file_size, fi.file_status, fi.belongteam, fi.description, fi.update_by, 
+         	fi.update_time, fi.publish_id,fi.keywords,fpb.publish_time
+         from dms_file_info fi
+         left join (SELECT file_id, publish_time FROM dms_file_publish WHERE is_current = 1) fpb ON fi.file_id = fpb.file_id
         <where>  
-            <if test="fileId != null  and fileId != ''"> and file_id = #{fileId}</if>
+            <if test="fileId != null  and fileId != ''"> and fi.file_id = #{fileId}</if>
             <if test="fileName != null and fileName != ''">
-    			and (file_name like concat('%', #{fileName}, '%') or keywords like concat('%', #{fileName}, '%'))
+    			and (fi.file_name like concat('%', #{fileName}, '%') or fi.keywords like concat('%', #{fileName}, '%'))
 			</if>
-            <if test="filePath != null  and filePath != ''"> and file_path = #{filePath}</if>
-            <if test="author != null  and author != ''"> and author = #{author}</if>
-            <if test="reviewer != null  and reviewer != ''"> and reviewer = #{reviewer}</if>
-            <if test="fileType != null "> and file_type = #{fileType}</if>
-            <if test="fileSize != null  and fileSize != ''"> and file_size = #{fileSize}</if>
-            <if test="fileStatus != null "> and file_status = #{fileStatus}</if>
-            <if test="belongteam != null  and belongteam != ''"> and belongteam = #{belongteam}</if>
-            <if test="description != null  and description != ''"> and description = #{description}</if>
-            <if test="updateBy != null  and updateBy != ''"> and update_by = #{updateBy}</if>
-            <if test="updateTime != null "> and DATE(update_time) = #{updateTime}</if>
-            <if test="publishId != null "> and publish_id = #{publishId}</if>
+            <if test="filePath != null  and filePath != ''"> and fi.file_path = #{filePath}</if>
+            <if test="author != null  and author != ''"> and fi.author = #{author}</if>
+            <if test="reviewer != null  and reviewer != ''"> and fi.reviewer = #{reviewer}</if>
+            <if test="fileType != null "> and fi.file_type = #{fileType}</if>
+            <if test="fileSize != null  and fileSize != ''"> and fi.file_size = #{fileSize}</if>
+            <if test="fileStatus != null "> and fi.file_status = #{fileStatus}</if>
+            <if test="belongteam != null  and belongteam != ''"> and fi.belongteam = #{belongteam}</if>
+            <if test="description != null  and description != ''"> and fi.description = #{description}</if>
+            <if test="updateBy != null  and updateBy != ''"> and fi.update_by = #{updateBy}</if>
+            <if test="updateTime != null "> and DATE(fi.update_time) = #{updateTime}</if>
+            <if test="publishId != null "> and fi.publish_id = #{publishId}</if>
         </where>
-        ORDER BY update_time DESC
+        ORDER BY fi.update_time DESC
     </select>
     
     <select id="selectDmsFileInfoListByPremission" parameterType="DmsFileInfo" resultMap="DmsFileInfoResult">
@@ -82,8 +86,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         	fi.file_status,fi.belongteam,fi.description,fi.update_by,fi.update_time,fpb.publish_time
     	from dms_file_info fi
     	inner join dms_file_permissions fp ON fi.file_id = fp.file_id
-   		inner join sys_user su ON fp.dept_id = su.dept_id
-   		INNER JOIN (SELECT file_id, publish_time FROM dms_file_publish WHERE is_current = 1) fpb ON fi.file_id = fpb.file_id
+    	inner join (SELECT file_id, publish_time FROM dms_file_publish WHERE is_current = 1) fpb ON fi.file_id = fpb.file_id
         <where>
         	<choose>
         	    <when test="queryuserRole == null">
@@ -92,15 +95,14 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         	 	</when>
         	 	<when test="queryuserRole == 2">
         	 	</when>
-        	 	<when test="queryuserRole == 3">
-        	 		<if test="queryuserId != null">and (su.user_id = #{queryuserId} or su.dept_id in (select parent_id from sys_dept where dept_id = (select dept_id from sys_user where user_id = #{queryuserId})))</if>
-            	</when>
-            	<when test="queryuserRole == 4">
-                	and fp.dept_id= #{queryuserDept}
-                	<if test="queryuserId != null">and su.user_id = #{queryuserId}</if>
-            	</when>
-            	<when test="queryuserRole == 5">
-                	and su.dept_id in (select parent_id from sys_dept where dept_id = (select dept_id from sys_user where user_id = #{queryuserId}))
+            	<when test="queryuserRole == 3 or queryuserRole == 4 or queryuserRole == 5">
+                	<if test="queryuserId != null">
+                	(
+                        fp.dept_id = #{queryuserDept}
+                        OR fp.dept_id IN (SELECT parent_id FROM sys_dept WHERE dept_id = #{queryuserDept})
+                        OR fp.user_id = #{queryuserId}
+                    )
+                    </if>
             	</when>
             </choose>
             <if test="fileId != null  and fileId != ''"> and fi.file_id = #{fileId}</if>
@@ -118,7 +120,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="updateBy != null  and updateBy != ''"> and fi.update_by = #{updateBy}</if>
             <if test="updateTime != null "> and DATE(fi.update_time) = #{updateTime}</if>
             <if test="publishId != null "> and fi.publish_id = #{publishId}</if>
-            <if test="publishTime != null "> and DATE(publish_time) = #{publishTime}</if>
+            <if test="publishTime != null "> and DATE(fpd.publish_time) = #{publishTime}</if>
         </where>
         ORDER BY publish_time DESC
     </select>
@@ -140,7 +142,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
          SELECT
 	        (SELECT COUNT(*) FROM dms_file_info WHERE file_status = 3 AND update_by = (SELECT user_name FROM sys_user WHERE user_id = #{userid})) AS Publish_num,
 	        (SELECT COUNT(*) FROM dms_file_review WHERE reviewer_id = #{userid} AND is_current = 1 AND status = 1) AS waitReview_num,
-	        (SELECT COUNT(*) FROM dms_file_publish WHERE publish_id = #{userid} AND is_passed = 1) AS waitPublish_num,
+	        (SELECT COUNT(*) FROM dms_file_publish WHERE publish_id = #{userid} AND is_passed = 1 AND is_current = 1) AS waitPublish_num,
 	        (SELECT COUNT(*) FROM dms_file_info WHERE file_status = 4 AND update_by = (SELECT user_name FROM sys_user WHERE user_id = #{userid})) AS waitModify_num
     </select>
     

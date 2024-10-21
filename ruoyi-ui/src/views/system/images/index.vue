@@ -106,7 +106,7 @@
     <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="110px">
         <el-form-item label="上传图片" prop="path">
-          <image-upload v-model="form.path"/>
+          <image-upload v-model="form.path" :limit="1"/>
         </el-form-item>
         <el-form-item label="新闻标题" prop="title">
           <el-input v-model="form.title" placeholder="不超过100字" />

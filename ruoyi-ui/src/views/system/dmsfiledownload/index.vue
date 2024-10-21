@@ -117,7 +117,7 @@
         </el-form>
         <el-table v-loading="loading" :data="dmsfileuploadList" @selection-change="handleSelectionChange">
           <el-table-column type="selection" width="55" align="center" />
-          <el-table-column label="文件名" align="center" prop="fileName" width="600px" show-overflow-tooltip>
+          <el-table-column label="文件名" header-align="center" align="left" prop="fileName" width="600px" show-overflow-tooltip>
             <template slot-scope="scope">
               <router-link :to="'/file/filedetail/' + scope.row.fileId" class="link-type">
                 <span class="file-name">{{ scope.row.fileName }}</span>
@@ -139,7 +139,7 @@
 <!--           <el-table-column label="文件大小" align="center" prop="fileSize" /> -->
           <el-table-column label="发布时间" align="center" prop="publishTime" width="130">
             <template slot-scope="scope">
-              <span>{{ parseTime(scope.row.updateTime, '{y}-{m}-{d}') }}</span>
+              <span>{{ parseTime(scope.row.publishTime, '{y}-{m}-{d}') }}</span>
             </template>
           </el-table-column>
           <el-table-column label="操作" align="center">

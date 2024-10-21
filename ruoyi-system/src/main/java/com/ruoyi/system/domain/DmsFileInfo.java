@@ -274,6 +274,7 @@ public class DmsFileInfo extends BaseEntity
             .append("publishId", getPublishId())
             .append("querykind", getQuerykind())
             .append("queryuserId", getQueryuserId())
+            .append("queryuserDept", getQueryuserDept())
             .append("queryuserRole", getQueryuserRole())
             .toString();
     }

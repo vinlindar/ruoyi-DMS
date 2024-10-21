@@ -132,5 +132,12 @@ public interface SysUserMapper
      * @return 结果
      */
     public SysUser checkEmailUnique(String email);
+    
+    /**
+     * 通过部门ID查询用户列表
+     * 新增 by hyz
+     * @return 用户对象信息
+     */
+	public List<SysUser> selectUsersByDeptId(Long deptId);
 
 }
