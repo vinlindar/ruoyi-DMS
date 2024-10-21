@@ -28,7 +28,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="creatTime != null "> and creat_time = #{creatTime}</if>
             <if test="isShow != null "> and is_show = #{isShow}</if>
         </where>
-        ORDER BY creat_time  DESC
+        ORDER BY creat_time  DESC 
     </select>
     
     <select id="selectDmsNewsImagesById" parameterType="Long" resultMap="DmsNewsImagesResult">

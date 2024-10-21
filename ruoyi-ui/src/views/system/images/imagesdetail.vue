@@ -1,8 +1,8 @@
 <template>
   <div class="app-container">
     <el-table v-loading="loading" :data="imagesList" width="100%" >
-      <el-table-column label="序号" align="center" prop="id"  width="100"/>
-      <el-table-column label="详细描述" align="center" prop="description"  width="800"/>
+      <!-- <el-table-column label="序号" align="center" prop="id"  width="100"/> -->
+      <el-table-column label="新闻详情" align="center" prop="description"  width="800"/>
       <el-table-column label="图片预览" align="center" prop="path" width="100">
         <template slot-scope="scope">
           <image-preview :src="scope.row.path" :width="50" :height="50"/>

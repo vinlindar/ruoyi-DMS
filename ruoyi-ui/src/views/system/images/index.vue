@@ -73,7 +73,7 @@
           <span>{{ parseTime(scope.row.creatTime, '{y}-{m}-{d}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="是否展示" align="center" prop="isShow" :formatter="formatIsShow" width="100"/>
+      <!-- <el-table-column label="是否展示" align="center" prop="isShow" :formatter="formatIsShow" width="100"/> -->
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button
@@ -108,16 +108,16 @@
         <el-form-item label="上传图片" prop="path">
           <image-upload v-model="form.path" :limit="1"/>
         </el-form-item>
-        <el-form-item label="新闻标题" prop="title">
+        <!-- <el-form-item label="新闻标题" prop="title">
           <el-input v-model="form.title" placeholder="不超过100字" />
-        </el-form-item>
-        <el-form-item label="详细描述" prop="description">
+        </el-form-item> -->
+        <el-form-item label="新闻详情" prop="description">
           <el-input v-model="form.description"  
               type="textarea"  
               :autosize="{minRows: 4, maxRows: 4}" 
               placeholder="不超过2000字" />
         </el-form-item>
-        <el-form-item label="是否展示" prop="isShow">
+        <!-- <el-form-item label="是否展示" prop="isShow">
           <el-switch v-model="form.isShow" :active-value="1" :inactive-value="0"></el-switch>
         </el-form-item>
         <el-form-item label="发布时间" prop="creatTime">
@@ -127,7 +127,7 @@
             value-format="yyyy-MM-dd"
             placeholder="请选择发布时间">
           </el-date-picker>
-        </el-form-item>
+        </el-form-item> -->
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button type="primary" @click="submitForm">确 定</el-button>
@@ -179,22 +179,16 @@ export default {
         path:[
           { required: true, message: "照片不能为空", trigger: "blur" },
         ],
-        title: [
-          { required: true, message: "新闻标题不能为空", trigger: "blur" },
-          { max: 100, message: "新闻标题不能超过100字符", trigger: "blur" }
-        ],
         description: [
           { required: true, message: "新闻详情不能为空", trigger: "blur" },
           { max: 2000, message: "详细描述不能超过2000字符", trigger: "blur" }
-        ],
-        creatTime:[
-          { required: true, message: "日期不能为空", trigger: "blur" },
         ],
       },
     };
   },
   created() {
     this.getList();
+    console.log(this);
   },
   methods: {
     /** 查询新闻照片列表 */
@@ -267,6 +261,7 @@ export default {
               this.getList();
             });
           } else {
+            this.form.creatTime =  new Date().toISOString().slice(0, 19).replace('T', ' ');;
             addImages(this.form).then(response => {
               this.$modal.msgSuccess("新增成功");
               this.open = false;

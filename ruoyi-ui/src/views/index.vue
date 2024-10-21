@@ -143,7 +143,6 @@ export default {
       },
       images:[],
       newsquery:{
-        isShow:1,
       }
     };
   },
@@ -204,7 +203,12 @@ export default {
     fetchImages() {
       this.loading = true;
       listImages(this.newsquery).then(response => {
-          this.images = response.rows;
+          // 先过滤出可展示的照片
+          const filteredImages = response.rows;
+          // 按 creatTime 升序排序
+          filteredImages.sort((a, b) => new Date(b.creatTime) - new Date(a.creatTime));
+          // 取前 5 个记录
+          this.images = filteredImages.slice(0, 5);
           this.loading = false;
         })
         .catch(error => {

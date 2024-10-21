@@ -71,7 +71,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
      	from sys_dept sd
 	       left join (dms_download_records fdr join sys_user u ON fdr.download_userid = u.user_id)
 			on u.dept_id = sd.dept_id
-        group by sd.dept_name;
+        group by sd.dept_id
+        order by sd.dept_id desc
     </select>
     
     <select id="selectclassifieddownloadfilenum" resultMap="DmsClassifiedfileNumResult">

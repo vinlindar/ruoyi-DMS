@@ -68,6 +68,7 @@ public class DmsNewsImagesController extends BaseController
 
     /**
      * 新增新闻照片
+     * 新增后触发操作，修改
      */
     @Log(title = "新闻照片", businessType = BusinessType.INSERT)
     @PostMapping

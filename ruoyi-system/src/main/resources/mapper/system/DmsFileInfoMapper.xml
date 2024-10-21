@@ -135,7 +135,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
      	from sys_dept sd
         left join dms_file_info f on f.file_status = 3
         where sd.parent_id = 100
-        group by sd.dept_name
+        group by sd.dept_id
+    	order by sd.dept_id desc
     </select>
     
     <select id="selectBacisnumByuserId" parameterType="Long" resultMap="DmsBasicNumResult">
