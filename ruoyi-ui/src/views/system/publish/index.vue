@@ -228,13 +228,42 @@ export default {
       },
       // 表单参数
       form: {
-        shareType:null
+        shareType:null,
+        isPassed: null,
+        deptIds: [],
+        userIds: [],
       },
       // 表单校验
       rules: {
-        shareType:[
-          { required: true, message: "请选择发布类型", trigger: "blur" }
+        isPassed: [
+        { required: true, message: '请选择定稿结果', trigger: 'change' },
         ],
+        shareType: [
+        { required: true, message: '发布类型不能为空', trigger: 'change', 
+          validator: (rule, value, callback) => {
+            if (this.form.isPassed === 2 && !value) {
+              callback(new Error('发布类型不能为空'));
+            } else {
+              callback();}}}
+        ],
+        deptIds:[
+        { required: true, message: '团队范围不能为空', trigger: 'change', 
+          validator: (rule, value, callback) => {
+            if (this.form.shareType === 'DEPT' && (!value || value.length === 0)) {
+              callback(new Error('团队范围不能为空'));
+            } else {
+              callback();
+            }}}
+        ],
+        userIds: [
+        { required: true, message: '个人范围不能为空', trigger: 'change', 
+          validator: (rule, value, callback) => {
+            if (this.form.shareType === 'USER' && (!value || value.length === 0)) {
+              callback(new Error('个人范围不能为空'));
+            } else {
+              callback();
+            }}}
+        ]
       }
     };
   },
@@ -281,7 +310,7 @@ export default {
         }
       );
     },
-    /**  查询评阅人下拉列表 */
+    /** 查询评阅人下拉列表 */
     getReviewerList() {
       this.loading = true;
       const postID = 2;
@@ -318,8 +347,7 @@ export default {
     loadUsersForDepartments(departments) {
       const departmentPromises = departments.map(dept => {
         return this.loadUsersForDepartment(dept);
-      });
-
+      })
       Promise.all(departmentPromises).then(results => {
         this.userdeptOptions = results;
       });
@@ -461,21 +489,25 @@ export default {
         if(this.form.isPassed==1){
           this.form.isPassed = 2;
         }
-        this.open = true;
         this.title = "文档定稿";
         const fileId = this.form.fileId;
         getPermissions(fileId).then(response =>{
           this.permissionList = response.data;
-          this.loading = false;
+          this.loading = false;        
+          if (this.permissionList.length > 0) {
           this.form.shareType=this.permissionList[0].shareType;
-          this.form.deptIds = this.permissionList.map(dept => dept.deptId);
-          this.form.userIds = this.permissionList.map(user => user.userId);
+          this.$set(this.form, 'deptIds', this.permissionList.map(dept => dept.deptId));
+          this.$set(this.form, 'userIds', this.permissionList.map(user => user.userId));
+        }
+        this.open = true;
         })
       });
     },
     /** 提交按钮 */
     submitForm() {
-      this.expandUserIds();
+      if (this.form.isPassed ==2){
+        this.expandUserIds();
+      }
       const currentDate = new Date();
       const formattedDate = `${currentDate.getFullYear()}-${(currentDate.getMonth() + 1).toString().padStart(2, '0')}-${currentDate.getDate().toString().padStart(2, '0')} ${currentDate.getHours().toString().padStart(2, '0')}:${currentDate.getMinutes().toString().padStart(2, '0')}:${currentDate.getSeconds().toString().padStart(2, '0')}`;
       this.form.id = this.currentid;

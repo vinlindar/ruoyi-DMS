@@ -29,7 +29,7 @@ export function addDmsfileupload(data) {
 // 修改文件信息
 export function updateDmsfileupload(data) {
   return request({
-    url: '/system/dmsfileupload',
+    url: '/system/dmsfileupload/edit',
     method: 'put',
     data: data
   })
@@ -47,5 +47,14 @@ export function deptTreeSelect() {
   return request({
     url: '/system/user/deptTree',
     method: 'get'
+  })
+}
+
+//修改基本信息和发布范围（管理员）
+export function manageDmsfile(data) {
+  return request({
+    url: '/system/dmsfileupload/manage',
+    method: 'put',
+    data: data
   })
 }

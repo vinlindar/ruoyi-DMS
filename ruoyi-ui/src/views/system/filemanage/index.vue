@@ -1,7 +1,7 @@
 <template>
   <div class="app-container">
     <!-- 顶部搜索框-->
-    <el-form :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch" label-width="68px">
+    <el-form :model="queryParams" ref="queryParams" size="small" :inline="true" v-show="showSearch" label-width="68px">
       <el-form-item label="文件名或关键词" prop="fileName" label-width="150px !important">
         <el-input
           v-model="queryParams.fileName"
@@ -20,92 +20,20 @@
           />
         </el-select>
       </el-form-item>
-      <el-form-item label="文件状态" prop="fileStatus">
-        <el-select v-model="queryParams.fileStatus" placeholder="请选择文件状态" clearable>
-          <el-option
-            v-for="dict in dict.type.dms_file_status"
-            :key="dict.value"
-            :label="dict.label"
-            :value="dict.value"
-          />
-        </el-select>
-      </el-form-item>
       <el-form-item label="归属团队" prop="belongteam">
         <treeselect 
           v-model="form.deptId" 
           :options="deptOptions" 
           :show-count="true" 
           @select="handleSelect2"
-          placeholder="请选择归属团队" />
-      </el-form-item>
-      <el-form-item label="提交人" prop="updateBy":clearable="isAdmin">
-        <el-input
-          v-model="queryParams.updateBy"
-          placeholder="仅管理员可操作"
-          clearable
-          @keyup.enter.native="handleQuery"
-          :disabled="!isAdmin"
-        />
-      </el-form-item>
-      <el-form-item label="提交时间" prop="updateTime">
-        <el-date-picker clearable
-          v-model="queryParams.updateTime"
-          type="date"
-          value-format="yyyy-MM-dd"
-          placeholder="请选择创建时间">
-        </el-date-picker>
+          placeholder="请选择归属团队"
+          :disabled="!isAdmin"  />
       </el-form-item>
       <el-form-item>
         <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
         <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
       </el-form-item>
     </el-form>
-    <!-- 文档操作栏位-->
-    <el-row :gutter="10" class="mb8">
-      <el-col :span="1.5">
-        <el-button
-          type="primary"
-          plain
-          icon="el-icon-plus"
-          size="small"
-          @click="handleAdd"
-          v-hasPermi="['system:dmsfileupload:add']"
-        >提交文档</el-button>
-      </el-col>
-      <el-col :span="1.5">
-        <el-button
-          type="success"
-          plain
-          icon="el-icon-edit"
-          size="small"
-          :disabled="single"
-          @click="handleUpdate"
-          v-hasPermi="['system:dmsfileupload:edit']"
-        >修改文档</el-button>
-      </el-col>
-      <el-col :span="1.5">
-        <el-button
-          type="danger"
-          plain
-          icon="el-icon-delete"
-          size="small"
-          :disabled="single"
-          @click="handleDelete"
-          v-hasPermi="['system:dmsfileupload:remove']"
-        >删除文档</el-button>
-      </el-col>
-      <el-col :span="1.5">
-        <el-button
-          type="warning"
-          plain
-          icon="el-icon-download"
-          size="small"
-          @click="handleExport"
-          v-hasPermi="['system:dmsfileupload:export']"
-        >导出</el-button>
-      </el-col>
-      <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
-    </el-row>
     <!-- 文档信息展示-->
     <el-table v-loading="loading" :data="dmsfileuploadList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
@@ -144,12 +72,6 @@
             size="small"
             type="text"
             icon="el-icon-edit"
-            @click="handleDownload(scope.row)"
-          >下载</el-button>
-          <el-button
-            size="small"
-            type="text"
-            icon="el-icon-edit"
             @click="handleUpdate(scope.row)"
             v-hasPermi="['system:dmsfileupload:edit']"
           >修改</el-button>
@@ -171,11 +93,11 @@
       :limit.sync="queryParams.pageSize"
       @pagination="getList"
     />
-    <!-- 新增或修改文件信息对话框 -->
+    <!-- 修改文件信息对话框 -->
     <el-dialog :title="title" :visible.sync="open" width="800px" append-to-body>
       <el-row>
         <!-- 左侧表单 -->
-        <el-col :span="12">
+        <el-col :span="12" >
           <el-form ref="form" :model="form" :rules="rules" label-width="110px">
             <el-form-item label="文件名" prop="fileName">
               <el-input v-model="form.fileName" placeholder="请输入文件名" />
@@ -198,28 +120,8 @@
                   <div slot="tip" class="el-upload__tip">仅支持上传单个文件,且不超过50M</div>
                 </el-upload>
               </el-form-item>
-            <el-form-item label="评阅人" prop="reviewerIds">
-              <el-select v-model="form.reviewerIds" placeholder="请选择评阅人" multiple>
-                <el-option 
-                  v-for="user in ReviewerList" 
-                  :key="user.userId" 
-                  :label="user.userName" 
-                  :value="user.userId"
-                />
-              </el-select>
-            </el-form-item>
-            <el-form-item label="定稿人" prop="publishId">
-              <el-select v-model="form.publishId" placeholder="请选择定稿人" :multiple="false">
-                <el-option 
-                  v-for="user in PublisherList" 
-                  :key="user.userId" 
-                  :label="user.userName" 
-                  :value="user.userId"
-                />
-              </el-select>
-            </el-form-item>
             <el-form-item label="文件分类" prop="fileType">
-              <el-select v-model="form.fileType" placeholder="请选择文件分类">
+              <el-select v-model="form.fileType" placeholder="请选择文件分类" style="width: 270px;">
                 <el-option
                   v-for="dict in dict.type.dms_file_type"
                   :key="dict.value"
@@ -228,15 +130,32 @@
                 ></el-option>
               </el-select>
             </el-form-item>
-            <!-- <el-form-item label="归属团队" prop="deptId">
-              <treeselect 
-              v-model="form.deptId" 
-              :options="deptOptions" 
-              :show-count="true" 
-              placeholder="请选择归属团队" />
-            </el-form-item> -->
             <el-form-item label="文件描述" prop="description">
               <el-input v-model="form.description" type="textarea" :autosize="{minRows: 4, maxRows: 4}"  placeholder="不超过500字符,包括建议发布范围" />
+            </el-form-item>
+            <el-form-item label="发布类型" prop="shareType">
+              <el-radio-group v-model="form.shareType" @change="handleShareTypeChange" >
+                <el-radio label="DEPT">团队</el-radio>
+                <el-radio label="USER">个人</el-radio>
+              </el-radio-group>
+            </el-form-item>
+            <el-form-item v-if="form.shareType === 'DEPT'" label="团队范围" prop="deptIds">
+              <treeselect 
+                v-model="form.deptIds" 
+                :options="deptOptions" 
+                :show-count="true" 
+                :multiple="true" 
+                style="width: 270px;"
+                placeholder="请选择团队范围" />
+            </el-form-item>
+            <el-form-item v-if="form.shareType === 'USER'" label="个人范围" prop="userIds">
+              <treeselect 
+                v-model="form.userIds" 
+                :options="userdeptOptions" 
+                :show-count="true" 
+                :multiple="true" 
+                style="width: 270px;"
+                placeholder="请选择个人范围" />
             </el-form-item>
           </el-form> 
         </el-col>
@@ -251,47 +170,18 @@
         <el-button @click="cancel">取 消</el-button>
       </div>
     </el-dialog>
-
-    <!-- 评阅信息展示-->
-<!--     <el-dialog title="评阅意见" :visible.sync="openreview" width="500px" append-to-body>
-      <el-card v-for="(review, index) in ReviewList" :key="index" class="review-card">
-        <div class="review-info">
-          <p class="reviewer-text">评阅人:</p>
-          <p slot="header" class="reviewer">{{ review.reviewerName }}</p>
-          <p>评阅结果: </p>
-          <p><dict-tag :options="getReviewResultText()" :value="review.isPassed" /></p>
-        </div>
-        <p>评阅信息: {{ review.comment }}</p>
-        <el-divider></el-divider>
-      </el-card>
-    </el-dialog> -->
-
-    <!-- 定稿信息展示-->
-<!--     <el-dialog title="定稿意见" :visible.sync="openpublish" width="500px" append-to-body>
-      <el-card class="review-card">  
-        <div class="review-info">
-          <p class="reviewer-text">定稿人:</p>
-          <p>{{ getPublishNameById(this.PublishList.publishId) }}</p>
-          <p>定稿结果: </p>
-          <p><dict-tag :options="getPublishResultText()" :value="this.PublishList.isPassed" /></p>
-        </div>
-          <p>评阅信息: {{ this.PublishList.comment }}</p>
-        <el-divider></el-divider>
-      </el-card>
-    </el-dialog> -->
-    
   </div>
 </template>
 
 <script>
-import { listDmsfileupload, getDmsfileupload, delDmsfileupload, addDmsfileupload, updateDmsfileupload,deptTreeSelect  } from "@/api/system/dmsfileupload";
-import { listUserbypostId } from "@/api/system/user";
-import { listReview}from "@/api/system/review";
+import { listDmsfileupload, getDmsfileupload, delDmsfileupload, updateDmsfileupload,deptTreeSelect,manageDmsfile } from "@/api/system/dmsfileupload";
+import {  updatePublish } from "@/api/system/publish";
+import { listUserbypostId,getUsersByDeptId  } from "@/api/system/user";
+import { getUserProfile } from "@/api/system/user";
+import { getPermissions } from "@/api/system/permissions";
 import { getToken } from "@/utils/auth";
 import Treeselect from "@riophae/vue-treeselect";
 import "@riophae/vue-treeselect/dist/vue-treeselect.css";
-import {getPublish} from "@/api/system/publish";
-import { getUserProfile } from "@/api/system/user";
 
 export default {
   name: "Dmsfileupload",
@@ -350,13 +240,13 @@ export default {
         reviewer: null,
         fileType: null,
         fileSize: null,
-        fileStatus: null,
+        fileStatus: 3, //仅展示已发布的文档
         belongteam: null,
         description: null,
-        updateBy: this.$store.state.user.name,
+        updateBy: null,
         updateTime: null,
         publishId: null,
-        //区分文档浏览的查询(1.浏览查询；2.管理员查询；其余.全部查询) 目前都可以看到，不使用1
+        //区分文档浏览的查询(1.浏览查询；其余.全部查询) 目前都可以看到，不使用1
         querykind: 0,
         // 用户权限控制需要
         queryuseId:this.$store.state.user.userId,
@@ -371,7 +261,12 @@ export default {
         isPassed: null
       },
       // 表单参数
-      form: {},
+      form: {
+        deptId:null,
+        shareType:null,
+        deptIds: [],
+        userIds: [],
+      },
       //评审表参数
       reviewform:{
         fileId:null,
@@ -384,21 +279,30 @@ export default {
           { required: true, message: "文件名不能为空", trigger: "blur" },
           { max:100, message: "文件名不能超过100字符", trigger: "blur" }
         ],
-        reviewerIds: [
-          { required: true, message: "评阅人不能为空", trigger: "blur" }
-        ],
-        fileType:[
-          { required: true, message: "文档类型不能为空", trigger: "blur" }
-        ],
-        publishId: [
-          { required: true, message: "定稿人不能为空", trigger: "blur" }
-        ],
-        // deptId: [
-        //   { required: true, message: "归属团队不能为空", trigger: "blur" }
-        // ],
         description:[
         { max:500, message: "详细描述不能超过500字符", trigger: "blur" }
         ],
+        shareType: [
+        { required: true, message: '请选择发布类型', trigger: 'change' }
+        ],
+        deptIds:[
+        { required: true, message: '团队范围不能为空', trigger: 'change', 
+          validator: (rule, value, callback) => {
+            if (this.form.shareType === 'DEPT' && (!value || value.length === 0)) {
+              callback(new Error('团队范围不能为空'));
+            } else {
+              callback();
+            }}}
+        ],
+        userIds: [
+        { required: true, message: '个人范围不能为空', trigger: 'change', 
+          validator: (rule, value, callback) => {
+            if (this.form.shareType === 'USER' && (!value || value.length === 0)) {
+              callback(new Error('个人范围不能为空'));
+            } else {
+              callback();
+            }}}
+        ]
       },
       upload: {
       // 是否禁用上传
@@ -413,39 +317,47 @@ export default {
     imageurl: '/filetype.png',
     };
   },
-  created() {
-    // 打开页面的触发事件
-    this.getDeptTree(); //获得部门树
-    this.getReviewerList(); //获得评阅人名单
-    this.getPublisherList();//获得定稿人名单
-    this.getList();
-    this.getUser();
+ created() {
+      this.getUserTeam().then(()  => {
+        // 在 getUserTeam 完成后执行 getList
+        return this.getList();
+      });
+      this.getDeptTree(); // 获得部门树
+      this.getReviewerList(); // 获得评阅人名单
+      this.getPublisherList(); // 获得定稿人名单
   },
   methods: {
+    /**限制上传文件1个 */
     handleChange(file, fileList) {
       // 如果 fileList 中文件数量大于 1，删除多余的文件
       if (fileList.length > 1) {
         fileList.splice(0, 1); // 移除第一个文件，即保留最新上传的文件
       }
     },
+    /** 获得登录用户的归属部门 */
+    getUserTeam(){
+      this.loading = true;
+      return getUserProfile().then(response => {
+        this.userdetail = response.data;
+        this.queryParams.belongteam=this.userdetail.dept.deptName;
+        this.form.deptId = this.userdetail.dept.deptId;
+        this.loading = false;
+      })
+    },
     /** 查询文件信息列表 */
     getList() {
       this.loading = true;
-      listDmsfileupload(this.queryParams).then(response => {
+      return listDmsfileupload(this.queryParams).then(response => {
         this.dmsfileuploadList = response.rows;
         this.total = response.total;
         this.loading = false;
-      });
-    },
-    getUser() {
-      getUserProfile().then(response => {
-        this.user = response.data;
-      });
+      })
     },
     /** 查询部门下拉树结构 */
     getDeptTree() {
       deptTreeSelect().then(response => {
         this.deptOptions = response.data;
+        this.loadUsersForDepartments(this.deptOptions);
       });
     },
     // 筛选条件的部门选择事件
@@ -456,7 +368,7 @@ export default {
     // 新建/修改上传的部门选择事件
     handleSelect2(val) {
       // 通过 Treeselect 实例获取选中的label值
-        this.queryParams.belongteam = val.label
+        this.queryParams.belongteam = val.label;
     },
     /**  查询评阅人下拉列表 */
     getReviewerList() {
@@ -497,21 +409,8 @@ export default {
     // 表单重置
     reset() {
       this.form = {
-        fileId: null,
         fileName: null,
         keywords:null,
-        filePath: null,
-        author: null,
-        reviewer: null,
-        fileType: null,
-        fileSize: null,
-        fileStatus: null,
-        belongteam: null,
-        description: null,
-        updateBy:null,
-        updateTime: null,
-        publishId: null,
-        deptId:null,
       };
       this.resetForm("form");
     },
@@ -522,7 +421,9 @@ export default {
     },
     /** 重置按钮操作 */
     resetQuery() {
-      this.resetForm("queryForm");
+      const currentBelongteam = this.queryParams.belongteam; 
+      this.resetForm("queryParams");
+      this.queryParams.belongteam = currentBelongteam; 
       this.handleQuery();
     },
     // 多选框选中数据
@@ -538,66 +439,31 @@ export default {
       this.single = selection.length!==1
       this.multiple = !selection.length
     },
-    /** 新增按钮操作 */
-    handleAdd() {
-      this.reset();
-      this.open = true;
-      this.title = "添加文件信息";
-      this.upload.fileList = [];
-    },
-    /** 修改按钮操作 */
+    /** 修改按钮 */
     handleUpdate(row) {
       this.reset();
       const fileId = row.fileId || this.ids[0]
       const fileStatus = row.fileStatus || this.selectfileStatus;
-      if(fileStatus !== 1 && fileStatus !== 4) {
-        this.$modal.msgError("文件待发布或已发布，请联系定稿人或管理员处理。");
-        return;
-      }
       getDmsfileupload(fileId).then(response => {
         this.form = response.data;
         this.form.deptId = this.getIdByLabel(this.deptOptions, this.form.belongteam);
-        this.open = true;
         this.title = "修改文件信息";
         this.upload.fileList = [{ name: this.form.fileName, url: this.form.filePath }];
+        getPermissions(fileId).then(response =>{
+        this.permissionList = response.data;
+        this.loading = false;
+        if (this.permissionList.length > 0) {
+          this.form.shareType=this.permissionList[0].shareType;
+          this.$set(this.form, 'deptIds', this.permissionList.map(dept => dept.deptId));
+          this.$set(this.form, 'userIds', this.permissionList.map(user => user.userId));
+        }
+        this.open = true;
+      })
       });
-      this.reviewquery.fileId=fileId;
-      this.reviewquery.isCurrent=1;
-      listReview(this.reviewquery).then(response => {
-          // 提取用户ID和用户名信息
-          this.ReviewList = response.rows;
-          this.loading = false;
-          this.form.reviewerIds = this.ReviewList.map(user => user.reviewerId);
-        });
-      this.upload.fileList = [{ name: this.form.fileName, url: this.form.filePath }];
-    },
-    /** 查看评审意见 */
-    handlereviewlist(){
-      this.openreview = true;
-      const fileId = this.ids
-      this.reviewquery.fileId = fileId[0]
-      listReview(this.reviewquery).then(response => {
-          // 提取用户ID和用户名信息
-          this.ReviewList = response.rows;
-          this.reviewtotal = response.total;
-          this.loading = false;
-        });
-    },
-    /** 查看定稿意见 */
-    handlePublishlist(){
-      const fileId = this.ids
-      getPublish(fileId).then(response => {
-        this.openpublish = true;
-          this.PublishList = response.data;
-          this.loading = false;
-        })
-        .catch(error => {
-            this.loading = false;
-        });
     },
     /** 提交按钮 */
-    // 调整逻辑到control层次
     submitForm() {
+       // 调整逻辑到control层次
       this.$refs["form"].validate(async valid => {
         if (!valid) {
           return;
@@ -611,43 +477,22 @@ export default {
           this.$message.error('文件上传中')
           return;
         }
-        this.form.deptId=this.user.deptId;
-        const currentDate = new Date();
-        const formattedDate = `${currentDate.getFullYear()}-${(currentDate.getMonth() + 1).toString().padStart(2, '0')}-${currentDate.getDate().toString().padStart(2, '0')} ${currentDate.getHours().toString().padStart(2, '0')}:${currentDate.getMinutes().toString().padStart(2, '0')}:${currentDate.getSeconds().toString().padStart(2, '0')}`;
-        this.form.updateTime = formattedDate;
-        // 将选中的 reviewerIds 转换为对应的用户名数组
-        const reviewerNames = this.form.reviewerIds.map(userId => {
-            const user = this.ReviewerList.find(u => u.userId === userId);
-            return user ? user.userName : '';});
-        this.form.reviewer = reviewerNames.join('、'); // 拼接评阅人文本，存入form.reviewer
-        this.form.fileStatus = 1;// 重置文件状态
         // 根据form.deptId 赋值form.belongteam
         this.form.belongteam = this.getLabelById(this.deptOptions, this.form.deptId);
         try{
-            if (this.form.fileId != null) {
-              updateDmsfileupload(this.form).then(response => {
+          this.form.isPassed = 2;
+          console.log(this.form)
+          //修改基本信息
+            manageDmsfile(this.form).then(response => {
+              updatePublish(this.form);
               this.$modal.msgSuccess("修改成功");
               this.open = false;
               this.getList();
               });
-            } else {
-              //生成随机fileID,并赋值
-              this.form.fileId = this.generateFileId();
-              //仅在新建文件时候获取用户名，修改不操作
-              var currentusername = this.$store.state.user.name;
-              this.form.updateBy = currentusername;
-              addDmsfileupload(this.form).then(response => {
-              this.$modal.msgSuccess("新增成功");
-              this.open = false;
-              this.getList();
-              });
-            }
+          //重置发布范围
+
           }catch (error) {
-            if (this.form.fileId != null) {
-                this.$modal.msgError("修改失败：" + error.message);
-            } else {
-                this.$modal.msgError("新增失败：" + error.message);
-            }
+              this.$modal.msgError("修改失败：" + error.message);
         }
       });
     },
@@ -668,23 +513,15 @@ export default {
       const fileIds = row.fileId || this.ids;
       // 为避免null的情况，filestatus范围从1开始
       const fileStatus = row.fileStatus || this.selectfileStatus;
-      if(fileStatus !== 1 && fileStatus !== 4) {
-        this.$modal.msgError("文件待发布或已发布，请联系定稿人或管理员处理。");
-        return;
-      }
-      this.$modal.confirm('是否确认删除文件信息编号为"' + fileIds + '"的数据项？').then(() => {
+      this.$modal.confirm('是否确认删除文件信息编号为"' + fileIds + '"的数据项？,删除后无法恢复！').then(() => {
           //删除上传文件信息
           return delDmsfileupload(fileIds);
       }).then(() => {
+        //删除服务器对应文件
+
         this.getList();
         this.$modal.msgSuccess("删除成功");
-      }).catch(() => {});
-    },
-    /** 导出按钮操作 */
-    handleExport() {
-      this.download('system/dmsfileupload/export', {
-        ...this.queryParams
-      }, `dmsfileupload_${new Date().getTime()}.xlsx`)
+      });
     },
     // 文件提交处理
     submitUpload() {
@@ -735,25 +572,7 @@ export default {
         return (size / megabyte).toFixed(2) + ' MB';
       }
     },
-    // 辅助方法：生成唯一文件ID
-    generateFileId() {
-      const now = new Date();
-      const year = now.getFullYear();
-      const month = String(now.getMonth() + 1).padStart(2, '0');
-      const day = String(now.getDate()).padStart(2, '0');
-      const hour = String(now.getHours()).padStart(2, '0');
-      // 生成一个随机的五位数
-      const randomNum = String(Math.floor(10000 + Math.random() * 90000));
-      // 将组件连接起来形成文件ID
-      const fileId = `${year}${month}${day}${hour}${randomNum}`;
-      return fileId;
-    },
-    getReviewResultText() {
-      return this.dict.type.dms_review_result;
-    },
-    getPublishResultText() {
-      return this.dict.type.dms_publish_result;
-    },
+    // 辅助方法：获得label对应ID
     getLabelById(deptOptions, targetId){
       function findLabel(options, id) {
         for (const option of options) {
@@ -771,6 +590,7 @@ export default {
       }
       return findLabel(deptOptions, targetId);
     },
+    // 辅助方法：获得ID对应label
     getIdByLabel(deptOptions, targetLabel){
       function findId(options, label) {
         for (const option of options) {
@@ -788,6 +608,98 @@ export default {
       }
       return findId(deptOptions, targetLabel);
     },
+    /** 查询部门用户下拉树结构 */
+    loadUsersForDepartments(departments) {
+      const departmentPromises = departments.map(dept => {
+        return this.loadUsersForDepartment(dept);
+      });
+
+      Promise.all(departmentPromises).then(results => {
+        this.userdeptOptions = results;
+      });
+    },
+    loadUsersForDepartment(department) {
+      return getUsersByDeptId(department.id).then(userResponse => {
+        const userOptions = userResponse.data
+        .filter(user => user.userId !== 1&& user.userId !== 101) //过滤admin和无用户
+        .map(user => ({
+          label: user.userName,
+          id: user.userId,
+          type:'user'
+        }));
+        if (department.children && department.children.length) {
+          const childrenPromises = department.children.map(childDept => this.loadUsersForDepartment(childDept));
+          return Promise.all(childrenPromises).then(childrenResults => {
+            return {
+              label: department.label,
+              id: department.id,
+              type:'dept',
+              children: userOptions.concat(childrenResults)
+            };
+          });
+        } else {
+          return {
+            label: department.label,
+            id: department.id,
+            type:'dept',
+            children: userOptions
+          };
+        }
+      });
+    },
+    // 改变发布类型
+    handleShareTypeChange() {
+      // 清空相应的范围数据
+      if (this.form.shareType === 'DEPT') {
+        this.$set(this.form, 'userIds', []);
+      } else if (this.form.shareType === 'USER') {
+        this.$set(this.form, 'deptIds', []);
+      }
+    },
+    /** 展开 userIds 中的团队ID为用户ID */
+    expandUserIds() {
+      const userIds = new Set();
+      // 递归遍历 userdeptOptions，找到所有用户ID
+      const traverse = (nodes) => {
+        nodes.forEach(node => {
+          if (node.type === 'dept' && node.children) {
+            traverse(node.children);
+          } else if (node.type === 'user') {
+            userIds.add(node.id);
+          }
+        });
+      };
+      // 将 form.userIds 中的所有 ID 进行处理
+      this.form.userIds.forEach(id => {
+        const node = this.findNodeById(this.userdeptOptions, id);
+        if (node) {
+          if (node.type === 'dept' && node.children) {
+            // 如果是团队ID，展开其内所有用户ID
+            traverse([node]);
+          } else if (node.type === 'user') {
+            // 如果是用户ID，直接添加
+            userIds.add(id);
+          }
+        }
+      });
+      // 更新 form.userIds 仅包含用户ID
+      this.form.userIds = Array.from(userIds);
+    },
+    /** 根据ID在树结构中找到对应的节点 */
+    findNodeById(nodes, id) {
+      for (let node of nodes) {
+        if (node.id === id) {
+          return node;
+        }
+        if (node.children) {
+          const found = this.findNodeById(node.children, id);
+          if (found) {
+            return found;
+          }
+        }
+      }
+      return null;
+    },
   },
 };
 </script>
@@ -795,10 +707,5 @@ export default {
 .vue-treeselect{
     height: 22px;
     width: 220px;
-}
-.review-card .review-info {
-  display: flex;
-  justify-content: space-between; /* 子元素水平间距平均分布 */
-  align-items: flex-start; /* 子元素垂直居中 */
 }
 </style>

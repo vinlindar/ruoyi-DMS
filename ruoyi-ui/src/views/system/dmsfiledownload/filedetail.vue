@@ -180,7 +180,6 @@ export default {
     this.getReviewerList(); //获得评阅人名单
     const fileId = this.$route.params && this.$route.params.fileId;
     this.getfiledetail(fileId);
-    console.log(this)
   },
   methods: {
     /** 查询文件信息列表 */
@@ -213,6 +212,7 @@ export default {
         this.loading = false; // 结束加载状态
         console.error("Error fetching file details:", error);
       });
+      console.log(this)
     },
         /**  查询评阅人下拉列表 */
     getReviewerList() {
@@ -325,7 +325,6 @@ export default {
             downloadUser: this.$store.state.user.name,
             downloadTime: formattedDate
           };
-          console.log(this.downloadrecord_form)
           addRecords(this.downloadrecord_form);
           var name = this.filedetail.fileName;
           var url = this.filedetail.filePath;

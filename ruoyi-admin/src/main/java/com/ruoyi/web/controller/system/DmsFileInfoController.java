@@ -59,7 +59,7 @@ public class DmsFileInfoController extends BaseController
     public TableDataInfo list(DmsFileInfo dmsFileInfo)
     {
     	Long querykind = dmsFileInfo.getQuerykind();
-        // 判断querykind是否为1，若是则为文档浏览的查询
+        // 区分文档浏览的查询(1.浏览查询；其余.全部查询) 
         if(querykind == 1L) {
         	// 根据用户id查询归属部门ID，用户角色ID，赋给dmsFileInfo
         	Long userId = dmsFileInfo.getQueryuserId();
@@ -133,11 +133,11 @@ public class DmsFileInfoController extends BaseController
     }
 
     /**
-     * 修改文件信息
+     * 修改文件信息（用户修改）
      */
     @PreAuthorize("@ss.hasPermi('system:dmsfileupload:edit')")
     @Log(title = "文件信息", businessType = BusinessType.UPDATE)
-    @PutMapping
+    @PutMapping("/edit")
     public AjaxResult edit(@RequestBody DmsFileInfo dmsFileInfo)
     {
     	// 修改文件信息->修改当前评阅信息is_current状态->修改当前定稿信息状态is_current—>新建评审和定稿信息
@@ -169,6 +169,7 @@ public class DmsFileInfoController extends BaseController
     	dmsFilePublishService.insertDmsFilePublish(dmsFilePublish2);
     	return AjaxResult.success("修改文件成功");
     }
+    
 
     /**
      * 删除单个文件信息及文件
@@ -196,5 +197,18 @@ public class DmsFileInfoController extends BaseController
         // 删除文件信息记录->删除评审信息->删除定稿信息（依靠外键约束删除）
     	dmsFileInfoService.deleteDmsFileInfoByFileId(dmsFileInfo.getFileId());
     	return AjaxResult.success("删除成功");
+    }
+    
+    /**
+     * 修改文件基本信息（管理员修改）
+     */
+    @PreAuthorize("@ss.hasPermi('system:dmsfileupload:edit2')")
+    @Log(title = "文件管理", businessType = BusinessType.UPDATE)
+    @PutMapping("/manage")
+    public AjaxResult edit2(@RequestBody DmsFileInfo dmsFileInfo)
+    {
+    	// 修改文件基本信息
+    	dmsFileInfoService.updateDmsFileInfo(dmsFileInfo);
+    	return AjaxResult.success("修改文件成功");
     }
 }

@@ -229,7 +229,7 @@ export default {
         updateBy: null,
         updateTime: null,
         publishId: null,
-        //区分文档上传的查询
+        //区分文档浏览的查询(1.浏览查询；2.管理员查询；其余.全部查询) 目前都可以看到，不使用1
         querykind: 0,
         // 用户权限控制需要
         queryuserId:this.$store.state.user.id,
