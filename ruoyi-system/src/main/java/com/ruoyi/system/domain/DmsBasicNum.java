@@ -31,6 +31,10 @@ public class DmsBasicNum extends BaseEntity
     /** 待修改文档数量 */
     @Excel(name = "待修改文档数量")
     private Long waitModifyNum;
+    
+    /** 待查看的文档数量（该用户上传的文档待评阅和待定稿数量） */
+    @Excel(name = "待修改文档数量")
+    private Long waitViewNum;
 
 
     public void setPublishNum(Long PublishNum) 
@@ -72,6 +76,16 @@ public class DmsBasicNum extends BaseEntity
     {
         return waitModifyNum;
     }
+    
+    public void setwaitViewNum(Long waitViewNum) 
+    {
+        this.waitViewNum= waitViewNum;
+    }
+
+    public Long getwaitViewNum() 
+    {
+        return waitViewNum;
+    }
     @Override
     public String toString() {
         return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
@@ -79,6 +93,7 @@ public class DmsBasicNum extends BaseEntity
             .append("waitReviewNum", getwaitReviewNum())
             .append("waitPublishNum", getwaitPublishNum())
             .append("waitwaitModifyNum", getwaitModifyNum())
+            .append("waitwaitViewNum", getwaitModifyNum())
             .toString();
     }
 }

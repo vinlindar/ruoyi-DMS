@@ -512,6 +512,18 @@ export default {
       const formattedDate = `${currentDate.getFullYear()}-${(currentDate.getMonth() + 1).toString().padStart(2, '0')}-${currentDate.getDate().toString().padStart(2, '0')} ${currentDate.getHours().toString().padStart(2, '0')}:${currentDate.getMinutes().toString().padStart(2, '0')}:${currentDate.getSeconds().toString().padStart(2, '0')}`;
       this.form.id = this.currentid;
       this.form.publishTime = formattedDate;
+      if(this.form.fileStatus ==1){
+        this.$modal.confirm('评阅人尚未评阅，是否确认定稿？').then(()=>{
+        this.$refs["form"].validate(valid => {
+        if (valid) {
+            updatePublish(this.form).then(response => {
+              this.$modal.msgSuccess("定稿成功");
+              this.open = false;
+              this.getList();
+            });
+          }
+        });
+      })} else {
       this.$refs["form"].validate(valid => {
         if (valid) {
             updatePublish(this.form).then(response => {
@@ -520,7 +532,7 @@ export default {
               this.getList();
             });
         }
-      });
+      })}
     },
     /** 删除按钮操作 */
     handleDelete(row) {

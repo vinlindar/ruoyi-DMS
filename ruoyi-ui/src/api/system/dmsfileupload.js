@@ -58,3 +58,12 @@ export function manageDmsfile(data) {
     data: data
   })
 }
+
+//查询非发布的文件信息
+export function listUnpublishedFile(query) {
+  return request({
+    url: '/system/dmsfileupload/unpublishedlist',
+    method: 'get',
+    params: query
+  })
+}

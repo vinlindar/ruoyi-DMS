@@ -120,4 +120,6 @@ public interface DmsFileInfoMapper
      * @return 结果
      */
 	public List<DmsfileNumbyMonth> selectfilenumbyMonth();
+
+	public List<DmsFileInfo> selectUnpublishedList(DmsFileInfo dmsFileInfo);
 }

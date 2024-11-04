@@ -82,6 +82,17 @@ public class DmsFileInfoController extends BaseController
 	        return getDataTable(list);
         }
     }
+    
+    /**
+     * 查询未发布文件信息列表
+     */
+    @GetMapping("/unpublishedlist")
+    public TableDataInfo unpublishedlist(DmsFileInfo dmsFileInfo)
+    {
+        startPage();
+	    List<DmsFileInfo> list = dmsFileInfoService.selectUnpublishedList(dmsFileInfo);
+	    return getDataTable(list);
+    }
 
     /**
      * 导出文件信息列表

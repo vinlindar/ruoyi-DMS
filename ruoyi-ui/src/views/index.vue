@@ -158,14 +158,26 @@ export default {
     this.fetchImages();
   },
   methods: {
-    // 提示代办事项
+    // 提示待办事项
     notification(userbasicnum){
       const h = this.$createElement;
       let delay = 0;
+      if (userbasicnum.waitViewNum > 0) {
+        setTimeout(()=>{
+        this.$notify({
+          title: '待办事项',
+          message: h('a', {attrs: { href: 'system/dmsfileupload' }, style: 'color: teal;font-size: 16px'},
+           ['您上传的文档有',h('span',{style:'color:red; font-size: 18px'},userbasicnum.waitViewNum),'个待评阅/发布']),
+          position: 'top-right',
+          duration: 0, 
+        });
+      },delay);
+      delay+=500;
+      }
       if (userbasicnum.waitModifyNum > 0) {
         setTimeout(()=>{
         this.$notify({
-          title: '代办事项',
+          title: '待办事项',
           message: h('a', {attrs: { href: 'system/dmsfileupload' }, style: 'color: teal;font-size: 16px'},
            ['您有',h('span',{style:'color:red; font-size: 18px'},userbasicnum.waitModifyNum),'个文档待修改']),
           position: 'top-right',
@@ -189,7 +201,7 @@ export default {
       if (userbasicnum.waitPublishNum > 0) {
         setTimeout(()=>{
         this.$notify({
-          title: '代办事项',
+          title: '待办事项',
           message: h('a', {attrs: { href: 'system/publish' }, style: 'color: teal;font-size: 16px' }, 
           ['您有',h('span',{style:'color:red; font-size: 18px'},userbasicnum.waitPublishNum),'个文档待定稿']),
           position: 'top-right',

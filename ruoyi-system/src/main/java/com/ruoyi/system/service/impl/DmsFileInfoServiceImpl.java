@@ -180,5 +180,11 @@ public class DmsFileInfoServiceImpl implements IDmsFileInfoService
     {
     	return dmsFileInfoMapper.selectfilenumbyMonth();
     }
+
+	@Override
+	public List<DmsFileInfo> selectUnpublishedList(DmsFileInfo dmsFileInfo) {
+		
+		return dmsFileInfoMapper.selectUnpublishedList(dmsFileInfo);
+	}
     
 }
