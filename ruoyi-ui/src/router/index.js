@@ -103,6 +103,21 @@ export const constantRoutes = [
       }
     ]
   },
+  //文件预览路由
+  {
+    path: '/file',
+    component: Layout,
+    hidden: true,
+    redirect: 'noredirect',
+    children:[
+      {
+        path: 'filepreview/:fileId(\\d+)',
+        component: () => import('@/views/system/dmsfiledownload/filepreview'),
+        name: 'filepreview',
+        meta: { title: '文档预览' },
+      }
+    ]
+  },
   //新闻详情路由
   {
     path: '/news',

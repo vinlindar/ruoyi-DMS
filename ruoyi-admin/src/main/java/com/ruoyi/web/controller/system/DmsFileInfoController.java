@@ -59,7 +59,7 @@ public class DmsFileInfoController extends BaseController
     public TableDataInfo list(DmsFileInfo dmsFileInfo)
     {
     	Long querykind = dmsFileInfo.getQuerykind();
-        // 区分文档浏览的查询(1.浏览查询；其余.全部查询) 
+        // 区分文档浏览的查询(1.权限浏览查询；2.无权限浏览查询；其余.无权限上传查询) 
         if(querykind == 1L) {
         	// 根据用户id查询归属部门ID，用户角色ID，赋给dmsFileInfo
         	Long userId = dmsFileInfo.getQueryuserId();
@@ -70,13 +70,20 @@ public class DmsFileInfoController extends BaseController
         	if (roles != null && !roles.isEmpty()) {
         	    userRole = roles.get(0).getRoleId();
         	}
-        	dmsFileInfo.setQueryuserDept(userDept);
+        	// 若为父部门，则重置为0，获得所有信息
+        	if(userDept!=100L) {
+        		dmsFileInfo.setQueryuserDept(userDept);
+        	}
         	dmsFileInfo.setQueryuserRole(userRole);
         	startPage();
         	
         	List<DmsFileInfo> list = dmsFileInfoService.selectDmsFileInfoListByPremission(dmsFileInfo);
         	return getDataTable(list);
-        }else {
+        }else if(querykind == 2L) {
+        	startPage();
+	        List<DmsFileInfo> list = dmsFileInfoService.selectDmsFileInfoListbyPublishTime(dmsFileInfo);
+	        return getDataTable(list);
+        }else{
         	startPage();
 	        List<DmsFileInfo> list = dmsFileInfoService.selectDmsFileInfoList(dmsFileInfo);
 	        return getDataTable(list);
@@ -185,7 +192,6 @@ public class DmsFileInfoController extends BaseController
     /**
      * 删除单个文件信息及文件
      */
-    @PreAuthorize("@ss.hasPermi('system:dmsfileupload:remove')")
     @Log(title = "文件信息", businessType = BusinessType.DELETE)
 	@DeleteMapping("/{fileId}")
     public AjaxResult remove(@PathVariable("fileId") String fileId)
@@ -213,7 +219,6 @@ public class DmsFileInfoController extends BaseController
     /**
      * 修改文件基本信息（管理员修改）
      */
-    @PreAuthorize("@ss.hasPermi('system:dmsfileupload:edit2')")
     @Log(title = "文件管理", businessType = BusinessType.UPDATE)
     @PutMapping("/manage")
     public AjaxResult edit2(@RequestBody DmsFileInfo dmsFileInfo)

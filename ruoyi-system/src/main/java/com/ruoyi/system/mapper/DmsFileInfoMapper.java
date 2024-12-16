@@ -122,4 +122,6 @@ public interface DmsFileInfoMapper
 	public List<DmsfileNumbyMonth> selectfilenumbyMonth();
 
 	public List<DmsFileInfo> selectUnpublishedList(DmsFileInfo dmsFileInfo);
+
+	public List<DmsFileInfo> selectDmsFileInfoListbyPublishTime(DmsFileInfo dmsFileInfo);
 }

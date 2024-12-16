@@ -1,6 +1,6 @@
 <template>
     <el-breadcrumb class="app-breadcrumb" separator="/">  
-    <span><b>电子文档管理系统 v2.0</b></span>  
+    <span><b>电子文档管理系统 v3.0.0</b></span>  
   </el-breadcrumb> 
 </template>
 <!-- <template>

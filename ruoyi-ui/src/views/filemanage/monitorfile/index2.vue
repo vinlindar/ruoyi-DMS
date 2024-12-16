@@ -144,7 +144,6 @@ export default {
         updateBy: null,
         updateTime: null,
         publishId: null,
-        //区分文档浏览的查询(1.浏览查询；其余.全部查询) 目前都可以看到，不使用1
         querykind: 0,
         // 用户权限控制需要
         queryuseId:this.$store.state.user.userId,
@@ -200,7 +199,9 @@ export default {
       this.loading = true;
       return getUserProfile().then(response => {
         this.userdetail = response.data;
+        if(this.userdetail.deptId!=100){
         this.queryParams.belongteam=this.userdetail.dept.deptName;
+      }
         this.form.deptId = this.userdetail.dept.deptId;
         this.loading = false;
       })

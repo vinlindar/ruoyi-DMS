@@ -67,3 +67,11 @@ export function listUnpublishedFile(query) {
     params: query
   })
 }
+
+//文件预览
+export function filepreview(fileId){
+  return request({
+    url: '/system/filepreview/' + fileId,
+    method: 'get'
+  })
+}

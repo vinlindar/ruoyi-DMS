@@ -186,5 +186,10 @@ public class DmsFileInfoServiceImpl implements IDmsFileInfoService
 		
 		return dmsFileInfoMapper.selectUnpublishedList(dmsFileInfo);
 	}
+
+	@Override
+	public List<DmsFileInfo> selectDmsFileInfoListbyPublishTime(DmsFileInfo dmsFileInfo) {
+		return dmsFileInfoMapper.selectDmsFileInfoListbyPublishTime(dmsFileInfo);
+	}
     
 }

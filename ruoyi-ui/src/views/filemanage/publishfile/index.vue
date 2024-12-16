@@ -62,11 +62,11 @@
         </template>
       </el-table-column>
       <el-table-column label="归属团队" align="center" prop="belongteam"  width="200"/>
-      <el-table-column label="提交时间" align="center" prop="updateTime" width="130">
-        <template slot-scope="scope">
-          <span>{{ parseTime(scope.row.updateTime, '{y}-{m}-{d}') }}</span>
-        </template>
-      </el-table-column>
+      <el-table-column label="发布时间" align="center" prop="publishTime" width="130">
+            <template slot-scope="scope">
+              <span>{{ parseTime(scope.row.publishTime, '{y}-{m}-{d}') }}</span>
+            </template>
+          </el-table-column>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width" width="200">
         <template slot-scope="scope">
           <el-button
@@ -247,8 +247,7 @@ export default {
         updateBy: null,
         updateTime: null,
         publishId: null,
-        //区分文档浏览的查询(1.浏览查询；其余.全部查询) 目前都可以看到，不使用1
-        querykind: 0,
+        querykind: 2,
         // 用户权限控制需要
         queryuseId:this.$store.state.user.userId,
       },
@@ -482,7 +481,6 @@ export default {
         this.form.belongteam = this.getLabelById(this.deptOptions, this.form.deptId);
         try{
           this.form.isPassed = 2;
-          console.log(this.form)
           //修改基本信息
             manageDmsfile(this.form).then(response => {
               updatePublish(this.form);
@@ -514,7 +512,7 @@ export default {
       const fileIds = row.fileId || this.ids;
       // 为避免null的情况，filestatus范围从1开始
       const fileStatus = row.fileStatus || this.selectfileStatus;
-      this.$modal.confirm('是否确认删除文件信息编号为"' + fileIds + '"的数据项？,删除后无法恢复！').then(() => {
+      this.$modal.confirm('是否确认删除文件信息编号为"' + fileIds + '"的数据项？删除后无法恢复！').then(() => {
           //删除上传文件信息
           return delDmsfileupload(fileIds);
       }).then(() => {

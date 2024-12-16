@@ -21,7 +21,7 @@
             </div>
             <div class="image-title">
               <div class="text-container">
-                <p class="single-line">{{ image.title }}</p>
+                <!--<p class="single-line">{{ image.title }}</p>-->
                 <p class="single-line">{{ image.description }}</p>
               </div>
               <div class="link-container">
@@ -74,6 +74,13 @@
         <el-card class="box-card cardDiv2" style="margin-left: 5px">
             <div slot="header" class="clearfix">
               <span style="margin-right: 30px"><b>我的收藏</b></span>
+              <pagination
+                v-show="total>0"
+                :total="total"
+                :page.sync="query.pageNum"
+                :limit.sync="query.pageSize"
+                @pagination="getfavoritefilelist"
+              />
             </div>
             <el-table v-loading="loading" :data="favoritefilelist" height="300" style="width: 100%">
               <el-table-column prop="fileName" label="文件名" header-align="center" align="left"  width="400" show-overflow-tooltip> 
@@ -124,7 +131,11 @@ export default {
       deptOptions: undefined,
       // 显示搜索条件
       showSearch: false,
-      query:{},
+      query:{
+        pageNum: 1,
+        pageSize: 10,
+        userId:null,
+      },
       userbasicnum:{},
       latestfilelist: [],
       popularfilelist: [],
@@ -142,6 +153,8 @@ export default {
         status: 0
       },
       images:[],
+      // 收藏总条数
+      total: 0,
       newsquery:{
       }
     };
@@ -153,7 +166,6 @@ export default {
     this.getpopularfilelist();
     this.getdeptpublishfilenum();
     this.getfavoritefilelist();
-    this.getmysearchfilelist();
     this.getnoticelist();
     this.fetchImages();
   },
@@ -252,7 +264,6 @@ export default {
       this.loading = true;
       listNotice(this.NoticeParams).then(response => {
         this.noticeList = response.rows;
-        this.total = response.total;
         this.loading = false;
       });
     },
@@ -274,27 +285,6 @@ export default {
         }
       );
     },
-    //获取我的自定义条件下的文件
-    async getmysearchfilelist(){
-      try {
-        this.myseachform.userId=this.$store.state.user.id;
-        this.loading = true;
-        // 第一个异步函数：listSearches
-        const searchResponse = await listSearches(this.myseachform); 
-        this.searchquery = searchResponse.rows[0];
-        
-        this.searchquery.queryuserId=this.$store.state.user.id;
-        this.searchquery.querykind=1;
-        this.searchquery.fileStatus=3;
-        this.loading = true;
-        const fileListResponse = await listDmsfileupload(this.searchquery)
-        this.mysearchfilelist = fileListResponse.rows;
-        this.loading = false;
-      }catch (error) {
-        console.error("An error occurred:", error);
-        this.loading = false;
-        }
-    },
     /** 查询部门下拉树结构 */
     getDeptTree() {
       deptTreeSelect().then(response => {
@@ -308,30 +298,31 @@ export default {
     },
     // 表单重置
     reset() {
-      this.query = {
+      this.favoritequery = {
         fileId: null,
         userId: null,
-        collectTime: null,}
+        collectTime: null,
+      }
     },
     //获得用户的收藏文件列表
     getfavoritefilelist(){
       this.loading = true;
-      this.reset();
       this.query.userId=this.$store.state.user.id;
+      console.log(this.query)
       listFavorites(this.query).then(response => {
           this.favoritefilelist = response.rows;
+          this.total = response.total;
           this.loading = false;
-        }
-      );
+        });
     },
     //取消文件收藏
     deletefavorite(row){
       this.reset();
-      this.query.userId=this.$store.state.user.id;
-      this.query.fileId=row.fileId;
+      this.favoritequery.userId=this.$store.state.user.id;
+      this.favoritequery.fileId=row.fileId;
       const self = this;
       this.$modal.confirm('是否确认取消收藏？').then(function(){
-        return delFavorites(self.query);
+        return delFavorites(self.favoritequery);
       }).then(() => {
         this.getfavoritefilelist();
         this.$modal.msgSuccess("取消成功");
@@ -428,6 +419,18 @@ export default {
   }
   .clearfix{
     font-size:18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    .pagination-container{
+      margin-top: 0;
+      margin-bottom: 0;
+      padding-top: 0!important;
+      padding-bottom: 0!important;
+      position: static !important;
+      .el-pagination{
+      position: static !important;
+    }}
   }
   ul {
     padding: 0;

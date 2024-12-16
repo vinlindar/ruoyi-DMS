@@ -60,8 +60,8 @@
 
     <el-table v-loading="loading" :data="imagesList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="新闻标题" align="center" prop="title" width="400" show-overflow-tooltip/>
-      <el-table-column label="详细描述" align="center" prop="description"  width="600" show-overflow-tooltip/>
+      <!-- <el-table-column label="新闻标题" align="center" prop="title" width="400" show-overflow-tooltip/> -->
+      <el-table-column label="新闻详情" align="center" prop="description"  width="600" show-overflow-tooltip/>
       <el-table-column label="图片预览" align="center" prop="path" width="100">
         <template slot-scope="scope">
           <image-preview :src="scope.row.path" :width="50" :height="50"/>
@@ -188,7 +188,6 @@ export default {
   },
   created() {
     this.getList();
-    console.log(this);
   },
   methods: {
     /** 查询新闻照片列表 */

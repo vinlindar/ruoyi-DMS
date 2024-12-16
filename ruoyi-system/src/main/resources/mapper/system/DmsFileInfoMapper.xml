@@ -81,6 +81,34 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         ORDER BY fi.update_time DESC
     </select>
     
+    
+    <select id="selectDmsFileInfoListbyPublishTime" parameterType="DmsFileInfo" resultMap="DmsFileInfoResult">
+         select fi.file_id, fi.file_name, fi.file_path, fi.author, 
+         	fi.reviewer, fi.file_type, fi.file_size, fi.file_status, fi.belongteam, fi.description, fi.update_by, 
+         	fi.update_time, fi.publish_id,fi.keywords,fpb.publish_time
+         from dms_file_info fi
+         left join (SELECT file_id, publish_time FROM dms_file_publish WHERE is_current = 1) fpb ON fi.file_id = fpb.file_id
+        <where>  
+            <if test="fileId != null  and fileId != ''"> and fi.file_id = #{fileId}</if>
+            <if test="fileName != null and fileName != ''">
+    			and (fi.file_name like concat('%', #{fileName}, '%') or fi.keywords like concat('%', #{fileName}, '%'))
+			</if>
+            <if test="filePath != null  and filePath != ''"> and fi.file_path = #{filePath}</if>
+            <if test="author != null  and author != ''"> and fi.author = #{author}</if>
+            <if test="reviewer != null  and reviewer != ''"> and fi.reviewer = #{reviewer}</if>
+            <if test="fileType != null "> and fi.file_type = #{fileType}</if>
+            <if test="fileSize != null  and fileSize != ''"> and fi.file_size = #{fileSize}</if>
+            <if test="fileStatus != null "> and fi.file_status = #{fileStatus}</if>
+            <if test="belongteam != null  and belongteam != ''"> and fi.belongteam = #{belongteam}</if>
+            <if test="description != null  and description != ''"> and fi.description = #{description}</if>
+            <if test="updateBy != null  and updateBy != ''"> and fi.update_by = #{updateBy}</if>
+            <if test="updateTime != null "> and DATE(fi.update_time) = #{updateTime}</if>
+            <if test="publishId != null "> and fi.publish_id = #{publishId}</if>
+        </where>
+        ORDER BY publish_time DESC
+    </select>
+    
+    
     <select id="selectUnpublishedList" parameterType="DmsFileInfo" resultMap="DmsFileInfoResult">
          select fi.file_id, fi.file_name, fi.file_path, fi.author, 
          	fi.reviewer, fi.file_type, fi.file_size, fi.file_status, fi.belongteam, fi.description, fi.update_by, 
@@ -103,6 +131,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="updateBy != null  and updateBy != ''"> and fi.update_by = #{updateBy}</if>
             <if test="updateTime != null "> and DATE(fi.update_time) = #{updateTime}</if>
             <if test="publishId != null "> and fi.publish_id = #{publishId}</if>
+                      
             and fi.file_status != 3
         </where>
         ORDER BY fi.update_time DESC
@@ -119,13 +148,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     	inner join (SELECT file_id, publish_time FROM dms_file_publish WHERE is_current = 1) fpb ON fi.file_id = fpb.file_id
         <where>
         	<choose>
-        	    <when test="queryuserRole == null">
-        	 	</when>
         	    <when test="queryuserRole == 1">
         	 	</when>
         	 	<when test="queryuserRole == 2">
         	 	</when>
-            	<when test="queryuserRole == 3 or queryuserRole == 4 or queryuserRole == 5">
+            	<otherwise>
                 	<if test="queryuserId != null">
                 	(
                         fp.dept_id = #{queryuserDept}
@@ -133,7 +160,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
                         OR fp.user_id = #{queryuserId}
                     )
                     </if>
-            	</when>
+            	</otherwise>
             </choose>
             <if test="fileId != null  and fileId != ''"> and fi.file_id = #{fileId}</if>
             <if test="fileName != null and fileName != ''">

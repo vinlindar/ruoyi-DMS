@@ -22,6 +22,7 @@
           </table>
         </div>
         <div class="download-button">
+          <el-button type="primary" @click="handlePreview">点击预览</el-button>
           <el-button type="primary" @click="handleDownload">点击下载</el-button>
         </div>
     </div>
@@ -74,13 +75,13 @@
 </template>
 
 <script>
-import { listDmsfileupload} from "@/api/system/dmsfileupload";
+import { listDmsfileupload, filepreview} from "@/api/system/dmsfileupload";
 import { listPublish} from "@/api/system/publish";
-import {listReview}from "@/api/system/review";
+import { listReview }from "@/api/system/review";
 import { getPermissions } from "@/api/system/permissions";
 import { listUserbypostId } from "@/api/system/user";
 import { addRecords,getDownloadNumbyfileId} from "@/api/system/records";
-import {deptTreeSelect,getDmsfileupload} from "@/api/system/dmsfileupload";
+import { deptTreeSelect,getDmsfileupload} from "@/api/system/dmsfileupload";
 import Treeselect from "@riophae/vue-treeselect";
 import "@riophae/vue-treeselect/dist/vue-treeselect.css";
 
@@ -183,36 +184,35 @@ export default {
   },
   methods: {
     /** 查询文件信息列表 */
-  getfiledetail(fileId) {
-    this.loading = true; // 开始加载状态
-    const fileDetailPromise = getDmsfileupload(fileId);
-    const reviewPromise = listReview({ fileId: fileId });
-    const publishPromise = listPublish({ fileId: fileId });
-    const permissionsPromise = getPermissions(fileId);
-    const downloadNumPromise = getDownloadNumbyfileId(fileId);
-    Promise.all([fileDetailPromise, reviewPromise, publishPromise, permissionsPromise, downloadNumPromise])
-      .then(([fileDetailResponse, reviewResponse, publishResponse, permissionsResponse, downloadNumResponse]) => {
-        this.filedetail = fileDetailResponse.data;
-        // 处理评审意见
-        this.ReviewList = reviewResponse.rows;
-        this.reviewtotal = reviewResponse.total;
-        // 处理定稿意见
-        this.PublishList = publishResponse.rows;
-        this.Publishtotal = publishResponse.total;
-        if (publishResponse.rows.length > 0) {
-          this.filedetail.publishTime = publishResponse.rows[0].publishTime;
-        }
-        // 处理文档发布范围
-        this.Permissionlist = permissionsResponse.data;
-        // 处理下载次数
-        this.filedetail.downloadNum = downloadNumResponse.data;
-        this.loading = false; // 结束加载状态
-      })
-      .catch(error => {
-        this.loading = false; // 结束加载状态
-        console.error("Error fetching file details:", error);
-      });
-      console.log(this)
+    getfiledetail(fileId) {
+      this.loading = true; // 开始加载状态
+      const fileDetailPromise = getDmsfileupload(fileId);
+      const reviewPromise = listReview({ fileId: fileId });
+      const publishPromise = listPublish({ fileId: fileId });
+      const permissionsPromise = getPermissions(fileId);
+      const downloadNumPromise = getDownloadNumbyfileId(fileId);
+      Promise.all([fileDetailPromise, reviewPromise, publishPromise, permissionsPromise, downloadNumPromise])
+        .then(([fileDetailResponse, reviewResponse, publishResponse, permissionsResponse, downloadNumResponse]) => {
+          this.filedetail = fileDetailResponse.data;
+          // 处理评审意见
+          this.ReviewList = reviewResponse.rows;
+          this.reviewtotal = reviewResponse.total;
+          // 处理定稿意见
+          this.PublishList = publishResponse.rows;
+          this.Publishtotal = publishResponse.total;
+          if (publishResponse.rows.length > 0) {
+            this.filedetail.publishTime = publishResponse.rows[0].publishTime;
+          }
+          // 处理文档发布范围
+          this.Permissionlist = permissionsResponse.data;
+          // 处理下载次数
+          this.filedetail.downloadNum = downloadNumResponse.data;
+          this.loading = false; // 结束加载状态
+        })
+        .catch(error => {
+          this.loading = false; // 结束加载状态
+          console.error("Error fetching file details:", error);
+        });
     },
         /**  查询评阅人下拉列表 */
     getReviewerList() {
@@ -414,7 +414,58 @@ export default {
     getPublishResultText() {
       return this.dict.type.dms_publish_result;
     },
-  }
+    handlePreview(){
+      this.queryParams.fileId = this.$route.params && this.$route.params.fileId;
+      // 判断文件状态，若为已发布，则校验用户下载权限，反之则直接预览
+      if(this.filedetail.fileStatus == 3){
+        // 判断用户是否有预览权限
+        this.loading = true;
+        listDmsfileupload(this.queryParams).then(response => {
+          this.dmsfileuploadList = response.rows;
+          this.loading = false;
+          if (!response.rows || response.rows.length === 0) {
+            this.$message.error('无预览权限');
+            return;
+          }else{
+            filepreview(this.queryParams.fileId).then(previewResponse => {
+              // 假设预览链接是返回的 previewUrl 字段
+              if (previewResponse.code === 200 && previewResponse.previewUrl) {
+                // 打开文件预览链接
+                const previewUrl = previewResponse.previewUrl;
+                // 如果需要新窗口打开预览
+                //window.open(previewUrl, '_blank');
+                // 如果需要内嵌显示预览（假设用一个iframe展示）
+                this.$router.push({ name: 'filepreview', 
+                 params:{fileId: this.queryParams.fileId},
+                 query:{previewUrl: previewUrl } });
+              } else {
+                this.$message.error('文件预览失败');
+              }
+            })}
+        }).catch(erro=>{
+          this.loading = false;
+          this.$message.error('检查权限失败');
+        });
+      }else{
+        filepreview(this.queryParams.fileId).then(previewResponse => {
+            // 假设预览链接是返回的 previewUrl 字段
+            if (previewResponse.code === 200 && previewResponse.previewUrl) {
+              // 打开文件预览链接
+              const previewUrl = previewResponse.previewUrl;
+              // 如果需要新窗口打开预览
+              // window.open(previewUrl, '_blank');
+              // 如果需要内嵌显示预览（假设用一个iframe展示）
+              this.$router.push({ name: 'filepreview', 
+                 params:{fileId: this.queryParams.fileId},
+                 query:{previewUrl: previewUrl } });
+            } else {
+              this.$message.error('文件预览失败');
+            }
+          }).catch(error => {
+            this.$message.error('获取文件预览链接失败');
+          });
+      }
+  }},
 };
 </script>
 <style scoped>

@@ -2,7 +2,7 @@
     <div class="sysinfo">
         <div class="content">
             <p ><strong>开发商：怀柔实验室风电机组团队</strong></p>
-            <p >版本：2.0.0</p>
+            <p >版本：3.0.0</p>
             <p >设计师：程永权</p>
             <p >开发人员：黄亚振、张成林、郭翼泽</p>
             <p >管理员：黄亚振</p>
